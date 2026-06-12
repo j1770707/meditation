@@ -551,6 +551,20 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
   </div>
 </div>
 
+<!-- 呼吸練習:時間選擇 -->
+<div class="sheet" id="breath-sheet">
+  <div class="panel" style="text-align:center">
+    <h2>呼吸放鬆練習</h2>
+    <p class="panel-sub">吸氣 8 秒 · 吐氣 8 秒。<br>泡泡漲大時吸氣,縮小時吐氣,選擇你的練習時間</p>
+    <div class="actions" style="flex-direction:column;gap:12px">
+      <button class="btn-dark breath-min" data-min="3">3 分鐘</button>
+      <button class="btn-dark breath-min" data-min="5">5 分鐘</button>
+      <button class="btn-dark breath-min" data-min="8">8 分鐘</button>
+    </div>
+    <div class="actions"><button class="btn-light" id="breath-close" style="flex:1">關閉</button></div>
+  </div>
+</div>
+
 <!-- 紀錄 -->
 <div class="sheet" id="history-sheet">
   <div class="panel">
@@ -885,7 +899,12 @@ const UNITS = [
  "感受那個版本的頻率流進你的身體:篤定、從容、發光。",
  "在心中默念:我不是在變成他,我本來就是他。",
  "未來的你說:回去吧,用我的方式過今天。",
- "帶著未來的頻率回來。從今天起,你們是同一個人。"]}
+ "帶著未來的頻率回來。從今天起,你們是同一個人。"]},
+
+{id:21,name:"呼吸放鬆練習",en:"BREATH",color:"#a8e4ff",hue:0.55,freq:432,beat:3,chord:[1,1.5,2],env:"lake",breath:true,
+ desc:"最單純、也最有效的放鬆法:跟著大泡泡呼吸。吸氣 8 秒,泡泡慢慢漲大,整個光點宇宙向你靠近;吐氣 8 秒,泡泡縮小,世界跟著退回去。只要跟上節奏,身體會自己放鬆下來。",
+ tech:["8 秒吸氣 · 8 秒吐氣的等長呼吸節奏","視覺同步引導:看著泡泡漲縮,不用數秒","可選 3 / 5 / 8 分鐘練習長度"],
+ prompts:["找個舒服的姿勢,跟著泡泡:漲大時吸氣,縮小時吐氣。"]}
 ];
 
 const EMOTIONS=["平靜","感動","放鬆","充滿能量","幸福","想睡","思緒變清晰","起雞皮疙瘩","鼻酸想哭","充滿希望","身體變輕","還在路上"];
@@ -1168,6 +1187,7 @@ function tick(){
     textPlane.position.y=1.5+Math.sin(t*0.61)*0.028+Math.cos(t*1.63)*0.010;
     textPlane.scale.set(1+0.014*Math.sin(t*1.1),1-0.014*Math.sin(t*1.1),1);
   }
+  updateBreath();
   for(const p of particles){
     const v=p.userData.vel||{},pos=p.geometry.attributes.position;
     if(v.rot)p.rotation.y+=v.rot*dt;
@@ -1251,18 +1271,24 @@ function stopSoundscape(fade=2.5){
 
 /* ---------- 冥想流程(無語音 · 閱讀節奏自動推進) ---------- */
 function readTime(text){return Math.max(6500,text.length*430)+3500+10000;} // 閱讀時間 + 留白 + 額外10秒
-async function startSession(unit,vr){
+async function startSession(unit,vr,minutes){
   currentUnit=unit;promptIndex=0;sessionActive=true;paused=false;
   ensureAudio();
   document.body.classList.add("in-session");
   $("lobby").classList.add("hidden");
   $("hud").classList.add("show");
-  $("hud-unit").textContent=`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
+  $("hud-unit").textContent=unit.breath
+    ?`單元 ${unit.id} · ${unit.name} · ${minutes} 分鐘`
+    :`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
   orb.material.uniforms.uHue.value=unit.hue;
   buildEnv(unit);paintFloor(unit.color);setOrbVisible(true);
   startSoundscape(unit);
+  /* 呼吸模式不需要上一句/下一句 */
+  $("btn-prev").style.display=unit.breath?"none":"";
+  $("btn-next").style.display=unit.breath?"none":"";
   if(vr)await enterVR();
-  runPrompt();
+  if(unit.breath)runBreath(minutes||3);
+  else runPrompt();
 }
 async function runPrompt(){
   if(!sessionActive)return;
@@ -1295,8 +1321,107 @@ async function runPrompt(){
   },readTime(text));
 }
 function wait(ms){return new Promise(r=>setTimeout(r,ms))}
-function jumpPrompt(d){
+
+/* ---------- 呼吸放鬆練習引擎 ----------
+   吸氣 8 秒:大泡泡漸漸漲大,所有光點碎片向螢幕(使用者)飛來;
+   吐氣 8 秒:泡泡縮回,光點跟著退遠。世界與呼吸完全同步。 */
+const BREATH_IN=8,BREATH_OUT=8,BREATH_CYCLE=BREATH_IN+BREATH_OUT;
+const BREATH_INTRO=[ // 開場引導(每句各 9 秒,含 2 秒淡入與 2 秒淡出)
+  {dur:9,txt:"調整到最舒服的姿勢，保持不動，準備好就開始囉"},
+  {dur:9,txt:"跟著泡泡一起深呼吸，泡泡變大時深呼吸，泡泡縮小時吐氣"}
+];
+const BREATH_LEAD=BREATH_INTRO.reduce((a,b)=>a+b.dur,0);
+let breath={active:false,elapsed:0,total:0,key:null,finishing:false,lastT:null};
+const BREATH_CAM=new THREE.Vector3(0,1.5,0); // 鏡頭位置:光點朝這裡聚攏
+async function runBreath(min){
+  breath={active:false,elapsed:0,total:min*60,key:null,finishing:false,lastT:null};
+  $("prompt-text").style.opacity="0";
+  $("prompt-text").textContent="";
+  await wait(1800);
   if(!sessionActive)return;
+  $("prompt-bubble").classList.add("show");
+  await wait(60);
+  if(!sessionActive)return;
+  breath.active=true;
+}
+function breathEase(t){return (1-Math.cos(Math.PI*t))/2;} // 平滑起伏,像真正的呼吸
+function breathSetWorld(v){ // v:0=完全吐氣,1=完全吸滿
+  /* 雙重位移讓「往螢幕飛來」清楚可見:
+     1) 以鏡頭為中心收縮 55% → 每顆光點都靠近你、變大
+     2) 整片光點再沿視線往螢幕方向推 2.6 公尺 → 明確的迎面而來
+     吐氣時 v 回到 0,所有光點原路退遠 */
+  const ps=1-0.55*v;
+  const zPull=2.6*v;
+  const all=dust?[...particles,dust]:[...particles];
+  for(const p of all){
+    p.scale.setScalar(ps);
+    p.position.set(BREATH_CAM.x*(1-ps),BREATH_CAM.y*(1-ps),BREATH_CAM.z*(1-ps)+zPull);
+  }
+}
+function breathResetWorld(){
+  const all=dust?[...particles,dust]:[...particles];
+  for(const p of all){p.scale.setScalar(1);p.position.set(0,0,0);}
+  $("prompt-bubble").style.transform="";
+}
+function updateBreath(){
+  if(!breath.active||!sessionActive)return;
+  const now=performance.now();
+  if(breath.lastT==null)breath.lastT=now;
+  const dt=Math.min((now-breath.lastT)/1000,0.1); // 真實時間,不受螢幕更新率影響
+  breath.lastT=now;
+  if(!paused)breath.elapsed+=dt;
+  const e=breath.elapsed;
+  let scale=0.82,key,txt,fadeOut=false;
+  if(e<BREATH_LEAD){ // 開場兩句引導
+    let acc=0,i=0,tIn=e;
+    for(;i<BREATH_INTRO.length;i++){
+      if(e<acc+BREATH_INTRO[i].dur){tIn=e-acc;break}
+      acc+=BREATH_INTRO[i].dur;
+    }
+    if(i>=BREATH_INTRO.length){i=BREATH_INTRO.length-1;tIn=BREATH_INTRO[i].dur;}
+    key="intro"+i;txt=BREATH_INTRO[i].txt;
+    fadeOut=tIn>BREATH_INTRO[i].dur-2.2; // 結束前 2 秒開始淡出
+    breathSetWorld(0);
+  }else if(e>=BREATH_LEAD+breath.total){ // 時間到
+    finishBreath();return;
+  }else{
+    const tc=(e-BREATH_LEAD)%BREATH_CYCLE;
+    const inhale=tc<BREATH_IN;
+    const pt=inhale?tc/BREATH_IN:(tc-BREATH_IN)/BREATH_OUT;
+    const v=inhale?breathEase(pt):1-breathEase(pt);
+    scale=0.82+0.46*v; // 泡泡跟著呼吸漲縮
+    const cyc=Math.floor((e-BREATH_LEAD)/BREATH_CYCLE);
+    key=(inhale?"in":"out")+cyc;
+    txt=inhale?"深呼吸⋯⋯":"慢慢吐氣⋯⋯";
+    const tIn=inhale?tc:tc-BREATH_IN;
+    fadeOut=tIn>(inhale?BREATH_IN:BREATH_OUT)-2.2; // 每句最後 2 秒淡出
+    breathSetWorld(v);
+    $("progress-fill").style.width=Math.min((e-BREATH_LEAD)/breath.total*100,100)+"%";
+  }
+  $("prompt-bubble").style.transform=`translate(-50%,-50%) scale(${scale.toFixed(4)})`;
+  if(key!==breath.key){ // 換句:新字以 2 秒淡入(#prompt-text 自帶 2s opacity 過渡)
+    breath.key=key;
+    $("prompt-text").textContent=txt;
+    drawPromptTo3D(txt);
+  }
+  $("prompt-text").style.opacity=fadeOut?"0":"1";
+}
+async function finishBreath(){
+  if(breath.finishing)return;
+  breath.finishing=true;breath.active=false;
+  $("progress-fill").style.width="100%";
+  $("prompt-text").style.opacity="0";
+  await wait(2100);
+  if(!sessionActive)return;
+  $("prompt-text").textContent="做得很好。回到自然的呼吸，帶著放鬆回來 🙏";
+  $("prompt-text").style.opacity="1";
+  drawPromptTo3D("做得很好 · 帶著放鬆回來");
+  $("prompt-bubble").style.transform="translate(-50%,-50%) scale(1)";
+  await wait(6500);
+  if(sessionActive)endSession(true);
+}
+function jumpPrompt(d){
+  if(!sessionActive||currentUnit.breath)return;
   clearTimeout(promptTimer);
   promptIndex=Math.max(0,promptIndex+d);
   paused=false;$("btn-pause").textContent="⏸ 暫停";
@@ -1306,6 +1431,7 @@ function togglePause(){
   if(!sessionActive)return;
   paused=!paused;
   $("btn-pause").textContent=paused?"▶︎ 繼續":"⏸ 暫停";
+  if(currentUnit.breath)return; // 呼吸模式由動畫迴圈自行凍結
   if(paused)clearTimeout(promptTimer);
   else runPrompt();
 }
@@ -1320,6 +1446,7 @@ async function finishSession(){
 }
 function endSession(showRating){
   sessionActive=false;paused=false;
+  breath.active=false;breath.finishing=true;
   clearTimeout(promptTimer);
   stopSoundscape(3);
   if(xrSession){try{xrSession.end()}catch(e){}}
@@ -1327,6 +1454,8 @@ function endSession(showRating){
   $("hud").classList.remove("show");
   $("prompt-bubble").classList.remove("show");
   $("progress-fill").style.width="0%";
+  $("btn-prev").style.display="";$("btn-next").style.display="";
+  breathResetWorld(); // 還原泡泡與塵埃的縮放
   setOrbVisible(false);clearEnv();
   if(showRating)openRating();
   else $("lobby").classList.remove("hidden");
@@ -1488,7 +1617,9 @@ function setActive(idx,silent){
   nodeEls.forEach((n,i)=>n.classList.toggle("active",i===idx));
   $("c-num").textContent=`UNIT ${String(currentUnit.id).padStart(2,"0")} · ${currentUnit.en}`;
   $("c-name").textContent=currentUnit.name;
-  $("c-meta").innerHTML=`<span class="chip">${currentUnit.freq} Hz</span><span class="chip">${beatLabel(currentUnit.beat)}</span><span class="chip">約 ${Math.round(currentUnit.prompts.length*0.8)} 分鐘</span><span class="chip">🎧 建議戴耳機</span>`;
+  $("c-meta").innerHTML=currentUnit.breath
+    ?`<span class="chip">吸 8 秒 · 吐 8 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>`
+    :`<span class="chip">${currentUnit.freq} Hz</span><span class="chip">${beatLabel(currentUnit.beat)}</span><span class="chip">約 ${Math.round(currentUnit.prompts.length*0.8)} 分鐘</span><span class="chip">🎧 建議戴耳機</span>`;
 }
 function beatLabel(b){return b<=4?`Delta ${b}Hz`:b<=8?`Theta ${b}Hz`:`Alpha ${b}Hz`;}
 
@@ -1549,16 +1680,31 @@ function openIntro(){
   const u=currentUnit;
   $("intro-num").textContent="UNIT "+String(u.id).padStart(2,"0")+" · "+u.en;
   $("intro-title").textContent=u.name;
-  $("intro-chips").innerHTML='<span class="chip">'+u.freq+' Hz</span><span class="chip">'+beatLabel(u.beat)+'</span><span class="chip">約 '+Math.round(u.prompts.length*0.8)+' 分鐘</span><span class="chip">🎧 建議戴耳機</span>';
+  $("intro-chips").innerHTML=u.breath
+    ?'<span class="chip">吸 8 秒 · 吐 8 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>'
+    :'<span class="chip">'+u.freq+' Hz</span><span class="chip">'+beatLabel(u.beat)+'</span><span class="chip">約 '+Math.round(u.prompts.length*0.8)+' 分鐘</span><span class="chip">🎧 建議戴耳機</span>';
   $("intro-desc").textContent=u.desc;
   $("intro-tech").innerHTML=u.tech.map(t=>'<div class="t">'+t+'</div>').join("");
   openSheet("intro-sheet");
 }
+let pendingVR=false;
+function requestStart(vr){
+  if(currentUnit.breath){pendingVR=vr;openSheet("breath-sheet");}
+  else startSession(currentUnit,vr);
+}
 $("c-intro").onclick=openIntro;
 $("intro-close").onclick=()=>closeSheet("intro-sheet");
-$("intro-start").onclick=()=>{closeSheet("intro-sheet");startSession(currentUnit,false);};
-$("c-start").onclick=()=>startSession(currentUnit,false);
-$("c-vr").onclick=()=>startSession(currentUnit,true);
+$("intro-start").onclick=()=>{closeSheet("intro-sheet");requestStart(false);};
+$("c-start").onclick=()=>requestStart(false);
+$("c-vr").onclick=()=>requestStart(true);
+$("breath-close").onclick=()=>closeSheet("breath-sheet");
+document.querySelectorAll(".breath-min").forEach(b=>{
+  b.onclick=()=>{
+    const min=parseInt(b.dataset.min,10);
+    closeSheet("breath-sheet");
+    startSession(currentUnit,pendingVR,min);
+  };
+});
 $("btn-prev").onclick=()=>jumpPrompt(-1);
 $("btn-next").onclick=()=>jumpPrompt(1);
 $("btn-pause").onclick=togglePause;
