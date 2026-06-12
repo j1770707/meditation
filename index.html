@@ -197,7 +197,7 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   background:rgba(255,255,255,.45);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);
   opacity:0;pointer-events:none;transition:opacity .42s var(--ease)}
 .sheet.show{opacity:1;pointer-events:auto}
-.sheet.closing{opacity:0;pointer-events:none}
+.sheet.closing{opacity:0;pointer-events:none;transition:opacity .75s var(--ease)}
 .panel{width:min(540px,100%);max-height:86vh;overflow-y:auto;border-radius:var(--r-lg);padding:34px 30px;
   background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.62);
   backdrop-filter:blur(26px) saturate(1.9);-webkit-backdrop-filter:blur(36px) saturate(2);
@@ -205,7 +205,7 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   transform:translateY(36px) scale(.97);opacity:0;
   transition:transform .52s cubic-bezier(.22,1.3,.36,1),opacity .42s var(--ease)}
 .sheet.show .panel{transform:translateY(0) scale(1);opacity:1}
-.sheet.closing .panel{transform:translateY(28px) scale(.97);opacity:0}
+.sheet.closing .panel{transform:translateY(28px) scale(.97);opacity:0;transition:transform .75s var(--ease),opacity .7s var(--ease)}
 .panel h2{font-size:23px;font-weight:700;letter-spacing:-.02em}
 .panel .panel-sub{margin-top:10px;color:var(--ink-2);font-size:14px;line-height:1.75}
 .panel .freq-line{margin-top:16px;display:flex;gap:7px;flex-wrap:wrap}
@@ -291,6 +291,14 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   100%{transform:translate(0,-16px) scale(1,1)}
 }
 #prompt-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68%;text-align:center;font-size:clamp(16.5px,2.6vw,21px);font-weight:500;line-height:2.05;letter-spacing:.05em;color:#16161c;text-shadow:0 1px 0 rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.95),0 0 30px rgba(255,255,255,.85);opacity:1;transition:opacity 2s cubic-bezier(.22,1,.36,1)}
+/* 呼吸模式:文字恆定大小(由 JS 反向縮放抵銷泡泡縮放)
+   欄寬縮窄到 44%:泡泡縮到最小 0.58 時文字仍在圓內,過長自動換行 */
+#prompt-bubble.breath #prompt-text{
+  width:44%;font-size:clamp(21px,3.4vw,28px);line-height:1.8;
+}
+@media (min-width:1024px) and (min-height:640px){
+  #prompt-bubble.breath #prompt-text{font-size:clamp(24px,2.2vw,32px);width:42%}
+}
 #progress{position:absolute;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 66px);left:50%;transform:translateX(-50%);
   width:min(280px,66vw);height:4px;border-radius:99px;background:rgba(120,125,150,.18);overflow:hidden}
 #progress .fill{height:100%;width:0%;border-radius:99px;background:#0d0d0d;opacity:.6;transition:width .8s}
@@ -555,8 +563,13 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
 <div class="sheet" id="breath-sheet">
   <div class="panel" style="text-align:center">
     <h2>呼吸放鬆練習</h2>
-    <p class="panel-sub">吸氣 8 秒 · 吐氣 8 秒。<br>泡泡漲大時吸氣,縮小時吐氣,選擇你的練習時間</p>
-    <div class="actions" style="flex-direction:column;gap:12px">
+    <p class="panel-sub">泡泡漲大時吸氣,縮小時吐氣。<br>先選擇吸／吐的秒數,再選擇練習時間開始</p>
+    <div class="emo-grid" id="breath-secs" style="margin-top:18px">
+      <span class="emo b-sec" data-sec="6">6 秒</span>
+      <span class="emo b-sec on" data-sec="8">8 秒</span>
+      <span class="emo b-sec" data-sec="10">10 秒</span>
+    </div>
+    <div class="actions" style="flex-direction:column;gap:12px;margin-top:18px">
       <button class="btn-dark breath-min" data-min="3">3 分鐘</button>
       <button class="btn-dark breath-min" data-min="5">5 分鐘</button>
       <button class="btn-dark breath-min" data-min="8">8 分鐘</button>
@@ -902,8 +915,8 @@ const UNITS = [
  "帶著未來的頻率回來。從今天起,你們是同一個人。"]},
 
 {id:21,name:"呼吸放鬆練習",en:"BREATH",color:"#a8e4ff",hue:0.55,freq:432,beat:3,chord:[1,1.5,2],env:"lake",breath:true,
- desc:"最單純、也最有效的放鬆法:跟著大泡泡呼吸。吸氣 8 秒,泡泡慢慢漲大,整個光點宇宙向你靠近;吐氣 8 秒,泡泡縮小,世界跟著退回去。只要跟上節奏,身體會自己放鬆下來。",
- tech:["8 秒吸氣 · 8 秒吐氣的等長呼吸節奏","視覺同步引導:看著泡泡漲縮,不用數秒","可選 3 / 5 / 8 分鐘練習長度"],
+ desc:"最單純、也最有效的放鬆法:跟著大泡泡呼吸。吸氣時泡泡慢慢漲大,整個光點宇宙向你靠近;吐氣時泡泡縮小,世界跟著退回去。吸吐秒數可選 6 / 8 / 10 秒。只要跟上節奏,身體會自己放鬆下來。",
+ tech:["等長吸吐節奏,可選 6 / 8 / 10 秒","視覺同步引導:看著泡泡漲縮,不用數秒","可選 3 / 5 / 8 分鐘練習長度"],
  prompts:["找個舒服的姿勢,跟著泡泡:漲大時吸氣,縮小時吐氣。"]}
 ];
 
@@ -954,6 +967,7 @@ function initScene(){
     const sc=renderer.domElement.height*0.5;
     if(dust&&dust.material.uniforms)dust.material.uniforms.uScale.value=sc;
     for(const p of particles)if(p.material.uniforms)p.material.uniforms.uScale.value=sc;
+    for(const p of breathStreams)if(p.material.uniforms)p.material.uniforms.uScale.value=sc;
   });
   renderer.setAnimationLoop(tick);
 }
@@ -1164,7 +1178,11 @@ function buildEnv(unit){
   else if(E==="mirror")   {mk(1100,()=>[(Math.random()-.5)*16,Math.random()*8,(Math.random()-.5)*16],col,0.055,.75,{wander:.25});}
   else if(E==="lantern")  {mk(650,()=>[(Math.random()-.5)*20,Math.random()*12-1,(Math.random()-.5)*20],col,0.095,.9,{y:0.22,swirl:.04});}
   else if(E==="thirdeye") {mk(1500,i=>{const a=i*0.05,r=0.6+(i%400)*0.01;return[Math.cos(a)*r,1.5+Math.sin(i*0.02)*1.2,Math.sin(a)*r-2.5]},col,0.045,.8,{rot:.08});}
-  else if(E==="timegate") {mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.12});}
+  else if(E==="timegate") {
+    /* 整圈繞「世界原點」公轉(z 烘進頂點,維持原始設計):
+       rot:.63 → 公轉週期 2π/0.63 ≈ 10 秒,光點繞到鏡頭後方消失約 5 秒就回來 */
+    mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.63});
+  }
   mk(800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,{swirl:.06});
 }
 
@@ -1278,7 +1296,7 @@ async function startSession(unit,vr,minutes){
   $("lobby").classList.add("hidden");
   $("hud").classList.add("show");
   $("hud-unit").textContent=unit.breath
-    ?`單元 ${unit.id} · ${unit.name} · ${minutes} 分鐘`
+    ?`單元 ${unit.id} · ${unit.name} · 吸吐 ${BREATH_IN} 秒 · ${minutes} 分鐘`
     :`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
   orb.material.uniforms.uHue.value=unit.hue;
   buildEnv(unit);paintFloor(unit.color);setOrbVisible(true);
@@ -1287,7 +1305,7 @@ async function startSession(unit,vr,minutes){
   $("btn-prev").style.display=unit.breath?"none":"";
   $("btn-next").style.display=unit.breath?"none":"";
   if(vr)await enterVR();
-  if(unit.breath)runBreath(minutes||3);
+  if(unit.breath){$("prompt-bubble").classList.add("breath");buildBreathStreams();runBreath(minutes||3);}
   else runPrompt();
 }
 async function runPrompt(){
@@ -1325,7 +1343,8 @@ function wait(ms){return new Promise(r=>setTimeout(r,ms))}
 /* ---------- 呼吸放鬆練習引擎 ----------
    吸氣 8 秒:大泡泡漸漸漲大,所有光點碎片向螢幕(使用者)飛來;
    吐氣 8 秒:泡泡縮回,光點跟著退遠。世界與呼吸完全同步。 */
-const BREATH_IN=8,BREATH_OUT=8,BREATH_CYCLE=BREATH_IN+BREATH_OUT;
+let BREATH_IN=8,BREATH_OUT=8,BREATH_CYCLE=BREATH_IN+BREATH_OUT; // 可由面板選擇 6 / 8 / 10 秒
+function setBreathSeconds(s){BREATH_IN=s;BREATH_OUT=s;BREATH_CYCLE=BREATH_IN+BREATH_OUT;}
 const BREATH_INTRO=[ // 開場引導(每句各 9 秒,含 2 秒淡入與 2 秒淡出)
   {dur:9,txt:"調整到最舒服的姿勢，保持不動，準備好就開始囉"},
   {dur:9,txt:"跟著泡泡一起深呼吸，泡泡變大時深呼吸，泡泡縮小時吐氣"}
@@ -1339,6 +1358,9 @@ async function runBreath(min){
   $("prompt-text").textContent="";
   await wait(1800);
   if(!sessionActive)return;
+  /* 修正卡頓:先把容器縮放寫成 0.58 再顯示。
+     原本 .show 先出現(CSS 預設 scale 1),延遲一幀才寫入縮放 → 肉眼可見的瞬間跳縮 */
+  $("prompt-bubble").style.transform="translate(-50%,-50%) scale(0.58)";
   $("prompt-bubble").classList.add("show");
   await wait(60);
   if(!sessionActive)return;
@@ -1363,6 +1385,169 @@ function breathResetWorld(){
   for(const p of all){p.scale.setScalar(1);p.position.set(0,0,0);}
   $("prompt-bubble").style.transform="";
 }
+/* ---------- 呼吸光束 v2:單一中央漸層絲縷光束 ----------
+   一道光束置中:桃紅 → 紫的柔和漸層、絲縷線條感(多條細點連成的飄帶)、
+   點點金色星光在光束之間閃爍。
+   吸氣與吐氣各擁有一道方向相反的光束:
+   吸氣 → 光束流向螢幕;吐氣 → 光束流回泡泡深處。
+   每道光束以 1.2 秒淡入、1.2 秒淡出輪替,交換期間允許重疊交叉淡化。 */
+let breathStreams=[];
+const STREAM_PATH={s:[0,1.36,-7.0],e:[0,0.46,1.1]}; // 正中央:泡泡深處 ↔ 螢幕下緣
+const STREAM_FADE=1.2; // 淡入 / 淡出秒數
+/* 星光貼圖:亮核 + 十字光芒(仿星空照片的四芒星) */
+let starTexture=null;
+function getStarTexture(){
+  if(starTexture)return starTexture;
+  const S=96,c=document.createElement("canvas");c.width=c.height=S;
+  const x=c.getContext("2d"),m=S/2;
+  let g=x.createRadialGradient(m,m,0,m,m,m*0.32);
+  g.addColorStop(0,"rgba(255,255,255,1)");
+  g.addColorStop(.45,"rgba(255,255,255,.85)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  x.fillStyle=g;x.fillRect(0,0,S,S);
+  const spike=rot=>{x.save();x.translate(m,m);x.rotate(rot);
+    const lg=x.createLinearGradient(-m,0,m,0);
+    lg.addColorStop(0,"rgba(255,255,255,0)");
+    lg.addColorStop(.5,"rgba(255,255,255,.95)");
+    lg.addColorStop(1,"rgba(255,255,255,0)");
+    x.fillStyle=lg;x.fillRect(-m,-1.5,S,3);x.restore();};
+  spike(0);spike(Math.PI/2);              // 主十字光芒
+  x.globalAlpha=.35;spike(Math.PI/4);spike(-Math.PI/4);x.globalAlpha=1; // 斜向淡光芒
+  starTexture=new THREE.CanvasTexture(c);
+  return starTexture;
+}
+function makeBreathStream(dir){ // dir:+1 吸氣(飛向螢幕) / -1 吐氣(飛回泡泡)
+  const STRANDS=15,PER=40,SPARK=48,N=STRANDS*PER+SPARK;
+  const g=new THREE.BufferGeometry();
+  const pos=new Float32Array(N*3),sizes=new Float32Array(N),
+        spark=new Float32Array(N),tw=new Float32Array(N*2);
+  const data=[];let k=0;
+  /* 絲縷飄帶:每條由密集小點排成的彎曲細線,整條同步流動 → 線條感 */
+  for(let s=0;s<STRANDS;s++){
+    const ang=Math.random()*6.283;          // 繞光束軸心的方位
+    const rad=0.04+Math.random()*0.22;      // 離軸距離(整體仍收在中央)
+    const amp=0.02+Math.random()*0.07;      // 彎曲幅度
+    const curve=1.2+Math.random()*2.2;      // 彎曲頻率
+    const cph=Math.random()*6.283;
+    const sp=0.45+Math.random()*0.5;        // 整條飄帶共用流速
+    for(let j=0;j<PER;j++,k++){
+      data.push({p:(j/PER+Math.random()*0.012)%1,sp,ang,rad,amp,curve,cph});
+      sizes[k]=0.034+Math.random()*0.024;   // 絲縷圓點再再縮小
+      spark[k]=0;tw[k*2]=0;tw[k*2+1]=0;
+    }
+  }
+  /* 金色星光:散落在光束之間,各自閃爍 */
+  for(let i=0;i<SPARK;i++,k++){
+    data.push({p:Math.random(),sp:0.3+Math.random()*0.4,ang:Math.random()*6.283,
+      rad:0.05+Math.random()*0.2,amp:0.03+Math.random()*0.05,
+      curve:1+Math.random()*2,cph:Math.random()*6.283});
+    sizes[k]=0.026+Math.random()*0.02;      // 星光再再縮小
+    spark[k]=1;
+    tw[k*2]=2.5+Math.random()*4.5;          // 閃爍速度
+    tw[k*2+1]=Math.random()*6.283;          // 閃爍相位
+  }
+  for(let i=0;i<N;i++){pos[i*3]=0;pos[i*3+1]=-99;pos[i*3+2]=0;}
+  g.setAttribute("position",new THREE.BufferAttribute(pos,3));
+  g.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
+  g.setAttribute("aSpark",new THREE.BufferAttribute(spark,1));
+  g.setAttribute("aTw",new THREE.BufferAttribute(tw,2));
+  const m=new THREE.ShaderMaterial({
+    transparent:true,depthWrite:false, // 白底場景:維持 Normal 混合,加法混合在白底上會隱形
+    uniforms:{
+      uOpacity:{value:0},uTime:{value:0},
+      uMap:{value:getDotTexture()},
+      uStar:{value:getStarTexture()},
+      uScale:{value:(renderer?renderer.domElement.height:800)*0.5},
+      uColA:{value:new THREE.Color("#ff9ad6")}, // 深處:桃紅(調淡)
+      uColB:{value:new THREE.Color("#a58cff")}, // 近處:紫(調淡)
+      uColS:{value:new THREE.Color("#f4b65c")}  // 星光:淡暖金
+    },
+    vertexShader:`
+      attribute float aSize;attribute float aSpark;attribute vec2 aTw;
+      uniform float uScale;uniform float uTime;
+      uniform vec3 uColA;uniform vec3 uColB;uniform vec3 uColS;
+      varying vec3 vColor;varying float vA;varying float vSpark;
+      void main(){
+        float f=clamp((position.z+7.0)/8.1,0.0,1.0);   // 沿光束路徑 0~1
+        vec3 grad=mix(uColA,uColB,f);                  // 桃紅 → 紫 漸層
+        vColor=mix(grad,uColS,aSpark*0.9);             // 星光換成暖金色
+        vSpark=aSpark;
+        float twk=aTw.x>0.0?(0.2+0.8*(0.5+0.5*sin(uTime*aTw.x+aTw.y))):1.0;
+        vA=twk*(1.3+aSpark*0.7);                       // 絲縷亮度上修(原 1.0 太淡)
+        vec4 mv=modelViewMatrix*vec4(position,1.0);
+        gl_PointSize=aSize*(uScale/-mv.z)*(1.0+aSpark*0.5*twk); // 星光閃爍時微微脹縮
+        gl_Position=projectionMatrix*mv;
+      }`,
+    fragmentShader:`
+      uniform float uOpacity;uniform sampler2D uMap;uniform sampler2D uStar;
+      varying vec3 vColor;varying float vA;varying float vSpark;
+      void main(){
+        vec4 t=vSpark>0.5?texture2D(uStar,gl_PointCoord):texture2D(uMap,gl_PointCoord);
+        if(t.a<0.02)discard;
+        gl_FragColor=vec4(vColor,min(uOpacity*vA*t.a,1.0));
+      }`
+  });
+  const pts=new THREE.Points(g,m);
+  pts.frustumCulled=false; // 初始點在(0,-99,0),包圍球不重算會被整批剔除
+  pts.userData.stream={dir,data,env:0}; // env:0~1 淡入淡出包絡
+  return pts;
+}
+function buildBreathStreams(){
+  removeBreathStreams();
+  breathStreams=[makeBreathStream(1),makeBreathStream(-1)]; // [吸氣束, 吐氣束]
+  for(const p of breathStreams){scene.add(p);layoutBreathStream(p,0,0);} // 先鋪到路徑上隱形待命
+}
+function removeBreathStreams(){
+  for(const p of breathStreams){scene.remove(p);p.geometry.dispose();p.material.dispose();}
+  breathStreams=[];
+}
+function layoutBreathStream(st,dt,flow){ // 依各自方向推進並排出絲縷曲線
+  const u=st.userData.stream,arr=st.geometry.attributes.position.array;
+  const t=clock.getElapsedTime();
+  const s=STREAM_PATH.s,e=STREAM_PATH.e;
+  const dx=e[0]-s[0],dy=e[1]-s[1],dz=e[2]-s[2];
+  for(let i=0;i<u.data.length;i++){
+    const d=u.data[i];
+    d.p+=u.dir*d.sp*(0.2+0.9*flow)*dt; // 相位中段流得最快
+    if(d.p>1)d.p-=1;else if(d.p<0)d.p+=1;
+    const spread=0.35+d.p*1.0; // 越靠近螢幕越散開
+    const wx=Math.sin(d.p*6.283*d.curve+d.cph+t*0.7)*d.amp*spread;       // 絲縷橫向彎曲
+    const wy=Math.cos(d.p*6.283*d.curve*0.7+d.cph+t*0.55)*d.amp*0.6*spread;
+    arr[i*3]  =s[0]+dx*d.p+Math.cos(d.ang)*d.rad*spread+wx;
+    arr[i*3+1]=s[1]+dy*d.p+Math.sin(d.ang)*d.rad*spread*0.7+wy;
+    arr[i*3+2]=s[2]+dz*d.p;
+  }
+  st.geometry.attributes.position.needsUpdate=true;
+  st.material.uniforms.uTime.value=t;
+}
+function updateBreathStreams(dt,enabled,inhale,flow){
+  if(!breathStreams.length)return;
+  for(const st of breathStreams){
+    const u=st.userData.stream;
+    /* 吸氣時只有吸氣束亮起,吐氣時換吐氣束;包絡以 1.2 秒線性升降,
+       上一道淡出與下一道淡入自然重疊交叉 */
+    const target=(enabled&&((u.dir>0)===inhale))?1:0;
+    const step=dt/STREAM_FADE;
+    u.env=target>u.env?Math.min(u.env+step,1):Math.max(u.env-step,0);
+    st.material.uniforms.uOpacity.value=u.env*(0.20+0.24*flow); // 整體再調淡
+    layoutBreathStream(st,dt,flow);
+  }
+}
+function fadeOutBreathStreams(){ // 結束時:兩道光束都以 1.2 秒淡出
+  const t0=performance.now();
+  const starts=breathStreams.map(st=>st.material.uniforms.uOpacity.value);
+  const list=breathStreams;
+  const step=()=>{
+    if(list!==breathStreams)return; // 已被移除就停止
+    const k=Math.min((performance.now()-t0)/(STREAM_FADE*1000),1);
+    list.forEach((st,i)=>{
+      st.userData.stream.env=0;
+      st.material.uniforms.uOpacity.value=starts[i]*(1-k);
+    });
+    if(k<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
 function updateBreath(){
   if(!breath.active||!sessionActive)return;
   const now=performance.now();
@@ -1371,7 +1556,7 @@ function updateBreath(){
   breath.lastT=now;
   if(!paused)breath.elapsed+=dt;
   const e=breath.elapsed;
-  let scale=0.82,key,txt,fadeOut=false;
+  let scale=0.58,key,txt,fadeOut=false;
   if(e<BREATH_LEAD){ // 開場兩句引導
     let acc=0,i=0,tIn=e;
     for(;i<BREATH_INTRO.length;i++){
@@ -1382,6 +1567,7 @@ function updateBreath(){
     key="intro"+i;txt=BREATH_INTRO[i].txt;
     fadeOut=tIn>BREATH_INTRO[i].dur-2.2; // 結束前 2 秒開始淡出
     breathSetWorld(0);
+    updateBreathStreams(paused?0:dt,false,true,0); // 開場引導:光束停用,包絡歸零
   }else if(e>=BREATH_LEAD+breath.total){ // 時間到
     finishBreath();return;
   }else{
@@ -1389,7 +1575,9 @@ function updateBreath(){
     const inhale=tc<BREATH_IN;
     const pt=inhale?tc/BREATH_IN:(tc-BREATH_IN)/BREATH_OUT;
     const v=inhale?breathEase(pt):1-breathEase(pt);
-    scale=0.82+0.46*v; // 泡泡跟著呼吸漲縮
+    scale=0.58+0.70*v; // 泡泡跟著呼吸漲縮(吐氣縮到 0.58,比原本 0.82 更小)
+    const flow=Math.sin(Math.PI*pt); // 光束流速:相位中段最快
+    updateBreathStreams(paused?0:dt,true,inhale,flow); // 吸/吐各自的光束 2 秒交叉淡入淡出
     const cyc=Math.floor((e-BREATH_LEAD)/BREATH_CYCLE);
     key=(inhale?"in":"out")+cyc;
     txt=inhale?"深呼吸⋯⋯":"慢慢吐氣⋯⋯";
@@ -1399,24 +1587,27 @@ function updateBreath(){
     $("progress-fill").style.width=Math.min((e-BREATH_LEAD)/breath.total*100,100)+"%";
   }
   $("prompt-bubble").style.transform=`translate(-50%,-50%) scale(${scale.toFixed(4)})`;
+  $("prompt-text").style.transform=`translate(-50%,-50%) scale(${(1/scale).toFixed(4)})`; // 反向縮放:字體恆定大小
   if(key!==breath.key){ // 換句:新字以 2 秒淡入(#prompt-text 自帶 2s opacity 過渡)
     breath.key=key;
     $("prompt-text").textContent=txt;
-    drawPromptTo3D(txt);
+    if(xrSession)drawPromptTo3D(txt); // 2D 模式 textPlane 不可見(setOrbVisible: v&&!!xrSession),880px canvas 重繪純粹是手機卡頓來源
   }
   $("prompt-text").style.opacity=fadeOut?"0":"1";
 }
 async function finishBreath(){
   if(breath.finishing)return;
   breath.finishing=true;breath.active=false;
+  fadeOutBreathStreams(); // 光束以 1.2 秒淡出收場
   $("progress-fill").style.width="100%";
   $("prompt-text").style.opacity="0";
   await wait(2100);
   if(!sessionActive)return;
   $("prompt-text").textContent="做得很好。回到自然的呼吸，帶著放鬆回來 🙏";
   $("prompt-text").style.opacity="1";
-  drawPromptTo3D("做得很好 · 帶著放鬆回來");
+  if(xrSession)drawPromptTo3D("做得很好 · 帶著放鬆回來");
   $("prompt-bubble").style.transform="translate(-50%,-50%) scale(1)";
+  $("prompt-text").style.transform="translate(-50%,-50%)";
   await wait(6500);
   if(sessionActive)endSession(true);
 }
@@ -1452,10 +1643,12 @@ function endSession(showRating){
   if(xrSession){try{xrSession.end()}catch(e){}}
   document.body.classList.remove("in-session");
   $("hud").classList.remove("show");
-  $("prompt-bubble").classList.remove("show");
+  $("prompt-bubble").classList.remove("show","breath");
+  $("prompt-text").style.transform="";
   $("progress-fill").style.width="0%";
   $("btn-prev").style.display="";$("btn-next").style.display="";
   breathResetWorld(); // 還原泡泡與塵埃的縮放
+  removeBreathStreams();
   setOrbVisible(false);clearEnv();
   if(showRating)openRating();
   else $("lobby").classList.remove("hidden");
@@ -1504,29 +1697,27 @@ function buildWheel(){
   setActive(0,true);
 
   const wrap=$("wheel-wrap");
-  const getAngle=e=>{
+  const DEAD_R=0.14; // 圓心死區:atan2 在圓心附近 1px 抖動就是巨大角度,是「碰一下就狂轉」的元兇
+  const getPolar=e=>{
     const r=wrap.getBoundingClientRect();
-    const x=(e.touches?e.touches[0].clientX:e.clientX)-(r.left+r.width/2);
-    const y=(e.touches?e.touches[0].clientY:e.clientY)-(r.top+r.height/2);
-    return Math.atan2(y,x);
+    const px=(e.touches?e.touches[0].clientX:e.clientX)-(r.left+r.width/2);
+    const py=(e.touches?e.touches[0].clientY:e.clientY)-(r.top+r.height/2);
+    return {a:Math.atan2(py,px),rad:Math.hypot(px,py)/r.width};
   };
   const down=e=>{
     cancelAnimationFrame(snapAnim); // 按住即攔下任何進行中的旋轉
-    dragging=true;lastPointerAngle=getAngle(e);
+    dragging=true;lastPointerAngle=getPolar(e).a;
     lastMoveT=performance.now();velSamples=[];dragMoved=0;
   };
   const move=e=>{
     if(!dragging)return;
-    const a=getAngle(e);
-    let d=a-lastPointerAngle;
+    const pl=getPolar(e);
+    if(pl.rad<DEAD_R){lastPointerAngle=pl.a;e.preventDefault();return;} // 死區內只更新基準角,不轉盤
+    let d=pl.a-lastPointerAngle;
     if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;
-    wheelAngle+=d;lastPointerAngle=a;
+    wheelAngle+=d;lastPointerAngle=pl.a;
     dragMoved+=Math.abs(d);
-    // 取樣「轉盤角速度」(rad/s):轉盤拖曳時跟著游標走,
-    // 所以這個值的方向永遠等於使用者看到的拖曳方向(順拖=順轉、逆拖=逆轉),
-    // 而且不管是橫掃還是沿著圓周畫弧(順時針往下拉、往上推)都抓得到力道。
-    // 注意:手機上 pointermove 與 touchmove 對同一次移動會各觸發一次,
-    // 第二次 d≈0 是假樣本,需略過,否則力道被稀釋、甩不動
+    // 取樣「轉盤角速度」(rad/s):方向永遠等於使用者看到的拖曳方向
     const now=performance.now(),dt=(now-lastMoveT)/1000;
     if(dt>0.004&&Math.abs(d)>0.0008){
       velSamples.push({v:d/dt,t:now});
@@ -1539,13 +1730,12 @@ function buildWheel(){
   const up=()=>{
     if(!dragging)return;dragging=false;
     // 放手瞬間:取最近 160ms 內「角速度最快」的樣本判斷力道與方向
-    // (用峰值而非平均:放手前手指本來就會減速,平均會低估力道)
     const now=performance.now();
     const recent=velSamples.filter(s=>now-s.t<160);
     let w=0;
     for(const s of recent)if(Math.abs(s.v)>Math.abs(w))w=s.v;
     velSamples=[];
-    if(Math.abs(w)>1.3){
+    if(Math.abs(w)>1.3&&dragMoved>0.06){ // 必須真的拖過一段距離才允許甩動,輕點不再觸發
       startFling(w); // 順著放手前轉盤的轉動方向繼續旋轉
     }else{
       // 吸附到最近的單元(頂端 12 點鐘為作用位)
@@ -1553,12 +1743,21 @@ function buildWheel(){
       rotateTo(idx);
     }
   };
-  wrap.addEventListener("pointerdown",down);
-  addEventListener("pointermove",move,{passive:false});
-  addEventListener("pointerup",up);
-  wrap.addEventListener("touchstart",down,{passive:true});
-  wrap.addEventListener("touchmove",move,{passive:false});
-  addEventListener("touchend",up);
+  /* 只綁「一套」事件。原本 pointer + touch 同時綁,手機同一根手指
+     每次移動觸發兩次 move(座標來源還不同:e.clientX vs e.touches[0])→ 拖曳抖動的元兇。
+     #wheel-wrap 已設 touch-action:none,Pointer Events 可完整接管觸控;
+     僅在不支援 PointerEvent 的舊瀏覽器才退回 touch 事件。 */
+  if(window.PointerEvent){
+    wrap.addEventListener("pointerdown",down);
+    addEventListener("pointermove",move,{passive:false});
+    addEventListener("pointerup",up);
+    addEventListener("pointercancel",up);
+  }else{
+    wrap.addEventListener("touchstart",down,{passive:true});
+    wrap.addEventListener("touchmove",move,{passive:false});
+    addEventListener("touchend",up);
+    addEventListener("touchcancel",up);
+  }
 }
 function layoutWheel(){
   const wrap=$("wheel-wrap"),R=wrap.clientWidth*0.448;
@@ -1618,7 +1817,7 @@ function setActive(idx,silent){
   $("c-num").textContent=`UNIT ${String(currentUnit.id).padStart(2,"0")} · ${currentUnit.en}`;
   $("c-name").textContent=currentUnit.name;
   $("c-meta").innerHTML=currentUnit.breath
-    ?`<span class="chip">吸 8 秒 · 吐 8 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>`
+    ?`<span class="chip">吸吐 6 / 8 / 10 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>`
     :`<span class="chip">${currentUnit.freq} Hz</span><span class="chip">${beatLabel(currentUnit.beat)}</span><span class="chip">約 ${Math.round(currentUnit.prompts.length*0.8)} 分鐘</span><span class="chip">🎧 建議戴耳機</span>`;
 }
 function beatLabel(b){return b<=4?`Delta ${b}Hz`:b<=8?`Theta ${b}Hz`:`Alpha ${b}Hz`;}
@@ -1632,7 +1831,7 @@ function openSheet(id){
 function closeSheet(id){
   const el=$(id);
   el.classList.add("closing");
-  setTimeout(()=>{ el.classList.remove("show","closing"); },460);
+  setTimeout(()=>{ el.classList.remove("show","closing"); },780);
 }
 
 /* ---------- 評分與紀錄 ---------- */
@@ -1681,7 +1880,7 @@ function openIntro(){
   $("intro-num").textContent="UNIT "+String(u.id).padStart(2,"0")+" · "+u.en;
   $("intro-title").textContent=u.name;
   $("intro-chips").innerHTML=u.breath
-    ?'<span class="chip">吸 8 秒 · 吐 8 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>'
+    ?'<span class="chip">吸吐 6 / 8 / 10 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>'
     :'<span class="chip">'+u.freq+' Hz</span><span class="chip">'+beatLabel(u.beat)+'</span><span class="chip">約 '+Math.round(u.prompts.length*0.8)+' 分鐘</span><span class="chip">🎧 建議戴耳機</span>';
   $("intro-desc").textContent=u.desc;
   $("intro-tech").innerHTML=u.tech.map(t=>'<div class="t">'+t+'</div>').join("");
@@ -1698,9 +1897,17 @@ $("intro-start").onclick=()=>{closeSheet("intro-sheet");requestStart(false);};
 $("c-start").onclick=()=>requestStart(false);
 $("c-vr").onclick=()=>requestStart(true);
 $("breath-close").onclick=()=>closeSheet("breath-sheet");
+let breathSec=8; // 預設吸吐各 8 秒
+document.querySelectorAll(".b-sec").forEach(b=>{
+  b.onclick=()=>{
+    breathSec=parseInt(b.dataset.sec,10);
+    document.querySelectorAll(".b-sec").forEach(x=>x.classList.toggle("on",x===b));
+  };
+});
 document.querySelectorAll(".breath-min").forEach(b=>{
   b.onclick=()=>{
     const min=parseInt(b.dataset.min,10);
+    setBreathSeconds(breathSec); // 套用所選的呼吸秒數
     closeSheet("breath-sheet");
     startSession(currentUnit,pendingVR,min);
   };
