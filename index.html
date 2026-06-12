@@ -291,13 +291,13 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   100%{transform:translate(0,-16px) scale(1,1)}
 }
 #prompt-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68%;text-align:center;font-size:clamp(16.5px,2.6vw,21px);font-weight:500;line-height:2.05;letter-spacing:.05em;color:#16161c;text-shadow:0 1px 0 rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.95),0 0 30px rgba(255,255,255,.85);opacity:1;transition:opacity 2s cubic-bezier(.22,1,.36,1)}
-/* 呼吸模式:文字恆定大小(由 JS 反向縮放抵銷泡泡縮放)
-   欄寬縮窄到 44%:泡泡縮到最小 0.58 時文字仍在圓內,過長自動換行 */
+/* 呼吸模式:引導詞隨泡泡一起漲縮(比例固定,永不超出泡泡)。
+   基準字級放大:泡泡最小(0.58)時仍清楚可讀;欄寬 56%,過長自動換行 */
 #prompt-bubble.breath #prompt-text{
-  width:44%;font-size:clamp(21px,3.4vw,28px);line-height:1.8;
+  width:56%;font-size:clamp(27px,4.4vw,36px);line-height:1.8;
 }
 @media (min-width:1024px) and (min-height:640px){
-  #prompt-bubble.breath #prompt-text{font-size:clamp(24px,2.2vw,32px);width:42%}
+  #prompt-bubble.breath #prompt-text{font-size:clamp(30px,2.6vw,42px);width:54%}
 }
 #progress{position:absolute;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 66px);left:50%;transform:translateX(-50%);
   width:min(280px,66vw);height:4px;border-radius:99px;background:rgba(120,125,150,.18);overflow:hidden}
@@ -309,6 +309,25 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.8)}
 .hud-btn:hover,.hud-btn:active{background:rgba(255,255,255,.44);box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.8),0 0 16px rgba(80,170,255,.48),0 0 34px rgba(80,170,255,.20);}
 
+/* ===== 呼吸面板選取狀態:浮起 + 藍色光暈呼吸閃爍 ===== */
+@keyframes selPulse{
+  0%,100%{box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),
+    0 0 12px rgba(80,170,255,.50),0 0 26px rgba(80,170,255,.22)}
+  50%{box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),
+    0 0 24px rgba(80,170,255,.95),0 0 52px rgba(80,170,255,.50),0 0 80px rgba(120,200,255,.25)}
+}
+.b-sec.sel,.breath-min.sel{
+  transform:translateY(-4px) scale(1.06)!important;
+  border-color:rgba(140,195,255,.95);
+  background:rgba(235,245,255,.72);
+  animation:selPulse 1.5s ease-in-out infinite;
+}
+.b-sec.sel{color:#1d5dba;font-weight:600}
+.breath-min.sel{color:#1d5dba}
+
+@keyframes needPick{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.need-pick{animation:needPick .38s ease 2}
+
 /* ===== 評分與紀錄 ===== */
 .stars{margin-top:22px;display:flex;justify-content:center;gap:10px}
 .star{font-size:36px;cursor:pointer;color:rgba(120,130,170,.40);
@@ -316,9 +335,9 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   backdrop-filter:blur(12px) saturate(1.6);-webkit-backdrop-filter:blur(12px) saturate(1.6);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(100,110,170,.08)}
 .star.on{color:#fff;border-color:transparent;
-  background:linear-gradient(135deg,#ffd36e 0%,#f5b531 45%,#ff8e53 100%);
-  box-shadow:0 8px 24px rgba(245,160,60,.40),inset 0 1px 0 rgba(255,255,255,.55);
-  text-shadow:0 1px 3px rgba(180,110,0,.35)}
+  background:linear-gradient(135deg,#ffe9b8 0%,#fbd88f 45%,#ffd0a8 100%);
+  box-shadow:0 8px 24px rgba(245,160,60,.22),inset 0 1px 0 rgba(255,255,255,.75);
+  text-shadow:0 1px 2px rgba(190,130,40,.45)}
 .star{transition:transform .3s cubic-bezier(.34,1.4,.64,1),color .3s var(--ease),box-shadow .3s var(--ease)}
 .star:hover{transform:scale(1.15);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(100,110,170,.08),0 0 14px rgba(80,170,255,.40),0 0 28px rgba(80,170,255,.16);}
 .emo-grid{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
@@ -327,10 +346,10 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   backdrop-filter:blur(16px) saturate(1.7);-webkit-backdrop-filter:blur(16px) saturate(1.7);
   box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.9);transition:all .3s var(--ease)}
 .emo:hover{box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.9),0 0 12px rgba(80,170,255,.40),0 0 24px rgba(80,170,255,.16);}
-.emo.on{color:#fff;border-color:transparent;
-  background:linear-gradient(95deg,#2f7cf6 0%,#6f86ff 35%,#a86bff 65%,#f2872e 100%);
-  box-shadow:0 8px 22px rgba(110,120,230,.38),inset 0 1px 0 rgba(255,255,255,.45);
-  text-shadow:0 1px 2px rgba(40,50,140,.30)}
+.emo.on{color:#3e4a6b;border-color:transparent;
+  background:linear-gradient(95deg,#bcd4fb 0%,#c9d0ff 35%,#e0cffc 65%,#fbdcb8 100%);
+  box-shadow:0 8px 22px rgba(110,120,230,.20),inset 0 1px 0 rgba(255,255,255,.75);
+  text-shadow:0 1px 0 rgba(255,255,255,.6)}
 #note-input{margin-top:20px;width:100%;border-radius:var(--r-md);border:1px solid var(--glass-border);
   background:rgba(255,255,255,.42);color:var(--ink);font-family:inherit;font-size:14px;
   backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6);
@@ -566,15 +585,18 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
     <p class="panel-sub">泡泡漲大時吸氣,縮小時吐氣。<br>先選擇吸／吐的秒數,再選擇練習時間開始</p>
     <div class="emo-grid" id="breath-secs" style="margin-top:18px">
       <span class="emo b-sec" data-sec="6">6 秒</span>
-      <span class="emo b-sec on" data-sec="8">8 秒</span>
+      <span class="emo b-sec" data-sec="8">8 秒</span>
       <span class="emo b-sec" data-sec="10">10 秒</span>
     </div>
-    <div class="actions" style="flex-direction:column;gap:12px;margin-top:18px">
+    <div class="actions" id="breath-mins" style="flex-direction:column;gap:12px;margin-top:18px">
       <button class="btn-dark breath-min" data-min="3">3 分鐘</button>
       <button class="btn-dark breath-min" data-min="5">5 分鐘</button>
       <button class="btn-dark breath-min" data-min="8">8 分鐘</button>
     </div>
-    <div class="actions"><button class="btn-light" id="breath-close" style="flex:1">關閉</button></div>
+    <div class="actions" style="margin-top:22px">
+      <button class="btn-dark" id="breath-go" style="flex:1;padding:15px">開始呼吸 →</button>
+      <button class="btn-light" id="breath-close">關閉</button>
+    </div>
   </div>
 </div>
 
@@ -1170,7 +1192,7 @@ function buildEnv(unit){
   else if(E==="river")    {mk(1700,()=>[(Math.random()-.5)*20,Math.random()*4,(Math.random()-.5)*20],col,0.055,.8,{x:0.4,swirl:.08});}
   else if(E==="coral")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*7,(Math.random()-.5)*16],col,0.06,.7,{y:0.08,swirl:.22});}
   else if(E==="aurora")   {mk(1900,i=>[(i%200)*0.12-12,3+Math.sin(i*0.05)*1.6+Math.random(),-5-Math.random()*8],col,0.075,.6,{wave:1});}
-  else if(E==="lake")     {mk(1000,()=>[(Math.random()-.5)*22,Math.random()*0.4,(Math.random()-.5)*22],col,0.05,.55,{swirl:.05});}
+  else if(E==="lake")     {mk(unit.breath?2200:1000,()=>[(Math.random()-.5)*22,Math.random()*0.4,(Math.random()-.5)*22],col,0.05,.55,{swirl:.05});}
   else if(E==="plasma")   {mk(1400,()=>{const a=Math.random()*6.28,r=1.5+Math.random()*7;return[Math.cos(a)*r,Math.random()*6,Math.sin(a)*r-2]},col,0.065,.85,{rot:.18});}
   else if(E==="ember")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*9-1,(Math.random()-.5)*16],col,0.055,.85,{y:0.35,swirl:.12});}
   else if(E==="crystal")  {mk(950,()=>[(Math.random()-.5)*18,Math.random()*8,(Math.random()-.5)*18],col,0.065,.8,{y:0.03,swirl:.03});}
@@ -1180,10 +1202,10 @@ function buildEnv(unit){
   else if(E==="thirdeye") {mk(1500,i=>{const a=i*0.05,r=0.6+(i%400)*0.01;return[Math.cos(a)*r,1.5+Math.sin(i*0.02)*1.2,Math.sin(a)*r-2.5]},col,0.045,.8,{rot:.08});}
   else if(E==="timegate") {
     /* 整圈繞「世界原點」公轉(z 烘進頂點,維持原始設計):
-       rot:.63 → 公轉週期 2π/0.63 ≈ 10 秒,光點繞到鏡頭後方消失約 5 秒就回來 */
-    mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.63});
+       rot:.3 → 公轉週期 2π/0.3 ≈ 21 秒,光點繞到鏡頭後方約 10 秒回來(放慢飛行速度) */
+    mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.3});
   }
-  mk(800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,{swirl:.06});
+  mk(unit.breath?1700:800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,{swirl:.06}); // 呼吸課程背景圓點加量
 }
 
 /* ---------- 動畫迴圈 ---------- */
@@ -1360,7 +1382,7 @@ async function runBreath(min){
   if(!sessionActive)return;
   /* 修正卡頓:先把容器縮放寫成 0.58 再顯示。
      原本 .show 先出現(CSS 預設 scale 1),延遲一幀才寫入縮放 → 肉眼可見的瞬間跳縮 */
-  $("prompt-bubble").style.transform="translate(-50%,-50%) scale(0.58)";
+  $("prompt-bubble").style.transform="translate(-50%,-50%) scale(0.72)"; // 開場引導用較大的 0.72,字不會太小
   $("prompt-bubble").classList.add("show");
   await wait(60);
   if(!sessionActive)return;
@@ -1556,7 +1578,7 @@ function updateBreath(){
   breath.lastT=now;
   if(!paused)breath.elapsed+=dt;
   const e=breath.elapsed;
-  let scale=0.58,key,txt,fadeOut=false;
+  let scale=0.72,key,txt,fadeOut=false;
   if(e<BREATH_LEAD){ // 開場兩句引導
     let acc=0,i=0,tIn=e;
     for(;i<BREATH_INTRO.length;i++){
@@ -1566,6 +1588,8 @@ function updateBreath(){
     if(i>=BREATH_INTRO.length){i=BREATH_INTRO.length-1;tIn=BREATH_INTRO[i].dur;}
     key="intro"+i;txt=BREATH_INTRO[i].txt;
     fadeOut=tIn>BREATH_INTRO[i].dur-2.2; // 結束前 2 秒開始淡出
+    const remain=BREATH_LEAD-e; // 開場最後 2 秒:泡泡 0.72 平滑縮到呼吸起點 0.58,避免跳動
+    if(remain<2)scale=0.58+0.14*(remain/2);
     breathSetWorld(0);
     updateBreathStreams(paused?0:dt,false,true,0); // 開場引導:光束停用,包絡歸零
   }else if(e>=BREATH_LEAD+breath.total){ // 時間到
@@ -1586,8 +1610,7 @@ function updateBreath(){
     breathSetWorld(v);
     $("progress-fill").style.width=Math.min((e-BREATH_LEAD)/breath.total*100,100)+"%";
   }
-  $("prompt-bubble").style.transform=`translate(-50%,-50%) scale(${scale.toFixed(4)})`;
-  $("prompt-text").style.transform=`translate(-50%,-50%) scale(${(1/scale).toFixed(4)})`; // 反向縮放:字體恆定大小
+  $("prompt-bubble").style.transform=`translate(-50%,-50%) scale(${scale.toFixed(4)})`; // 引導詞隨泡泡一起漲縮
   if(key!==breath.key){ // 換句:新字以 2 秒淡入(#prompt-text 自帶 2s opacity 過渡)
     breath.key=key;
     $("prompt-text").textContent=txt;
@@ -1607,7 +1630,6 @@ async function finishBreath(){
   $("prompt-text").style.opacity="1";
   if(xrSession)drawPromptTo3D("做得很好 · 帶著放鬆回來");
   $("prompt-bubble").style.transform="translate(-50%,-50%) scale(1)";
-  $("prompt-text").style.transform="translate(-50%,-50%)";
   await wait(6500);
   if(sessionActive)endSession(true);
 }
@@ -1644,7 +1666,6 @@ function endSession(showRating){
   document.body.classList.remove("in-session");
   $("hud").classList.remove("show");
   $("prompt-bubble").classList.remove("show","breath");
-  $("prompt-text").style.transform="";
   $("progress-fill").style.width="0%";
   $("btn-prev").style.display="";$("btn-next").style.display="";
   breathResetWorld(); // 還原泡泡與塵埃的縮放
@@ -1897,21 +1918,29 @@ $("intro-start").onclick=()=>{closeSheet("intro-sheet");requestStart(false);};
 $("c-start").onclick=()=>requestStart(false);
 $("c-vr").onclick=()=>requestStart(true);
 $("breath-close").onclick=()=>closeSheet("breath-sheet");
-let breathSec=8; // 預設吸吐各 8 秒
+let breathSec=null,breathMin=null; // 預設皆未選取,需自行選擇
 document.querySelectorAll(".b-sec").forEach(b=>{
-  b.onclick=()=>{
+  b.onclick=()=>{ // 只選取,不開始
     breathSec=parseInt(b.dataset.sec,10);
-    document.querySelectorAll(".b-sec").forEach(x=>x.classList.toggle("on",x===b));
+    document.querySelectorAll(".b-sec").forEach(x=>x.classList.toggle("sel",x===b));
   };
 });
 document.querySelectorAll(".breath-min").forEach(b=>{
-  b.onclick=()=>{
-    const min=parseInt(b.dataset.min,10);
-    setBreathSeconds(breathSec); // 套用所選的呼吸秒數
-    closeSheet("breath-sheet");
-    startSession(currentUnit,pendingVR,min);
+  b.onclick=()=>{ // 只選取,不開始
+    breathMin=parseInt(b.dataset.min,10);
+    document.querySelectorAll(".breath-min").forEach(x=>x.classList.toggle("sel",x===b));
   };
 });
+$("breath-go").onclick=()=>{ // 按下「開始呼吸」才進入課程
+  if(breathSec==null||breathMin==null){ // 還沒選齊:晃動缺少的那一列提示
+    const tgt=breathSec==null?$("breath-secs"):$("breath-mins");
+    tgt.classList.remove("need-pick");void tgt.offsetWidth;tgt.classList.add("need-pick");
+    return;
+  }
+  setBreathSeconds(breathSec);
+  closeSheet("breath-sheet");
+  startSession(currentUnit,pendingVR,breathMin);
+};
 $("btn-prev").onclick=()=>jumpPrompt(-1);
 $("btn-next").onclick=()=>jumpPrompt(1);
 $("btn-pause").onclick=togglePause;
