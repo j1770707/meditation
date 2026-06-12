@@ -236,7 +236,7 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 }
 #prompt-bubble.show{visibility:visible}
 #prompt-bubble.show .bub{animation:bubIn 2s cubic-bezier(.22,1,.36,1) both,bubWobble 9s cubic-bezier(.45,0,.55,1) 2s infinite}
-@keyframes bubIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes bubIn{from{opacity:0;transform:translate(0,0) scale(.92)}to{opacity:1;transform:translate(0,-16px) scale(1)}}
 #prompt-bubble .bub{
   position:absolute;inset:0;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
