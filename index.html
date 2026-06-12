@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>顯化殿堂 MANIFEST — VR 冥想顯化</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --surface:rgba(255,255,255,.62);
+  --line:rgba(255,255,255,.72);
+  --ink:#0d0d0d;
+  --ink-2:#6e6e80;
+  --glass:rgba(255,255,255,.42);
+  --glass-border:rgba(255,255,255,.78);
+  --glass-glow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 18px rgba(255,255,255,.4);
+  --glass-shadow:0 10px 40px rgba(100,110,170,.10);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --r-lg:28px;--r-md:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro TC","PingFang TC","Noto Sans TC","Helvetica Neue",sans-serif;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+/* 最底層柔和漸層光暈(靜態底色,與原版相同) */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(85% 40% at 50% -6%,rgba(178,168,222,.46),rgba(178,168,222,0) 70%),
+    radial-gradient(60% 45% at -8% 30%,rgba(108,182,255,.50),rgba(108,182,255,0) 68%),
+    radial-gradient(50% 38% at -4% 58%,rgba(128,226,172,.44),rgba(128,226,172,0) 66%),
+    radial-gradient(70% 62% at 108% 46%,rgba(255,206,108,.52),rgba(255,206,108,0) 70%),
+    radial-gradient(58% 46% at -6% 102%,rgba(255,142,200,.50),rgba(255,142,200,0) 66%),
+    radial-gradient(62% 50% at 104% 104%,rgba(255,188,138,.46),rgba(255,188,138,0) 68%),
+    radial-gradient(45% 34% at 52% 100%,rgba(255,224,150,.34),rgba(255,224,150,0) 72%),
+    #ffffff;
+}
+/* 流動極光:超大型泡泡,大膽橫越整個畫面流淌
+   v3 加倍大膽:週期 10~15s(快一倍)、位移最大 80vw、scale 0.7~1.45 大幅伸縮、顏色加濃 */
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#aurora .ab{position:absolute;will-change:transform;
+  animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+#aurora .ab1{width:68vmax;height:68vmax;top:-30%;left:-25%;
+  background:radial-gradient(closest-side,rgba(108,182,255,.65),rgba(108,182,255,0) 70%);
+  animation:drift1 11s -4s infinite}
+#aurora .ab2{width:58vmax;height:58vmax;top:-26%;right:-20%;
+  background:radial-gradient(closest-side,rgba(178,168,222,.62),rgba(178,168,222,0) 70%);
+  animation:drift2 14s -9s infinite}
+#aurora .ab3{width:52vmax;height:52vmax;top:24%;left:-28%;
+  background:radial-gradient(closest-side,rgba(128,226,172,.58),rgba(128,226,172,0) 70%);
+  animation:drift3 12s -6s infinite}
+#aurora .ab4{width:62vmax;height:62vmax;top:8%;right:-26%;
+  background:radial-gradient(closest-side,rgba(255,206,108,.65),rgba(255,206,108,0) 70%);
+  animation:drift1 15s -11s infinite reverse}
+#aurora .ab5{width:56vmax;height:56vmax;bottom:-28%;left:-22%;
+  background:radial-gradient(closest-side,rgba(255,142,200,.62),rgba(255,142,200,0) 70%);
+  animation:drift2 12s -2s infinite reverse}
+#aurora .ab6{width:60vmax;height:60vmax;bottom:-25%;right:-22%;
+  background:radial-gradient(closest-side,rgba(255,188,138,.60),rgba(255,188,138,0) 70%);
+  animation:drift3 15s -8s infinite reverse}
+/* 三條大幅度環遊路徑:首尾相同 → 無縫循環,永不停止 */
+@keyframes drift1{
+  0%  {transform:translate3d(0,0,0) scale(1)}
+  20% {transform:translate3d(64vw,20vh,0) scale(1.40)}
+  45% {transform:translate3d(80vw,66vh,0) scale(.74)}
+  70% {transform:translate3d(24vw,84vh,0) scale(1.30)}
+  88% {transform:translate3d(-14vw,34vh,0) scale(.85)}
+  100%{transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes drift2{
+  0%  {transform:translate3d(0,0,0) scale(1)}
+  22% {transform:translate3d(-68vw,30vh,0) scale(.76)}
+  48% {transform:translate3d(-40vw,78vh,0) scale(1.45)}
+  72% {transform:translate3d(22vw,50vh,0) scale(1.12)}
+  90% {transform:translate3d(14vw,-16vh,0) scale(.82)}
+  100%{transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes drift3{
+  0%  {transform:translate3d(0,0,0) scale(1)}
+  18% {transform:translate3d(44vw,-38vh,0) scale(1.34)}
+  42% {transform:translate3d(82vw,-16vh,0) scale(.74)}
+  68% {transform:translate3d(52vw,40vh,0) scale(1.42)}
+  86% {transform:translate3d(12vw,20vh,0) scale(.86)}
+  100%{transform:translate3d(0,0,0) scale(1)}
+}
+#bg-canvas{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;transition:opacity 1.2s ease}
+body.in-session #bg-canvas{opacity:1;pointer-events:auto}
+.noselect{user-select:none;-webkit-user-select:none}
+
+/* ===== 大廳:OpenAI 風 ===== */
+#lobby{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 24px 100px;transition:opacity .55s var(--ease)}
+#lobby.hidden{opacity:0;pointer-events:none}
+nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+nav .brand{font-size:17px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+nav .brand .mini-orb{width:20px;height:20px;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,0) 42%),conic-gradient(from 200deg,#9bd6ff,#c5b3ff,#ffc2dd,#ffe2ae,#b6f4d8,#9bd6ff);}
+nav .nav-btn{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.26);color:var(--ink);border-radius:999px;
+  backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);
+  box-shadow:var(--glass-shadow),var(--glass-glow);
+  padding:9px 18px;font-size:13.5px;cursor:pointer;font-family:inherit;font-weight:500;transition:background .35s var(--ease)}
+nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shadow:var(--glass-shadow),var(--glass-glow),0 0 16px rgba(100,180,255,.45),0 0 32px rgba(100,180,255,.20);}
+.hero-panel{
+  margin-top:14px;padding:clamp(28px,5vw,52px);border-radius:34px;
+  border:1px solid var(--glass-border);
+  background:rgba(255,255,255,.34);
+  backdrop-filter:blur(20px) saturate(1.8);-webkit-backdrop-filter:blur(26px) saturate(1.8);
+  box-shadow:0 14px 44px rgba(120,130,190,.10),var(--glass-glow);
+}
+.eyebrow{font-size:12px;letter-spacing:.34em;color:var(--ink-2);font-weight:600}
+.hero-h1{margin-top:16px;font-size:clamp(30px,5.4vw,52px);font-weight:700;letter-spacing:-.02em;line-height:1.22}
+.hero-p{margin-top:16px;font-size:16px;line-height:1.85;color:#52525e;max-width:680px}
+.hero-actions{margin-top:24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:12.5px;padding:8px 16px;border-radius:999px;border:1px solid var(--glass-border);background:rgba(255,255,255,.26);backdrop-filter:blur(14px) saturate(1.8);-webkit-backdrop-filter:blur(14px) saturate(1.8);color:var(--ink-2);font-weight:500;box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.8)}
+.info-card{
+  margin-top:12px;padding:17px 20px;border-radius:22px;
+  border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.30);
+  backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(22px) saturate(1.9);
+  box-shadow:var(--glass-shadow),var(--glass-glow);
+}
+.hero-actions + .info-card{margin-top:28px} /* 原 .info-card:first-of-type 因 nth/first-of-type 按標籤計數而從未生效,改用兄弟選擇器 */
+.ic-label{font-size:11px;letter-spacing:.26em;color:#9a9aac;font-weight:600}
+.ic-text{margin-top:7px;font-size:14.5px;line-height:1.75;color:#3c3c46}
+.vr-pill{margin-top:24px;display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);
+  border:1px solid var(--glass-border);background:rgba(255,255,255,.42);
+  backdrop-filter:blur(16px) saturate(1.7);-webkit-backdrop-filter:blur(16px) saturate(1.7);
+  box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.95);border-radius:999px;padding:8px 16px}
+.vr-pill .dot{width:7px;height:7px;border-radius:50%;background:#19c37d}
+
+/* ===== Siri 同心圓轉盤 ===== */
+#wheel-section{margin-top:46px;display:grid;grid-template-columns:1fr;justify-items:center}
+#wheel-wrap{position:relative;width:min(88vw,620px);height:min(88vw,620px);touch-action:none;cursor:grab}
+#wheel-wrap:active{cursor:grabbing}
+.ring{position:absolute;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.ring.r1{width:100%;height:100%;
+  background:
+    radial-gradient(closest-side,rgba(255,255,255,0) 92%,rgba(255,255,255,.9) 96%),
+    conic-gradient(from 210deg,#f3d9e4,#dfe2f5,#d8ecf6,#e3f3e2,#f7eeda,#f3d9e4);
+  filter:saturate(.9);
+  box-shadow:0 24px 70px rgba(60,64,90,.13),inset 0 2px 14px rgba(255,255,255,.8);}
+.ring.r2{width:76%;height:76%;background:rgba(255,255,255,.50);box-shadow:inset 0 4px 18px rgba(255,255,255,.7),0 6px 22px rgba(120,130,190,.08)}
+.ring.r3{width:52%;height:52%;background:rgba(255,255,255,.62);box-shadow:inset 0 3px 14px rgba(255,255,255,.8),0 4px 16px rgba(120,130,190,.07)}
+#wheel-items{position:absolute;inset:0}
+.w-node{
+  position:absolute;width:33px;height:33px;margin:-16.5px 0 0 -16.5px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  background:rgba(255,255,255,.55);border:1px solid var(--glass-border);
+  backdrop-filter:blur(10px) saturate(1.6);-webkit-backdrop-filter:blur(10px) saturate(1.6);
+  font-size:12.5px;font-weight:600;color:var(--ink-2);
+  box-shadow:0 6px 22px rgba(100,110,170,.10),inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .35s cubic-bezier(.34,1.4,.64,1),box-shadow .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease);
+}
+.w-node:hover{transform:scale(1.12);box-shadow:0 6px 22px rgba(100,110,170,.10),inset 0 1px 0 rgba(255,255,255,.9),0 0 14px rgba(80,170,255,.45),0 0 28px rgba(80,170,255,.18);}
+.w-node.active{
+  transform:scale(1.22);color:#0d0d0d;border-color:transparent;
+  box-shadow:0 10px 30px rgba(100,110,170,.18),0 0 0 3px rgba(255,255,255,.9),0 0 0 5px var(--u-color,#bcd);
+}
+.w-node .nd{position:absolute;inset:4px;border-radius:50%;opacity:.16;background:var(--u-color,#dde)}
+#wheel-center{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:41%;text-align:center;pointer-events:none;
+}
+#wheel-center .c-orb{
+  width:38px;height:38px;border-radius:50%;margin:0 auto 8px;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.96),rgba(255,255,255,0) 45%),conic-gradient(from 200deg,#9bd6ff,#c5b3ff,#ffc2dd,#ffe2ae,#b6f4d8,#9bd6ff);
+  box-shadow:0 8px 26px rgba(120,130,190,.35);animation:cbreathe 7s ease-in-out infinite;}
+@keyframes cbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+#wheel-center .c-num{font-size:10px;letter-spacing:.2em;color:var(--ink-2);font-weight:600}
+#wheel-center h2{margin-top:5px;font-size:clamp(17px,3vw,22px);font-weight:700;letter-spacing:-.01em}
+#wheel-center .c-meta{margin-top:7px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.chip{font-size:10.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--glass-border);background:rgba(255,255,255,.40);backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);color:#55556a;font-weight:500;box-shadow:0 2px 8px rgba(120,130,190,.09),inset 0 1px 0 rgba(255,255,255,.95)}
+#wheel-center .c-actions{margin-top:11px;display:flex;gap:8px;justify-content:center;pointer-events:auto;flex-wrap:wrap}
+.btn-dark{
+  border:1px solid var(--glass-border);border-radius:999px;
+  background:rgba(255,255,255,.28);color:var(--ink);font-family:inherit;
+  backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);
+  box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),inset 0 0 14px rgba(255,255,255,.25);
+  padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;
+  transition:background .35s cubic-bezier(.22,1,.36,1),transform .35s cubic-bezier(.34,1.4,.64,1),box-shadow .35s cubic-bezier(.22,1,.36,1);
+}
+.btn-dark:hover{background:linear-gradient(95deg,rgba(10,132,255,.12),rgba(125,77,255,.10) 30%,rgba(210,59,255,.10) 60%,rgba(255,55,95,.10)),rgba(255,255,255,.44);opacity:1;box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),inset 0 0 14px rgba(255,255,255,.25),0 0 18px rgba(80,170,255,.50),0 0 38px rgba(80,170,255,.22),0 0 60px rgba(120,200,255,.12);}
+.btn-dark:active{transform:scale(.97);background:rgba(255,255,255,.66)}
+.btn-light{
+  border:1px solid var(--glass-border);border-radius:999px;color:var(--ink);font-family:inherit;
+  background:rgba(255,255,255,.26);backdrop-filter:blur(15px) saturate(1.8);-webkit-backdrop-filter:blur(20px) saturate(1.9);
+  box-shadow:var(--glass-shadow),var(--glass-glow);
+  padding:12px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:background .35s var(--ease),box-shadow .35s var(--ease);
+}
+.btn-light:hover,.btn-light:active{background:rgba(255,255,255,.46);box-shadow:var(--glass-shadow),var(--glass-glow),0 0 16px rgba(80,170,255,.42),0 0 34px rgba(80,170,255,.18);}
+.wheel-hint{margin-top:20px;font-size:13px;color:var(--ink-2)}
+
+/* ===== 面板(Sheet) ===== */
+.sheet{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:rgba(255,255,255,.45);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);
+  opacity:0;pointer-events:none;transition:opacity .45s var(--ease)}
+.sheet.show{opacity:1;pointer-events:auto}
+.panel{width:min(540px,100%);max-height:86vh;overflow-y:auto;border-radius:var(--r-lg);padding:34px 30px;
+  background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.62);
+  backdrop-filter:blur(26px) saturate(1.9);-webkit-backdrop-filter:blur(36px) saturate(2);
+  box-shadow:0 30px 90px rgba(100,110,170,.14),inset 0 1px 0 rgba(255,255,255,.85);
+  transform:translateY(14px) scale(.98);transition:transform .55s cubic-bezier(.22,1.3,.36,1)}
+.sheet.show .panel{transform:none}
+.panel h2{font-size:23px;font-weight:700;letter-spacing:-.02em}
+.panel .panel-sub{margin-top:10px;color:var(--ink-2);font-size:14px;line-height:1.75}
+.panel .freq-line{margin-top:16px;display:flex;gap:7px;flex-wrap:wrap}
+.tech-list{margin-top:18px;display:flex;flex-direction:column;gap:9px}
+.tech-list .t{font-size:13.5px;line-height:1.75;color:#3c3c46;background:rgba(255,255,255,.42);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:12px 15px;backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+.panel .actions{margin-top:26px;display:flex;gap:10px}
+.panel .actions .btn-dark{flex:1;padding:15px}
+.panel .actions .btn-light{padding:15px 20px}
+
+/* ===== 冥想中 HUD(visionOS 毛玻璃) ===== */
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:0;transition:opacity .9s var(--ease)}
+#hud.show{opacity:1}
+#hud .top{position:absolute;top:max(18px,env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:center}
+#hud .unit-tag{pointer-events:auto;background:rgba(255,255,255,.30);border:1px solid rgba(255,255,255,.6);
+  backdrop-filter:blur(18px) saturate(1.8);-webkit-backdrop-filter:blur(26px) saturate(1.9);
+  border-radius:999px;padding:9px 22px;font-size:13px;letter-spacing:.06em;color:#3c3c46;font-weight:600;
+  box-shadow:0 8px 28px rgba(70,75,110,.14)}
+#prompt-bubble{
+  position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);
+  width:min(84vw,480px);height:min(84vw,480px);
+  visibility:hidden;pointer-events:none;
+}
+/* 電腦版:超級大泡泡(視窗夠寬夠高才放大,手機/平板直式維持原樣) */
+@media (min-width:1024px) and (min-height:640px){
+  #prompt-bubble{
+    width:min(62vw,72vh,860px);
+    height:min(62vw,72vh,860px);
+    top:46%;
+  }
+  #prompt-text{font-size:clamp(20px,1.9vw,28px);width:64%}
+}
+#prompt-bubble.show{visibility:visible}
+#prompt-bubble.show .bub{animation:bubIn 2s cubic-bezier(.22,1,.36,1) both,bubWobble 9s cubic-bezier(.45,0,.55,1) 2s infinite}
+@keyframes bubIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+#prompt-bubble .bub{
+  position:absolute;inset:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse 18% 10% at 33% 15%,rgba(255,255,255,.6) 0%,rgba(255,255,255,.22) 55%,rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 9% 5% at 64% 89%,rgba(255,255,255,.35) 0%,rgba(255,255,255,0) 100%),
+    radial-gradient(closest-side,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 70%,rgba(255,255,255,.03) 84%,rgba(255,255,255,.12) 94%,rgba(255,255,255,0) 100%),
+    radial-gradient(circle at 50% 122%,rgba(85,100,145,.10) 0%,rgba(85,100,145,0) 44%);
+  border:1px solid rgba(255,255,255,.32);
+  backdrop-filter:blur(5px) saturate(1.7) brightness(1.02);-webkit-backdrop-filter:blur(5px) saturate(1.7) brightness(1.02);
+  box-shadow:
+    0 24px 80px rgba(110,125,185,.10),
+    0 0 0 .5px rgba(255,255,255,.4),
+    inset 0 1px 1px rgba(255,255,255,.6),
+    inset 0 -14px 26px rgba(85,100,145,.06),
+    inset 10px 6px 24px rgba(255,255,255,.08);
+}
+/* 折射環:邊緣那圈背景比中心「更清楚、更亮」=> 光線在邊緣彎折的錯覺 */
+#prompt-bubble .lens{
+  position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  backdrop-filter:blur(1px) brightness(1.16) saturate(1.45);
+  -webkit-backdrop-filter:blur(1px) brightness(1.16) saturate(1.45);
+  -webkit-mask:radial-gradient(closest-side,transparent 74%,#000 85%,#000 94%,transparent 100%);
+  mask:radial-gradient(closest-side,transparent 74%,#000 85%,#000 94%,transparent 100%);
+}
+#prompt-bubble .rim{
+  position:absolute;inset:0;border-radius:50%;
+  /* 色散帶:只有約 110 度的弧有彩虹,其餘透明,模擬照片裡集中一側的光譜 */
+  background:conic-gradient(from 160deg,
+    transparent 0deg,
+    rgba(120,190,255,.0) 18deg,
+    rgba(120,190,255,.9) 36deg,
+    rgba(170,150,255,.95) 54deg,
+    rgba(255,150,200,.95) 72deg,
+    rgba(255,205,130,.9) 90deg,
+    rgba(160,235,190,.8) 106deg,
+    transparent 126deg,
+    transparent 360deg);
+  -webkit-mask:radial-gradient(closest-side,transparent 84%,#000 90%,#000 95%,transparent 100%);
+  mask:radial-gradient(closest-side,transparent 84%,#000 90%,#000 95%,transparent 100%);
+  opacity:.85;filter:blur(2.5px);animation:rimspin 26s linear infinite;
+}
+@keyframes rimspin{to{transform:rotate(360deg)}}
+@keyframes bubWobble{
+  0%{transform:translate(0,-16px) scale(1,1)}
+  25%{transform:translate(15px,2px) scale(1.026,.976)}
+  50%{transform:translate(-3px,16px) scale(1,1)}
+  75%{transform:translate(-16px,-2px) scale(.976,1.026)}
+  100%{transform:translate(0,-16px) scale(1,1)}
+}
+#prompt-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68%;text-align:center;font-size:clamp(16.5px,2.6vw,21px);font-weight:500;line-height:2.05;letter-spacing:.05em;color:#16161c;text-shadow:0 1px 0 rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.95),0 0 30px rgba(255,255,255,.85);opacity:1;transition:opacity 2s cubic-bezier(.22,1,.36,1)}
+#progress{position:absolute;bottom:calc(max(20px,env(safe-area-inset-bottom)) + 66px);left:50%;transform:translateX(-50%);
+  width:min(280px,66vw);height:4px;border-radius:99px;background:rgba(120,125,150,.18);overflow:hidden}
+#progress .fill{height:100%;width:0%;border-radius:99px;background:#0d0d0d;opacity:.6;transition:width .8s}
+#hud .bottom{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;gap:10px;pointer-events:auto}
+.hud-btn{background:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.58);color:#26262e;font-family:inherit;font-weight:600;
+  backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);
+  border-radius:999px;padding:13px 20px;font-size:13.5px;cursor:pointer;transition:background .35s var(--ease),box-shadow .35s var(--ease);
+  box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.8)}
+.hud-btn:hover,.hud-btn:active{background:rgba(255,255,255,.44);box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.8),0 0 16px rgba(80,170,255,.48),0 0 34px rgba(80,170,255,.20);}
+
+/* ===== 評分與紀錄 ===== */
+.stars{margin-top:22px;display:flex;justify-content:center;gap:10px}
+.star{font-size:36px;cursor:pointer;color:rgba(120,130,170,.40);
+  padding:4px 8px;border-radius:16px;background:rgba(255,255,255,.34);border:1px solid var(--glass-border);
+  backdrop-filter:blur(12px) saturate(1.6);-webkit-backdrop-filter:blur(12px) saturate(1.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(100,110,170,.08)}
+.star.on{color:#fff;border-color:transparent;
+  background:linear-gradient(135deg,#ffd36e 0%,#f5b531 45%,#ff8e53 100%);
+  box-shadow:0 8px 24px rgba(245,160,60,.40),inset 0 1px 0 rgba(255,255,255,.55);
+  text-shadow:0 1px 3px rgba(180,110,0,.35)}
+.star{transition:transform .3s cubic-bezier(.34,1.4,.64,1),color .3s var(--ease),box-shadow .3s var(--ease)}
+.star:hover{transform:scale(1.15);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(100,110,170,.08),0 0 14px rgba(80,170,255,.40),0 0 28px rgba(80,170,255,.16);}
+.emo-grid{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.emo{font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;font-weight:500;
+  background:rgba(255,255,255,.38);border:1px solid var(--glass-border);color:var(--ink-2);
+  backdrop-filter:blur(16px) saturate(1.7);-webkit-backdrop-filter:blur(16px) saturate(1.7);
+  box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.9);transition:all .3s var(--ease)}
+.emo:hover{box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.9),0 0 12px rgba(80,170,255,.40),0 0 24px rgba(80,170,255,.16);}
+.emo.on{color:#fff;border-color:transparent;
+  background:linear-gradient(95deg,#2f7cf6 0%,#6f86ff 35%,#a86bff 65%,#f2872e 100%);
+  box-shadow:0 8px 22px rgba(110,120,230,.38),inset 0 1px 0 rgba(255,255,255,.45);
+  text-shadow:0 1px 2px rgba(40,50,140,.30)}
+#note-input{margin-top:20px;width:100%;border-radius:var(--r-md);border:1px solid var(--glass-border);
+  background:rgba(255,255,255,.42);color:var(--ink);font-family:inherit;font-size:14px;
+  backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  padding:13px 15px;resize:none;height:78px;outline:none;line-height:1.7}
+#note-input:focus{border-color:rgba(160,180,255,.85)}
+#note-input::placeholder{color:#a8a8b6}
+.h-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.h-item .h-left{display:flex;flex-direction:column;gap:4px}
+.h-item .h-date{font-size:11.5px;color:var(--ink-2)}
+.h-item .h-stars{color:#f5b531;font-size:13px;letter-spacing:.12em;white-space:nowrap}
+.h-empty{text-align:center;color:var(--ink-2);padding:30px 0;font-size:14px;line-height:1.8}
+
+/* ===== 首頁入場動畫 ===== */
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(22px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeSlideDown{
+  from{opacity:0;transform:translateY(-18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeSlideLeft{
+  from{opacity:0;transform:translateX(20px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes fadeSlideRight{
+  from{opacity:0;transform:translateX(-20px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+nav.noselect{
+  animation:fadeSlideDown .85s cubic-bezier(.22,1,.36,1) 0s both;
+}
+.hero-panel{
+  animation:fadeIn .9s cubic-bezier(.22,1,.36,1) .08s both;
+}
+.hero-panel .eyebrow{
+  animation:fadeSlideUp .85s cubic-bezier(.22,1,.36,1) .18s both;
+}
+.hero-panel .hero-h1{
+  animation:fadeSlideUp .9s cubic-bezier(.22,1,.36,1) .32s both;
+}
+.hero-panel .hero-p{
+  animation:fadeSlideUp .9s cubic-bezier(.22,1,.36,1) .46s both;
+}
+.hero-panel .hero-actions{
+  animation:fadeSlideUp .85s cubic-bezier(.22,1,.36,1) .60s both;
+}
+.hero-panel .info-card{
+  animation:fadeSlideUp .85s cubic-bezier(.22,1,.36,1) .74s both;
+}
+.hero-panel .info-card + .info-card{
+  animation-delay:.86s;
+}
+.hero-panel .info-card + .info-card + .info-card{
+  animation-delay:.98s;
+}
+.hero-panel .vr-pill{
+  animation:fadeSlideUp .85s cubic-bezier(.22,1,.36,1) 1.10s both;
+}
+#wheel-section{
+  animation:fadeSlideUp 1.0s cubic-bezier(.22,1,.36,1) 1.26s both;
+}
+
+/* ===== 按鈕 hover 浮起變大 ===== */
+nav .nav-btn,.btn-dark,.btn-light,.hud-btn,.emo{
+  transition-property:background,box-shadow,transform;
+  transition-duration:.35s;
+  transition-timing-function:cubic-bezier(.34,1.45,.64,1);
+}
+nav .nav-btn:hover,.btn-dark:hover,.btn-light:hover,.hud-btn:hover{
+  transform:translateY(-4px) scale(1.06);
+}
+.emo:hover{transform:translateY(-3px) scale(1.07)}
+.star:hover{transform:translateY(-4px) scale(1.18)}
+.w-node:hover{transform:translateY(-3px) scale(1.15)}
+.btn-dark:active,.btn-light:active,.hud-btn:active,nav .nav-btn:active{
+  transform:translateY(-1px) scale(.98);
+}
+
+/* ===== Apple Intelligence 漸層設計語言 ===== */
+.hero-h1,#wheel-center h2,.panel h2,nav .brand .b-name{
+  background:linear-gradient(92deg,#2f7cf6 0%,#6f86ff 30%,#8a93a8 52%,#e8a23d 78%,#f2872e 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.vr-pill .dot{background:linear-gradient(135deg,#2f7cf6,#f2872e)}
+#progress .fill{background:linear-gradient(90deg,#2f7cf6,#8a93a8,#f2872e);opacity:1}
+.btn-dark{position:relative}
+.btn-dark:hover{background:linear-gradient(95deg,rgba(10,132,255,.12),rgba(125,77,255,.10) 30%,rgba(210,59,255,.10) 60%,rgba(255,55,95,.10)),rgba(255,255,255,.44);opacity:1}
+
+/* ===== 水滴玻璃球(iOS 26 Liquid Glass) ===== */
+nav .brand .mini-orb,#wheel-center .c-orb{
+  position:relative;
+  background:
+    radial-gradient(circle at 32% 26%,rgba(255,255,255,.95) 0%,rgba(255,255,255,0) 30%),
+    radial-gradient(circle at 70% 80%,rgba(255,255,255,.65) 0%,rgba(255,255,255,0) 22%),
+    radial-gradient(closest-side,rgba(255,255,255,.05) 0%,rgba(255,255,255,.10) 68%,rgba(255,255,255,.42) 90%,rgba(255,255,255,.06) 100%);
+  border:1px solid rgba(255,255,255,.85);
+  backdrop-filter:blur(5px) saturate(1.5);-webkit-backdrop-filter:blur(5px) saturate(1.5);
+  box-shadow:0 8px 24px rgba(120,130,190,.22),inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 12px rgba(255,255,255,.45);
+}
+nav .brand .mini-orb::after,#wheel-center .c-orb::after{
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 30deg,#8ecfff,#c9b2ff,#ffb7d9,#ffe2a8,#a9f2d0,#8ecfff);
+  -webkit-mask:radial-gradient(closest-side,transparent 72%,#000 88%,transparent 100%);
+  mask:radial-gradient(closest-side,transparent 72%,#000 88%,transparent 100%);
+  opacity:.5;filter:blur(1px);
+}
+
+/* ===== 同心圓環繞文字 ===== */
+
+
+@media (max-width:520px){
+  #wheel-center .c-actions .btn-light{padding:11px 14px;font-size:13px}
+  #wheel-center .c-actions .btn-dark{padding:11px 18px;font-size:13px}
+  .w-node{width:26px;height:26px;margin:-13px 0 0 -13px;font-size:9.5px}
+}
+</style>
+</head>
+<body>
+<div id="aurora" aria-hidden="true">
+  <div class="ab ab1"></div><div class="ab ab2"></div><div class="ab ab3"></div>
+  <div class="ab ab4"></div><div class="ab ab5"></div><div class="ab ab6"></div>
+</div>
+<canvas id="bg-canvas"></canvas>
+
+<main id="lobby">
+  <nav class="noselect">
+    <div class="brand"><span class="mini-orb"></span><span class="b-name">顯化殿堂</span></div>
+    <button class="nav-btn" id="open-history">冥想紀錄</button>
+  </nav>
+  <section class="hero-panel noselect">
+    <div class="eyebrow">MANIFEST SPACE · VR 顯化冥想</div>
+    <h1 class="hero-h1">你的願望,在這裡已經完成。</h1>
+    <p class="hero-p">顯化殿堂以二十個沉浸式頻率宇宙構成。每個單元有獨立的療癒頻率、引導心法與光之世界,你不是在「許願」,是回到願望已經完成的版本裡生活。</p>
+    <div class="hero-actions">
+      <button class="btn-dark" id="hero-start">開始今天的冥想 →</button>
+      <button class="btn-light" id="hero-history">我的冥想紀錄</button>
+      <span class="pill">20 個頻率宇宙</span>
+      <span class="pill">Quest 3 VR</span>
+      <span class="pill">174 — 963 Hz</span>
+    </div>
+    <div class="info-card"><div class="ic-label">METHODOLOGY · 方法論</div><div class="ic-text">SATS 活在結局 · 現在式 Scripting · 感恩灌注 · 肯定語 · 感官具身化 · 釋放臣服</div></div>
+    <div class="info-card"><div class="ic-label">BEST FOR · 適合時刻</div><div class="ic-text">睡前、開工前、能量低落時、重要時刻之前的頻率校準</div></div>
+    <div class="info-card"><div class="ic-label">HOW · 使用方式</div><div class="ic-text">戴上耳機,轉動圓盤選擇單元,讓泡泡裡的引導詞帶你進入顯化狀態</div></div>
+    <div class="vr-pill"><span class="dot"></span><span id="vr-status">偵測 VR 裝置中…</span></div>
+  </section>
+  <section id="wheel-section" class="noselect">
+    <div id="wheel-wrap">
+      <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+      <div id="wheel-items"></div>
+      <div id="wheel-center">
+        <div class="c-orb"></div>
+        <div class="c-num" id="c-num"></div>
+        <h2 id="c-name"></h2>
+        <div class="c-meta" id="c-meta"></div>
+        <div class="c-actions">
+          <button class="btn-dark" id="c-start">開始冥想</button>
+          <button class="btn-light" id="c-intro">介紹</button>
+          <button class="btn-light" id="c-vr" style="display:none">VR 模式</button>
+        </div>
+      </div>
+    </div>
+    <div class="wheel-hint">拖曳圓盤旋轉 · 點擊號碼切換單元</div>
+  </section>
+</main>
+
+<!-- 冥想中 HUD -->
+<div id="hud">
+  <div class="top"><div class="unit-tag" id="hud-unit"></div></div>
+  <div id="prompt-bubble"><div class="bub"><div class="lens"></div><div class="rim"></div></div><div id="prompt-text"></div></div>
+  <div id="progress"><div class="fill" id="progress-fill"></div></div>
+  <div class="bottom">
+    <button class="hud-btn" id="btn-prev">◀︎ 上一句</button>
+    <button class="hud-btn" id="btn-pause">⏸ 暫停</button>
+    <button class="hud-btn" id="btn-next">下一句 ▶︎</button>
+    <button class="hud-btn" id="btn-end">結束</button>
+  </div>
+</div>
+
+<!-- 評分 -->
+<div class="sheet" id="intro-sheet">
+  <div class="panel">
+    <div class="c-num" id="intro-num" style="font-size:10px;letter-spacing:.2em;color:#6e6e80;font-weight:600"></div>
+    <h2 id="intro-title" style="margin-top:6px"></h2>
+    <div class="freq-line" id="intro-chips"></div>
+    <p class="panel-sub" id="intro-desc"></p>
+    <div class="tech-list" id="intro-tech"></div>
+    <div class="actions">
+      <button class="btn-dark" id="intro-start">開始冥想</button>
+      <button class="btn-light" id="intro-close">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="rate-sheet">
+  <div class="panel" style="text-align:center">
+    <h2>這一次的旅程,感覺如何?</h2>
+    <p class="panel-sub">為你的心情與情緒體驗評分,讓宇宙知道你收到了</p>
+    <div class="stars" id="stars"></div>
+    <div class="emo-grid" id="emo-grid"></div>
+    <textarea id="note-input" placeholder="想對今天的自己說什麼…(可留空)"></textarea>
+    <div class="actions">
+      <button class="btn-light" id="rate-skip">略過</button>
+      <button class="btn-dark" id="rate-save">完成紀錄</button>
+    </div>
+  </div>
+</div>
+
+<!-- 紀錄 -->
+<div class="sheet" id="history-sheet">
+  <div class="panel">
+    <h2>冥想紀錄</h2>
+    <p class="panel-sub" id="history-stat"></p>
+    <div id="history-list"></div>
+    <div class="actions"><button class="btn-light" id="history-close" style="flex:1">關閉</button></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ====== 20 個顯化單元資料 ======
+   每單元:獨立 Solfeggio 根音 + 雙耳節拍 + 和聲設計 + 粒子宇宙 + 引導詞腳本
+   方法論依據:SATS(活在結局)、Scripting 現在式、感恩灌注、肯定語重複、感官具身化、釋放臣服 */
+const UNITS = [
+{id:1,name:"金錢顯化冥想",en:"WEALTH",color:"#ffd06e",hue:0.12,freq:528,beat:6,chord:[1,1.5,2,2.5],env:"goldrain",
+ desc:"以 528Hz 奇蹟頻率對齊豐盛。運用 SATS 活在結局法,讓潛意識把「已經富有」當成熟悉的現實。",
+ tech:["SATS 活在結局:在心中完整體驗願望已實現的場景","感官具身化:看見、觸摸、感受金錢已在你手中","肯定語三次重複,寫入潛意識"],
+ prompts:[
+ "歡迎來到金錢顯化的黃金宇宙。請放鬆肩膀,讓身體沉進來。",
+ "深吸一口氣……慢慢吐出。再一次,吸氣……吐氣。你已經安全了。",
+ "想像眼前飄落的金色光雨,每一滴,都是宇宙流向你的豐盛。",
+ "現在,進入那個場景:你打開帳戶,看見那個讓你微笑的數字。",
+ "感受它。不是希望,不是等待,是「已經發生」。你心裡很平靜,因為這很正常。",
+ "伸出手,觸摸你想要的生活。質感、溫度、重量,全部都是真的。",
+ "在心中跟著默念三次:金錢愛我,豐盛自然地流向我。",
+ "金錢愛我,豐盛自然地流向我。",
+ "金錢愛我,豐盛自然地流向我。我允許自己,值得這一切。",
+ "對這份已完成的豐盛,說一聲謝謝。感恩,是收到的簽名。",
+ "把這個畫面留在心裡,帶著它回來。它已經在路上了。"]},
+
+{id:2,name:"健康顯化冥想",en:"HEALTH",color:"#7fe8b1",hue:0.38,freq:285,beat:3,chord:[1,1.5,2,3],env:"forest",
+ desc:"285Hz 傳統上對應身體組織修復。透過身體掃描與光療癒視覺化,讓每個細胞記得健康的版本。",
+ tech:["身體掃描:由頭到腳釋放緊繃","光療癒視覺化:綠色生命之光流經全身","細胞層級的健康肯定"],
+ prompts:[
+ "歡迎來到翡翠療癒森林。讓呼吸自然,不用控制。",
+ "吸氣,想像清新的綠光進入身體……吐氣,帶走所有疲憊。",
+ "從頭頂開始,讓放鬆像暖流一樣,流過額頭、眼睛、下顎。",
+ "流過肩膀、手臂、胸口……每經過一處,那裡就鬆開、發亮。",
+ "想像一道翠綠色的生命之光,從心臟出發,流向全身每一個細胞。",
+ "每個細胞都在光中甦醒,記起它最健康、最有活力的樣子。",
+ "在心中默念:我的身體知道如何療癒,它正在療癒。",
+ "我的每一個細胞,都充滿生命力。我是健康的,我是完整的。",
+ "感受身體此刻的輕盈,這就是你的自然狀態。",
+ "謝謝你,身體。謝謝你一直守護著我。",
+ "把這份綠光留在身體裡,慢慢回來。"]},
+
+{id:3,name:"願望顯化冥想",en:"WISH",color:"#c9a6ff",hue:0.75,freq:963,beat:7,chord:[1,1.25,1.5,2],env:"galaxy",
+ desc:"963Hz 對應最高意識連結。在星願銀河中以心靈 Scripting 書寫,用現在式宣告願望已成真。",
+ tech:["心靈 Scripting:以現在式在心中描述願望已實現的一天","越具體越有力:五感細節全開","封存交託:寫完就放手,信任宇宙時程"],
+ prompts:[
+ "歡迎來到星願銀河。每一顆星,都是一個已經實現的願望。",
+ "深呼吸,讓自己浮在這片星海中,完全被支持著。",
+ "現在,選出你最想實現的那一個願望。看著它,在你面前發光。",
+ "我們開始在心中書寫:用現在式,描述願望成真的那一天。",
+ "那一天的早晨,你醒來,第一個感覺是什麼?把它寫進心裡。",
+ "你看見什麼?聽見什麼?空氣裡有什麼味道?越具體,越真實。",
+ "你跟誰分享這個好消息?看見對方為你開心的表情。",
+ "在心中說:這一切已經完成。我就是活在這個版本裡的我。",
+ "現在,把這頁星光寫成的劇本,輕輕交給宇宙。不抓緊,只信任。",
+ "已經寫下的,宇宙都收到了。你的工作是準備好迎接。",
+ "帶著篤定回來。它不是會不會來,只是什麼時候到。"]},
+
+{id:4,name:"愛情顯化冥想",en:"LOVE",color:"#ff9ecf",hue:0.92,freq:639,beat:8,chord:[1,1.2,1.5,2],env:"rose",
+ desc:"639Hz 是連結與關係的頻率。打開心輪,先成為愛本身,再讓對的關係被你吸引而來。",
+ tech:["心輪啟動:玫瑰金光由心擴散","先感受被愛:潛意識頻率先到位","理想關係場景 SATS 體驗"],
+ prompts:[
+ "歡迎來到玫瑰星雲。這裡的一切,都以愛的頻率振動。",
+ "把手放在心口,深呼吸。感覺心跳,它一直為你跳動著。",
+ "想像心口有一朵玫瑰金色的光,隨著每次呼吸,慢慢綻放。",
+ "這道光向外擴散,包住你的全身。你被愛包圍著,現在就是。",
+ "在心中默念:我值得被深深地愛著,如我所是。",
+ "現在,感受理想關係中的那個瞬間:一個擁抱、一個眼神、一句晚安。",
+ "感受那份安心。你不需要追逐,因為你本身就是愛。",
+ "對方被你的光吸引而來,在對的時間,以對的方式。",
+ "在心中說:我已經在一段彼此珍惜的關係裡,謝謝。",
+ "把這份心口的溫度記住,它是你的導航。",
+ "帶著綻放的心回來。愛正在路上,而你已經是愛。"]},
+
+{id:5,name:"事業成功冥想",en:"CAREER",color:"#ffb27a",hue:0.07,freq:741,beat:10,chord:[1,1.5,1.875,2],env:"dawn",
+ desc:"741Hz 對應清晰與問題解決。預演未來自我的高光時刻,讓大腦把成功當成既定路徑。",
+ tech:["未來自我影像:看見三年後成功的你","高光時刻預演:慶祝場景全感官體驗","身分肯定:我就是做得到的人"],
+ prompts:[
+ "歡迎來到曙光之城。太陽正在升起,而你的時代也是。",
+ "深呼吸,挺直脊椎,感受一股安靜的力量在背後支持你。",
+ "想像三年後的你,站在你想站的位置上。看清楚那個畫面。",
+ "那個你,眼神篤定、步伐從容。注意:那就是你,不是別人。",
+ "現在進入一個高光時刻:項目成功、掌聲響起、或那則錄取通知。",
+ "聽見那些聲音,看見那些笑容,感受胸口那股熱熱的成就感。",
+ "在心中默念:我就是做得到的人。機會認得我的頻率。",
+ "每一步行動,都把我帶向那個已經存在的版本。",
+ "對未來的自己說:我來了,等我。",
+ "把那份篤定裝進今天的身體裡。",
+ "睜開眼之後,用那個版本的你,過今天。"]},
+
+{id:6,name:"自信力量冥想",en:"CONFIDENCE",color:"#ff8d7a",hue:0.02,freq:396,beat:9,chord:[1,1.33,1.5,2],env:"sun",
+ desc:"396Hz 用於釋放恐懼與罪惡感。先卸下不配得感,再以身體姿態與肯定語重建核心自信。",
+ tech:["釋放不配得感:396Hz 根輪釋放","力量姿態具身化:身體先相信","核心肯定語三連發"],
+ prompts:[
+ "歡迎來到紅金日輪。這裡的光,專門融化「我不夠好」。",
+ "深呼吸。吐氣時,把所有自我懷疑,像沙子一樣放掉。",
+ "再吐一次氣,放掉別人的眼光。那些從來不是你的重量。",
+ "現在,想像一輪溫暖的紅金色太陽,在你的腹部亮起。",
+ "它的光往上升,填滿胸口,讓你的肩膀自然打開、下巴微微抬起。",
+ "感受這個姿態。身體先站成自信的樣子,心就會跟上。",
+ "在心中堅定地說:我夠好,我一直都夠好。",
+ "我信任自己的決定,我的存在本身就有價值。",
+ "我不需要完美才值得,我現在就值得。",
+ "把這輪太陽留在身體裡,它不會熄滅。",
+ "帶著光回來。今天,抬頭走路。"]},
+
+{id:7,name:"深層睡眠顯化",en:"SLEEP",color:"#7aa8ff",hue:0.6,freq:174,beat:2,chord:[1,1.5,2],env:"ocean",
+ desc:"174Hz 是最低的舒緩頻率,配 2Hz Delta 波節拍。睡前是潛意識最開放的時刻,在入睡邊緣植入願望。",
+ tech:["4-7-8 呼吸法引導入眠","睡前顯化:在半夢狀態播放願望畫面","Delta 波音場陪你入睡"],
+ prompts:[
+ "歡迎來到深海之夜。這裡很安全,你可以完全放下了。",
+ "吸氣四秒……停留七秒……緩緩吐氣八秒。",
+ "再一次。吸氣……停留……慢慢吐出所有的今天。",
+ "身體越來越重,像羽毛慢慢沉入溫柔的深藍色海洋。",
+ "現在是潛意識最柔軟的時刻。把你的願望,化成一個畫面。",
+ "不用努力,只要讓那個畫面像月光一樣,輕輕浮在心上。",
+ "在心中輕輕說:當我睡著,我的潛意識會繼續為我工作。",
+ "一切都被照顧好了。你什麼都不用做了。",
+ "海浪的聲音越來越遠……你越來越深……",
+ "晚安。願望已經收到了。",
+ "睡吧。"]},
+
+{id:8,name:"感恩頻率冥想",en:"GRATITUDE",color:"#ffe49a",hue:0.13,freq:432,beat:5,chord:[1,1.25,1.5,2],env:"firefly",
+ desc:"432Hz 自然律調音。感恩是顯化的加速器:對已擁有的感恩,會把頻率直接調到「接收」模式。",
+ tech:["感恩灌注法:連續喚起十個感謝","對未來感恩:為還沒發生的事先說謝謝","感恩的身體記憶定錨"],
+ prompts:[
+ "歡迎來到流螢之谷。每一點光,都是一件值得感謝的事。",
+ "深呼吸,讓嘴角自然放鬆,微微上揚。",
+ "想起今天一件小小的好事。對它說:謝謝。看,一顆流螢亮了。",
+ "想起一個愛你的人。謝謝。又一顆亮了。",
+ "想起你的身體、你的呼吸、此刻的安全。謝謝。",
+ "讓感謝一個接一個浮現,山谷越來越亮,你的胸口也是。",
+ "現在,進階了:為一件「還沒發生」的好事,先說謝謝。",
+ "謝謝那個正在路上的好消息。謝謝,彷彿已經收到。",
+ "感受這種「提前感恩」的暖流,這就是接收的頻率。",
+ "把手放在心口,把這份暖記下來。",
+ "帶著滿谷的光回來。今天,多說幾次謝謝。"]},
+
+{id:9,name:"豐盛意識冥想",en:"ABUNDANCE",color:"#ffd87a",hue:0.1,freq:888,beat:6.5,chord:[1,1.5,2,2.667],env:"river",
+ desc:"888 是豐盛之數。重點不是「得到更多」,而是切換到「本來就很多」的豐盛意識,讓匱乏感斷電。",
+ tech:["匱乏感斷電:辨識並放下「不夠」的念頭","豐盛之河視覺化:資源不斷流動","我是管道不是水庫:流動心法"],
+ prompts:[
+ "歡迎來到豐盛之河。它從來沒有停止流動,一秒都沒有。",
+ "深呼吸。吐氣時,放掉那句熟悉的「不夠」。",
+ "再吐一次,放掉「要省著用」的緊縮感。讓胸口鬆開。",
+ "看著眼前這條金色的河:機會、金錢、愛、靈感,全在裡面流。",
+ "宇宙不是小氣的。匱乏只是一個視角,而你現在換了位置。",
+ "在心中默念:我活在一個豐盛的宇宙,資源永遠在流動。",
+ "我是管道,不是水庫。流進來,也流出去,越流越多。",
+ "想像自己慷慨的樣子:給予時的你,是豐盛的證明。",
+ "我擁有的已經很多,而更多的正在路上。",
+ "對這條河說謝謝,然後跳進去,跟它一起流。",
+ "帶著流動感回來。今天,大方一點。"]},
+
+{id:10,name:"人際關係冥想",en:"RELATION",color:"#ff9d8a",hue:0.04,freq:639,beat:12,chord:[1,1.2,1.6,2],env:"coral",
+ desc:"639Hz 的連結頻率,搭配低語法(Whisper Method)概念:先在內在改寫你與他人的關係劇本。",
+ tech:["寬恕釋放:剪斷舊的負面能量索","低語法:在心中向對方傳遞善意訊息","看見關係和諧的新版本"],
+ prompts:[
+ "歡迎來到暖珊瑚海。所有的關係,都在這裡被溫柔地看見。",
+ "深呼吸,想起一段你想要更和諧的關係。讓那個人浮現。",
+ "先照顧自己:吐氣時,放掉那些委屈與緊繃。你辛苦了。",
+ "現在,想像你們之間有一條舊的、打結的線。輕輕地,解開它。",
+ "解開不是輸,是自由。對過去的版本說:謝謝,再見。",
+ "接著,在心中靠近對方,輕聲說出你真正想說的善意的話。",
+ "想像對方聽見了,表情柔軟了下來。內在先和解,外在就會跟上。",
+ "看見新版本的你們:可以好好說話,可以自在相處。",
+ "在心中說:我釋放舊的劇本,我允許關係更新。",
+ "為這段關係的新版本,先說一聲謝謝。",
+ "帶著柔軟回來。下次見面,你會發現有些東西不一樣了。"]},
+
+{id:11,name:"創造力冥想",en:"CREATIVE",color:"#9affd6",hue:0.45,freq:417,beat:10.5,chord:[1,1.25,1.667,2],env:"aurora",
+ desc:"417Hz 對應改變與創造。打開接收靈感的天線,讓點子像極光一樣自己流進來。",
+ tech:["清空頻道:先放掉「想不出來」的焦慮","靈感之河接收法:不擠,只接","把創作身分穿在身上:我是創作者"],
+ prompts:[
+ "歡迎來到極光穹頂。靈感在這裡,像光一樣流動。",
+ "深呼吸。先放掉「我要想出好點子」的用力,靈感怕擠。",
+ "想像頭頂打開一個柔軟的天線,對準那片流動的極光。",
+ "你不需要製造靈感,你只需要允許它流進來。",
+ "看著極光變換顏色:每一道光,都是一個還沒被想到的點子。",
+ "在心中默念:我是暢通的創作管道,靈感喜歡找我。",
+ "想像你正在創作的東西完成的樣子,它好到你自己都笑了。",
+ "那個版本已經存在,你只是把它接下來而已。",
+ "我創作,因為這就是我。不為證明,只為表達。",
+ "跟極光約好:今天給我一個訊號,一個點子。",
+ "帶著打開的天線回來。記得,點子來的時候要記下來。"]},
+
+{id:12,name:"內在平靜冥想",en:"PEACE",color:"#a8d8ff",hue:0.58,freq:432,beat:3.2,chord:[1,1.5,2],env:"lake",
+ desc:"432Hz 配深度 Delta 節拍。回到風暴中心的靜止點,平靜不是沒有事,是事來了心不亂。",
+ tech:["觀息法:回到呼吸這個錨點","靜湖心法:念頭是漣漪,你是湖","風暴中心定位:亂中有靜"],
+ prompts:[
+ "歡迎來到靜湖。湖面也許有漣漪,但湖底永遠安靜。",
+ "不用改變呼吸,只是看著它。吸……吐……像看著湖水。",
+ "念頭來了?沒關係。它只是一片漣漪,看著它散開就好。",
+ "你不是那些念頭。你是湖,念頭只是湖面的天氣。",
+ "每一次吐氣,往湖底沉一點。那裡很安靜,很穩。",
+ "在心中默念:此刻,我什麼都不缺,哪裡都不用去。",
+ "外面的世界可以忙,我的中心可以靜。兩者不衝突。",
+ "感受這個靜止點。它一直在你裡面,從來沒有離開過。",
+ "以後混亂的時候,記得:三個呼吸,就能回到這裡。",
+ "對自己說:我隨身攜帶著平靜。",
+ "帶著湖回來。今天慢一點,沒關係的。"]},
+
+{id:13,name:"身體能量冥想",en:"ENERGY",color:"#7affc8",hue:0.42,freq:285,beat:9,chord:[1,1.5,2,2.5],env:"plasma",
+ desc:"285Hz 身體頻率配 Alpha 波,像幫身體插上充電線。喚醒清醒、輕盈、隨時可以行動的能量狀態。",
+ tech:["能量充電視覺化:從地心與宇宙雙向充電","身體喚醒掃描:點亮每個部位","能量肯定:我的電是滿的"],
+ prompts:[
+ "歡迎來到能量光域。準備好,我們要充電了。",
+ "深吸一口氣,想像腳底長出光的根,接上大地的電源。",
+ "溫暖的能量從腳底往上流:小腿、大腿、腹部,一路點亮。",
+ "再從頭頂接上宇宙的光,清涼的能量往下流,和暖流會合。",
+ "兩股能量在心口交會,像一顆小太陽,越轉越亮。",
+ "感受手指尖微微發麻,那是能量滿格的訊號。",
+ "在心中默念:我的身體是高效能的,我的能量是充沛的。",
+ "疲憊只是訊號,不是身分。我隨時可以重新充電。",
+ "把這顆小太陽調到剛剛好的亮度,溫暖、清醒、不躁。",
+ "謝謝身體這台超強的機器。",
+ "帶著滿格的電回來。去做那件你想做的事吧。"]},
+
+{id:14,name:"勇氣行動冥想",en:"COURAGE",color:"#ffae5e",hue:0.06,freq:396,beat:13,chord:[1,1.33,2,2.667],env:"ember",
+ desc:"396Hz 釋放恐懼,配高頻 Alpha 節拍點燃行動力。勇氣不是不怕,是怕著怕著還是去做了。",
+ tech:["恐懼縮小術:把恐懼看小、看清","行動預演:在心中先做一次","點火儀式:把猶豫燒成燃料"],
+ prompts:[
+ "歡迎來到餘燼火域。這裡的火,專門燒掉「再等等」。",
+ "深呼吸。想起那件你一直想做、卻一直猶豫的事。",
+ "看著心裡的恐懼。盯著它看,它就開始縮小了。",
+ "問它:最壞會怎樣?你會發現,你其實扛得住。",
+ "現在,在心中預演一次:你開口了、你出發了、你按下送出了。",
+ "看,你做了。心跳快快的,但你還活著,而且很帥。",
+ "在心中默念:我可以一邊害怕,一邊行動。",
+ "勇氣不是天生的,是練出來的,而我正在練。",
+ "把猶豫丟進火裡,它燒起來的光,就是你的燃料。",
+ "跟自己約定一個二十四小時內的小行動。一個就好。",
+ "帶著火種回來。記得,二十四小時內,動起來。"]},
+
+{id:15,name:"智慧清晰冥想",en:"CLARITY",color:"#cfe8ff",hue:0.55,freq:741,beat:12.5,chord:[1,1.25,1.5,1.875],env:"crystal",
+ desc:"741Hz 對應清晰思維與決策。把問題交給潛意識這台超級電腦,答案常在安靜時自己浮現。",
+ tech:["心智除霧:吐掉雜訊,留下重點","提問交託法:把問題交給潛意識運算","清晰之光:看見下一步"],
+ prompts:[
+ "歡迎來到水晶迴廊。這裡的空氣,連思緒都會變透明。",
+ "深呼吸。吐氣時,把腦中的雜訊像霧一樣呼出去。",
+ "再吐一次。資訊太多不是智慧,看得清才是。",
+ "現在,把你正在煩惱的問題,凝聚成一句簡單的提問。",
+ "把這句提問,輕輕放進眼前的水晶裡。交給它,不用急著解。",
+ "你的潛意識是超級電腦,它在背景運算,連睡覺都在算。",
+ "在心中默念:答案會在對的時刻浮現,我信任我的智慧。",
+ "感受腦中安靜下來的清爽,像擦乾淨的玻璃。",
+ "也許此刻,已經有一個小小的方向在心裡亮起來了。",
+ "不管有沒有,都謝謝這顆很努力的腦袋。",
+ "帶著透明的腦回來。答案來的時候,你會認得它。"]},
+
+{id:16,name:"家庭和諧冥想",en:"FAMILY",color:"#ffc9a0",hue:0.08,freq:639,beat:5.5,chord:[1,1.25,1.5,2],env:"hearth",
+ desc:"639Hz 關係頻率配溫暖 Theta 波。以餐桌場景 SATS 法,預先體驗家中流動著理解與笑聲的版本。",
+ tech:["餐桌場景 SATS:全感官體驗和諧的家","理解之光:先看見家人行為背後的需要","新家庭劇本宣告"],
+ prompts:[
+ "歡迎回家。這裡有暖光、有飯菜香,有放鬆的空氣。",
+ "深呼吸,讓肩膀放下。在家,不需要武裝。",
+ "想像一張溫暖的餐桌,家人都在,而氣氛是輕鬆的。",
+ "聽見笑聲,聽見有人說「再吃一點」。感受那份日常的幸福。",
+ "看著每一位家人,試著看見他們行為背後,其實是在乎。",
+ "對他們每個人,在心中說一句:謝謝你,辛苦了。",
+ "在心中默念:我的家正在變得越來越溫暖、越來越能好好說話。",
+ "我先成為家裡那道柔軟的光,氣氛會跟著我改變。",
+ "把這個餐桌畫面存起來,它是你們家的新劇本。",
+ "為這個已經在成形的版本,說聲謝謝。",
+ "帶著暖光回家。今晚,先說一句溫柔的話。"]},
+
+{id:17,name:"自我價值冥想",en:"WORTH",color:"#e3b8ff",hue:0.8,freq:528,beat:8.5,chord:[1,1.25,1.5,2.5],env:"mirror",
+ desc:"528Hz 轉化頻率,進行內在鏡子練習。把自我對話從批評頻道,切換到無條件接納的頻道。",
+ tech:["鏡子練習:直視內在的自己並說出接納","批評者降噪:辨識腦中嚴厲的聲音不是真相","無條件價值宣告"],
+ prompts:[
+ "歡迎來到光之鏡廳。今天,我們來見一個重要的人:你自己。",
+ "深呼吸。想像眼前有一面柔光的鏡子,鏡中是此刻的你。",
+ "看著鏡中的自己。不評分、不挑剔,只是看著。",
+ "腦中如果出現批評的聲音,認出它:那是舊錄音,不是真相。",
+ "對鏡中的自己說:嘿,這些年,你真的很努力了。",
+ "再說:對不起,我以前對你太兇了。",
+ "現在,說出最重要的一句:你的價值,不需要任何成就來證明。",
+ "你存在,所以你值得。就這麼簡單。",
+ "看著鏡中的自己慢慢發光,因為被你接納了。",
+ "給鏡中的自己一個微笑,這是和好的開始。",
+ "帶著這份和解回來。今天,對自己說話溫柔一點。"]},
+
+{id:18,name:"放下執念冥想",en:"RELEASE",color:"#b8d4ff",hue:0.62,freq:417,beat:4.5,chord:[1,1.5,1.667,2],env:"lantern",
+ desc:"417Hz 是清除與改變的頻率。顯化的最後一步是放手:抓得越緊流得越慢,交託才會加速。",
+ tech:["天燈釋放法:把執念寫上天燈放飛","臣服心法:放下『怎麼來』,只留『一定來』","空出雙手,才接得住新的"],
+ prompts:[
+ "歡迎來到天燈之夜。今晚,我們只做一件事:放手。",
+ "深呼吸。想起那件你抓得最緊、想得最多的事。",
+ "抓緊不會讓它更快來,只會讓你更累。今晚,試著鬆手。",
+ "想像一盞天燈,把那份執念與焦慮,輕輕寫在燈面上。",
+ "捧著它,對它說:謝謝你提醒我有多在乎。但現在,交給宇宙了。",
+ "鬆手。看著天燈緩緩升空,越來越小,越來越輕。",
+ "在心中默念:我放下『它要怎麼來』,我只保留『它一定會來』。",
+ "感受雙手空出來的輕盈。空著的手,才接得住新的禮物。",
+ "夜空裡滿滿的天燈,都在替你工作。你可以休息了。",
+ "對自己說:我已經做了我的部分,剩下的不歸我管。",
+ "帶著輕盈回來。今天,少想一次它,就是進步。"]},
+
+{id:19,name:"直覺開啟冥想",en:"INTUITION",color:"#9db4ff",hue:0.68,freq:852,beat:6.3,chord:[1,1.2,1.5,1.8],env:"thirdeye",
+ desc:"852Hz 對應直覺與內在秩序。降低腦中音量,聽見那個一直很準、只是常被忽略的內在聲音。",
+ tech:["眉心聚焦:852Hz 第三眼頻率共振","內在聲音辨識:直覺很安靜,焦慮很大聲","直覺信任合約"],
+ prompts:[
+ "歡迎來到靛藍之境。這裡很安靜,安靜到聽得見直覺。",
+ "深呼吸,把注意力輕輕放在眉心,不用力,像羽毛停在那裡。",
+ "感受眉心微微的溫熱或脈動,那是你的內在天線在開機。",
+ "腦中的吵雜慢慢轉小聲……更小聲……",
+ "記住這個分辨法:焦慮很大聲很急,直覺很安靜很穩。",
+ "現在,問你的直覺一個問題,然後,什麼都不做,只是聽。",
+ "第一個浮現的、安靜的感覺,留意它。不用急著分析。",
+ "在心中默念:我的直覺一直都在,我願意開始聽它的。",
+ "跟直覺簽下合約:你給訊號,我給信任。",
+ "謝謝這位從不出錯只是常被忽略的老朋友。",
+ "帶著打開的天線回來。今天,跟著直覺做一個小決定。"]},
+
+{id:20,name:"未來自我冥想",en:"FUTURE SELF",color:"#fff0c9",hue:0.14,freq:963,beat:10.2,chord:[1,1.25,1.5,2,3],env:"timegate",
+ desc:"963Hz 最高頻搭配 Alpha 波。穿越時光之門與未來的自己合一,直接下載那個版本的頻率與習慣。",
+ tech:["時光之門:與五年後最佳版本的自己見面","頻率下載:複製未來自我的狀態與眼神","合一儀式:今天就開始當那個人"],
+ prompts:[
+ "歡迎來到時光之門。門的另一邊,站著五年後最好版本的你。",
+ "深呼吸。準備好了嗎?我們走過去。",
+ "門打開了。看見了嗎?那個你,站姿、眼神、氣場,都不一樣了。",
+ "走近一點。那個你對你微笑,說:我一直在等你來。",
+ "問那個你:你是怎麼走到這裡的?聽聽看,答案會浮現。",
+ "那個你說:就是從你現在這個時間點,一個選擇一個選擇走來的。",
+ "現在,跟未來的自己面對面,深呼吸,然後……合一。",
+ "感受那個版本的頻率流進你的身體:篤定、從容、發光。",
+ "在心中默念:我不是在變成他,我本來就是他。",
+ "未來的你說:回去吧,用我的方式過今天。",
+ "帶著未來的頻率回來。從今天起,你們是同一個人。"]}
+];
+
+const EMOTIONS=["平靜","感動","放鬆","充滿能量","幸福","想睡","思緒變清晰","起雞皮疙瘩","鼻酸想哭","充滿希望","身體變輕","還在路上"];
+/* ================= 核心引擎 v2(明亮世界 · 無語音 · 轉盤選單) ================= */
+const $=id=>document.getElementById(id);
+let scene,camera,renderer,clock,orb,textPlane,textTex,textCanvas,particles=[],dust,floor;
+let currentUnit=UNITS[0],promptIndex=0,sessionActive=false,paused=false;
+let promptTimer=null,xrSession=null;
+
+const store={
+  get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+/* ---------- Three.js 明亮場景 ---------- */
+function initScene(){
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0xffffff);
+  scene.fog=new THREE.FogExp2(0xffffff,0.045);
+  camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.05,120);
+  camera.position.set(0,1.5,0.001);
+  renderer=new THREE.WebGLRenderer({canvas:$("bg-canvas"),antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.xr.enabled=true;
+  clock=new THREE.Clock();
+
+  scene.add(new THREE.HemisphereLight(0xffffff,0xdfe3ee,1.05));
+  const dl=new THREE.DirectionalLight(0xfff4e0,0.7);dl.position.set(2,4,1);scene.add(dl);
+
+  // 地板:探照燈式極光大圈(依單元主色動態重繪)
+  floor=new THREE.Mesh(new THREE.PlaneGeometry(34,34),
+    new THREE.MeshBasicMaterial({map:null,transparent:true,depthWrite:false}));
+  floor.rotation.x=-Math.PI/2;floor.position.y=0;scene.add(floor);
+  paintFloor("#cfd8ff");
+
+  // 常駐淡彩塵埃
+  dust=makePoints(900,()=>[(Math.random()-.5)*40,Math.random()*12,(Math.random()-.5)*40],0xe3e9f6,0.045,0.28);
+  scene.add(dust);
+
+  buildOrb();buildTextPlane();
+  setOrbVisible(false);
+
+  addEventListener("resize",()=>{
+    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+    const sc=renderer.domElement.height*0.5;
+    if(dust&&dust.material.uniforms)dust.material.uniforms.uScale.value=sc;
+    for(const p of particles)if(p.material.uniforms)p.material.uniforms.uScale.value=sc;
+  });
+  renderer.setAnimationLoop(tick);
+}
+function paintFloor(hex){
+  const c=new THREE.Color(hex);
+  const c2=c.clone().offsetHSL(0.10,0,0.06),c3=c.clone().offsetHSL(-0.10,0,0.04);
+  const css=(col,a)=>"rgba("+Math.round(col.r*255)+","+Math.round(col.g*255)+","+Math.round(col.b*255)+","+a+")";
+  const fc=document.createElement("canvas");fc.width=fc.height=1024;
+  const fx=fc.getContext("2d");
+  fx.clearRect(0,0,1024,1024);
+  /* 三個交疊的極光大圈,像探照燈打在地上 */
+  const blob=(x,y,r,col,a)=>{
+    const g=fx.createRadialGradient(x,y,r*0.05,x,y,r);
+    g.addColorStop(0,css(col,a));g.addColorStop(.55,css(col,a*0.45));g.addColorStop(1,css(col,0));
+    fx.fillStyle=g;fx.beginPath();fx.arc(x,y,r,0,6.283);fx.fill();
+  };
+  blob(512,512,520,c,0.50);
+  blob(330,600,360,c2,0.40);
+  blob(700,400,380,c3,0.38);
+  /* 中央白色探照燈核心 */
+  const wg=fx.createRadialGradient(512,512,20,512,512,300);
+  wg.addColorStop(0,"rgba(255,255,255,.95)");wg.addColorStop(.5,"rgba(255,255,255,.45)");wg.addColorStop(1,"rgba(255,255,255,0)");
+  fx.fillStyle=wg;fx.beginPath();fx.arc(512,512,300,0,6.283);fx.fill();
+  const tex=new THREE.CanvasTexture(fc);
+  if(floor.material.map)floor.material.map.dispose();
+  floor.material.map=tex;floor.material.needsUpdate=true;
+}
+/* 圓點粒子:柔邊圓形貼圖(共用一張) */
+let dotTexture=null;
+function getDotTexture(){
+  if(dotTexture)return dotTexture;
+  const c=document.createElement("canvas");c.width=c.height=64;
+  const x=c.getContext("2d");
+  const g=x.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,"rgba(255,255,255,1)");
+  g.addColorStop(.45,"rgba(255,255,255,.95)");
+  g.addColorStop(.8,"rgba(255,255,255,.35)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  x.fillStyle=g;x.fillRect(0,0,64,64);
+  dotTexture=new THREE.CanvasTexture(c);
+  return dotTexture;
+}
+function makePoints(n,posFn,color,size,opacity,blend){
+  const g=new THREE.BufferGeometry(),arr=new Float32Array(n*3),sizes=new Float32Array(n);
+  for(let i=0;i<n;i++){
+    const p=posFn(i);arr[i*3]=p[0];arr[i*3+1]=p[1];arr[i*3+2]=p[2];
+    sizes[i]=size*(0.45+Math.random()*1.6); // 每顆圓點大小不一
+  }
+  g.setAttribute("position",new THREE.BufferAttribute(arr,3));
+  g.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
+  const m=new THREE.ShaderMaterial({
+    transparent:true,depthWrite:false,blending:blend||THREE.NormalBlending,
+    uniforms:{
+      uColor:{value:new THREE.Color(color)},
+      uOpacity:{value:opacity},
+      uMap:{value:getDotTexture()},
+      uScale:{value:(renderer?renderer.domElement.height:800)*0.5}
+    },
+    vertexShader:`
+      attribute float aSize;uniform float uScale;
+      void main(){
+        vec4 mv=modelViewMatrix*vec4(position,1.0);
+        gl_PointSize=aSize*(uScale/-mv.z);
+        gl_Position=projectionMatrix*mv;
+      }`,
+    fragmentShader:`
+      uniform vec3 uColor;uniform float uOpacity;uniform sampler2D uMap;
+      void main(){
+        vec4 t=texture2D(uMap,gl_PointCoord);
+        if(t.a<0.02)discard;
+        gl_FragColor=vec4(uColor,uOpacity*t.a);
+      }`
+  });
+  return new THREE.Points(g,m);
+}
+
+/* ---------- visionOS 玻璃 Siri 球 ---------- */
+function buildOrb(){
+  const geo=new THREE.SphereGeometry(0.16,96,96);
+  const mat=new THREE.ShaderMaterial({
+    transparent:true,depthWrite:false,
+    uniforms:{uTime:{value:0},uHue:{value:0.6},uBreath:{value:0}},
+    vertexShader:`
+      varying vec3 vN;varying vec3 vV;varying vec3 vP;
+      uniform float uTime;uniform float uBreath;
+      void main(){
+        vec3 p=position*(1.0+0.045*uBreath);
+        // 泡泡果凍抖動
+        p+=normal*(0.012*sin(uTime*2.1+position.x*8.0+position.y*6.0)
+                  +0.009*sin(uTime*1.4+position.z*9.0-position.y*5.0));
+        vN=normalize(normalMatrix*normal);
+        vec4 mv=modelViewMatrix*vec4(p,1.0);
+        vV=normalize(-mv.xyz);vP=position;
+        gl_Position=projectionMatrix*mv;
+      }`,
+    fragmentShader:`
+      varying vec3 vN;varying vec3 vV;varying vec3 vP;
+      uniform float uTime;uniform float uHue;
+      vec3 hsv(float h,float s,float v){
+        vec3 k=vec3(1.,2./3.,1./3.);
+        vec3 p=abs(fract(vec3(h)+k)*6.-3.);
+        return v*mix(vec3(1.),clamp(p-1.,0.,1.),s);
+      }
+      float blob(vec3 np,vec3 dir,float k){return pow(max(dot(np,normalize(dir)),0.0),k);}
+      void main(){
+        vec3 np=normalize(vP);
+        float t=uTime;
+        float fres=pow(1.0-max(dot(vN,vV),0.0),2.2);
+        // 深色玻璃基底
+        vec3 col=vec3(0.05,0.08,0.16);
+        // 內部流動色塊(青、桃紅、綠、紫)
+        col+=vec3(0.16,0.85,1.0)*blob(np,vec3(sin(t*.6),cos(t*.5),sin(t*.4)),3.5)*0.95;
+        col+=vec3(1.0,0.22,0.45)*blob(np,vec3(cos(t*.45+2.0),sin(t*.55+1.0),cos(t*.35)),3.0)*0.9;
+        col+=vec3(0.30,1.0,0.65)*blob(np,vec3(sin(t*.5+4.0),cos(t*.6+3.0),sin(t*.45+1.5)),4.0)*0.8;
+        col+=vec3(0.62,0.40,1.0)*blob(np,vec3(cos(t*.4+1.0),sin(t*.35+2.5),cos(t*.55+0.5)),3.2)*0.8;
+        // 中央亮核與高光
+        float core=pow(max(dot(np,normalize(vec3(0.0,0.15,1.0))),0.0),6.0);
+        col+=vec3(1.0,0.96,1.0)*core*0.6;
+        float hl=pow(max(dot(vN,normalize(vec3(0.4,0.7,0.8))),0.0),26.0);
+        col+=vec3(1.0)*hl;
+        // 邊緣依單元主題色微微泛光
+        col+=hsv(uHue,0.45,1.0)*fres*0.35;
+        float a=0.88+fres*0.12;
+        gl_FragColor=vec4(col,a);
+      }`
+  });
+  orb=new THREE.Mesh(geo,mat);
+  orb.position.set(0.42,1.06,-1.65);
+  scene.add(orb);
+}
+
+/* ---------- 泡泡文字球(VR 內,2D 用 CSS 大泡泡) ---------- */
+function buildTextPlane(){
+  textCanvas=document.createElement("canvas");textCanvas.width=880;textCanvas.height=880;
+  textTex=new THREE.CanvasTexture(textCanvas);
+  const mat=new THREE.MeshBasicMaterial({map:textTex,transparent:true,depthWrite:false});
+  textPlane=new THREE.Mesh(new THREE.PlaneGeometry(1.3,1.3),mat);
+  textPlane.position.set(0,1.5,-1.9);
+  scene.add(textPlane);
+}
+function drawPromptTo3D(text){
+  const x=textCanvas.getContext("2d");
+  x.clearRect(0,0,880,880);
+  if(text){
+    const cx=440,cy=440,r=420;
+    // 泡泡本體:半透明玻璃
+    let g=x.createRadialGradient(cx,cy,r*0.5,cx,cy,r);
+    g.addColorStop(0,"rgba(255,255,255,.14)");
+    g.addColorStop(.86,"rgba(255,255,255,.40)");
+    g.addColorStop(1,"rgba(255,255,255,.10)");
+    x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.fill();
+    // 虹彩泡膜邊緣
+    const rim=["#8ecfff","#c9b2ff","#ffb7d9","#ffe2a8","#a9f2d0"];
+    rim.forEach((c,i)=>{
+      x.strokeStyle=c;x.globalAlpha=.55;x.lineWidth=7;
+      x.beginPath();x.arc(cx,cy,r-8,(i*2*Math.PI/rim.length),((i+1)*2*Math.PI/rim.length));x.stroke();
+    });
+    x.globalAlpha=1;
+    // 左上高光
+    g=x.createRadialGradient(cx-r*.42,cy-r*.5,0,cx-r*.42,cy-r*.5,r*.36);
+    g.addColorStop(0,"rgba(255,255,255,.95)");g.addColorStop(1,"rgba(255,255,255,0)");
+    x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.fill();
+    // 文字置中泡泡內
+    x.fillStyle="#1c1c22";
+    x.font="500 47px 'PingFang TC','Noto Sans TC',sans-serif";
+    x.textAlign="center";x.textBaseline="middle";
+    wrapText(x,text,cx,cy,560,80);
+  }
+  textTex.needsUpdate=true;
+}
+function roundRect(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function wrapText(x,t,cx,cy,maxW,lh){
+  const chars=t.split("");let lines=[],line="";
+  for(const ch of chars){
+    if(x.measureText(line+ch).width>maxW){lines.push(line);line=ch;}else line+=ch;
+  }
+  lines.push(line);
+  const y0=cy-(lines.length-1)*lh/2;
+  lines.forEach((l,i)=>x.fillText(l,cx,y0+i*lh));
+}
+
+/* ---------- 明亮主題粒子宇宙 ---------- */
+function clearEnv(){particles.forEach(p=>{scene.remove(p);p.geometry.dispose();p.material.dispose()});particles=[];}
+function buildEnv(unit){
+  clearEnv();
+  const col=new THREE.Color(unit.color).offsetHSL(0,0.05,-0.08); // 微降亮度,白底上才看得見
+  const col2=new THREE.Color(unit.color).offsetHSL(0.07,-0.05,-0.02);
+  const E=unit.env;
+  /* 粒子一律離地:y < 1 的抬到 1.0~2.5,避免透視壓縮鋪成滿地彩點 */
+  const lift=fn=>i=>{const pt=fn(i);if(pt[1]<1.0)pt[1]=1.0+Math.random()*1.5;return pt;};
+  const mk=(n,fn,c,s,o,vel)=>{const p=makePoints(n,lift(fn),c,s,o);p.userData.vel=vel;particles.push(p);scene.add(p);};
+  if(E==="goldrain")      {mk(1500,()=>[(Math.random()-.5)*22,Math.random()*14-2,(Math.random()-.5)*22],col,0.05,.85,{y:-0.4,swirl:.05});}
+  else if(E==="forest")   {mk(1100,()=>[(Math.random()-.5)*18,Math.random()*9-1,(Math.random()-.5)*18],col,0.055,.75,{y:0.12,swirl:.18});}
+  else if(E==="galaxy")   {mk(2200,i=>{const a=i*0.07,r=0.8+i*0.004;return[Math.cos(a)*r,(Math.random()-.5)*3+1.4,Math.sin(a)*r-2]},col,0.045,.85,{rot:.05});}
+  else if(E==="rose")     {mk(1400,()=>[(Math.random()-.5)*16,Math.random()*8,(Math.random()-.5)*16],col,0.06,.75,{y:0.06,swirl:.3});}
+  else if(E==="dawn")     {mk(1300,()=>[(Math.random()-.5)*26,Math.random()*5,(Math.random()-.5)*26-6],col,0.065,.8,{y:0.18,swirl:.04});}
+  else if(E==="sun")      {mk(1200,()=>{const a=Math.random()*6.28,r=2+Math.random()*8;return[Math.cos(a)*r,Math.random()*7,Math.sin(a)*r-3]},col,0.06,.8,{rot:.1});}
+  else if(E==="ocean")    {mk(1600,()=>[(Math.random()-.5)*24,Math.random()*6-1.5,(Math.random()-.5)*24],col,0.055,.65,{y:-0.05,swirl:.1});}
+  else if(E==="firefly")  {mk(850,()=>[(Math.random()-.5)*14,Math.random()*5,(Math.random()-.5)*14],col,0.075,.9,{wander:.4});}
+  else if(E==="river")    {mk(1700,()=>[(Math.random()-.5)*20,Math.random()*4,(Math.random()-.5)*20],col,0.055,.8,{x:0.4,swirl:.08});}
+  else if(E==="coral")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*7,(Math.random()-.5)*16],col,0.06,.7,{y:0.08,swirl:.22});}
+  else if(E==="aurora")   {mk(1900,i=>[(i%200)*0.12-12,3+Math.sin(i*0.05)*1.6+Math.random(),-5-Math.random()*8],col,0.075,.6,{wave:1});}
+  else if(E==="lake")     {mk(1000,()=>[(Math.random()-.5)*22,Math.random()*0.4,(Math.random()-.5)*22],col,0.05,.55,{swirl:.05});}
+  else if(E==="plasma")   {mk(1400,()=>{const a=Math.random()*6.28,r=1.5+Math.random()*7;return[Math.cos(a)*r,Math.random()*6,Math.sin(a)*r-2]},col,0.065,.85,{rot:.18});}
+  else if(E==="ember")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*9-1,(Math.random()-.5)*16],col,0.055,.85,{y:0.35,swirl:.12});}
+  else if(E==="crystal")  {mk(950,()=>[(Math.random()-.5)*18,Math.random()*8,(Math.random()-.5)*18],col,0.065,.8,{y:0.03,swirl:.03});}
+  else if(E==="hearth")   {mk(950,()=>[(Math.random()-.5)*12,Math.random()*5,(Math.random()-.5)*12],col,0.065,.8,{y:0.1,swirl:.15});}
+  else if(E==="mirror")   {mk(1100,()=>[(Math.random()-.5)*16,Math.random()*8,(Math.random()-.5)*16],col,0.055,.75,{wander:.25});}
+  else if(E==="lantern")  {mk(650,()=>[(Math.random()-.5)*20,Math.random()*12-1,(Math.random()-.5)*20],col,0.095,.9,{y:0.22,swirl:.04});}
+  else if(E==="thirdeye") {mk(1500,i=>{const a=i*0.05,r=0.6+(i%400)*0.01;return[Math.cos(a)*r,1.5+Math.sin(i*0.02)*1.2,Math.sin(a)*r-2.5]},col,0.045,.8,{rot:.08});}
+  else if(E==="timegate") {mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.12});}
+  mk(800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,{swirl:.06});
+}
+
+/* ---------- 動畫迴圈 ---------- */
+function tick(){
+  const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta()+0.016,0.05);
+  if(orb&&orb.visible){
+    orb.material.uniforms.uTime.value=t;
+    const breath=(Math.sin(t*2*Math.PI/8)+1)/2;
+    orb.material.uniforms.uBreath.value=breath;
+    // 真實泡泡感:多組不同週期正弦疊加的漂浮
+    orb.position.x=0.42+Math.sin(t*0.50)*0.035+Math.sin(t*1.27)*0.015;
+    orb.position.y=1.06+Math.sin(t*0.62)*0.030+Math.cos(t*1.70)*0.012;
+    orb.position.z=-1.65+Math.sin(t*0.41)*0.020;
+    orb.rotation.y=t*0.15;
+  }
+  if(dust)dust.rotation.y=t*0.003;
+  if(textPlane&&textPlane.visible){ // VR 泡泡:多軸不規則飄移 + 軟形變
+    textPlane.position.x=Math.sin(t*0.47)*0.035+Math.sin(t*1.21)*0.012;
+    textPlane.position.y=1.5+Math.sin(t*0.61)*0.028+Math.cos(t*1.63)*0.010;
+    textPlane.scale.set(1+0.014*Math.sin(t*1.1),1-0.014*Math.sin(t*1.1),1);
+  }
+  for(const p of particles){
+    const v=p.userData.vel||{},pos=p.geometry.attributes.position;
+    if(v.rot)p.rotation.y+=v.rot*dt;
+    if(v.y||v.x||v.wander||v.wave){
+      const a=pos.array;
+      for(let i=0;i<a.length;i+=3){
+        if(v.x){a[i]+=v.x*dt;if(a[i]>12)a[i]=-12;}
+        if(v.y){a[i+1]+=v.y*dt;if(v.y>0&&a[i+1]>12)a[i+1]=1.0;if(v.y<0&&a[i+1]<1.0)a[i+1]=12;}
+        if(v.wander){a[i]+=Math.sin(t+i)*0.0015;a[i+1]+=Math.cos(t*0.8+i)*0.0012;}
+        if(v.wave){a[i+1]+=Math.sin(t*0.7+a[i]*0.5)*0.003;}
+      }
+      pos.needsUpdate=true;
+    }
+    if(v.swirl)p.rotation.y+=v.swirl*dt*0.5;
+  }
+  renderer.render(scene,camera);
+}
+function setOrbVisible(v){orb.visible=v;textPlane.visible=v&&!!xrSession;} // 3D 字板只給 VR,2D 用泡泡字幕
+
+/* ---------- Web Audio 顯化音場(保留,溫柔背景) ---------- */
+let AC=null,master=null,audioNodes=[],sparkleTimer=null;
+function ensureAudio(){
+  if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();}
+  if(AC.state==="suspended")AC.resume();
+}
+function startSoundscape(unit){
+  ensureAudio();stopSoundscape(0);
+  master=AC.createGain();master.gain.value=0;master.connect(AC.destination);
+  const f=unit.freq,beat=unit.beat;
+  const mkOsc=(freq,pan,gain)=>{
+    const o=AC.createOscillator();o.type="sine";o.frequency.value=freq;
+    const p=AC.createStereoPanner?AC.createStereoPanner():null;
+    const g=AC.createGain();g.gain.value=gain;
+    o.connect(g);
+    if(p){p.pan.value=pan;g.connect(p);p.connect(master);}else g.connect(master);
+    o.start();audioNodes.push(o,g,p);
+  };
+  mkOsc(f,-1,0.05);mkOsc(f+beat,1,0.05);
+  const pad=AC.createGain();pad.gain.value=0.10;
+  const lp=AC.createBiquadFilter();lp.type="lowpass";lp.frequency.value=900;lp.Q.value=0.4;
+  pad.connect(lp);lp.connect(master);
+  const lfo=AC.createOscillator();lfo.frequency.value=1/11;
+  const lfoG=AC.createGain();lfoG.gain.value=420;
+  lfo.connect(lfoG);lfoG.connect(lp.frequency);lfo.start();
+  audioNodes.push(pad,lp,lfo,lfoG);
+  unit.chord.forEach((r,i)=>{
+    const o=AC.createOscillator();o.type=i%2?"triangle":"sine";
+    o.frequency.value=(f/2)*r;o.detune.value=(Math.random()-.5)*6;
+    const g=AC.createGain();g.gain.value=0.5/unit.chord.length;
+    const wob=AC.createOscillator();wob.frequency.value=0.05+Math.random()*0.08;
+    const wobG=AC.createGain();wobG.gain.value=0.18/unit.chord.length;
+    wob.connect(wobG);wobG.connect(g.gain);
+    o.connect(g);g.connect(pad);o.start();wob.start();
+    audioNodes.push(o,g,wob,wobG);
+  });
+  const sparkle=()=>{
+    if(!master)return;
+    const r=unit.chord[Math.floor(Math.random()*unit.chord.length)];
+    const o=AC.createOscillator();o.type="sine";o.frequency.value=f*r*(Math.random()<0.5?1:2);
+    const g=AC.createGain();g.gain.value=0;
+    o.connect(g);g.connect(master);
+    const now=AC.currentTime;
+    g.gain.setValueAtTime(0,now);
+    g.gain.linearRampToValueAtTime(0.035,now+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+4.5);
+    o.start(now);o.stop(now+5);
+    sparkleTimer=setTimeout(sparkle,6000+Math.random()*9000);
+  };
+  sparkleTimer=setTimeout(sparkle,5000);
+  master.gain.linearRampToValueAtTime(0.85,AC.currentTime+5);
+}
+function stopSoundscape(fade=2.5){
+  clearTimeout(sparkleTimer);sparkleTimer=null;
+  if(master){
+    try{master.gain.linearRampToValueAtTime(0.0001,AC.currentTime+fade);}catch(e){}
+    const nodes=audioNodes,m=master;
+    setTimeout(()=>{nodes.forEach(n=>{try{n.stop&&n.stop()}catch(e){}try{n.disconnect&&n.disconnect()}catch(e){}});try{m.disconnect()}catch(e){}},fade*1000+200);
+  }
+  master=null;audioNodes=[];
+}
+
+/* ---------- 冥想流程(無語音 · 閱讀節奏自動推進) ---------- */
+function readTime(text){return Math.max(6500,text.length*430)+3500+10000;} // 閱讀時間 + 留白 + 額外10秒
+async function startSession(unit,vr){
+  currentUnit=unit;promptIndex=0;sessionActive=true;paused=false;
+  ensureAudio();
+  document.body.classList.add("in-session");
+  $("lobby").classList.add("hidden");
+  $("hud").classList.add("show");
+  $("hud-unit").textContent=`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
+  orb.material.uniforms.uHue.value=unit.hue;
+  buildEnv(unit);paintFloor(unit.color);setOrbVisible(true);
+  startSoundscape(unit);
+  if(vr)await enterVR();
+  runPrompt();
+}
+async function runPrompt(){
+  if(!sessionActive)return;
+  if(promptIndex>=currentUnit.prompts.length){return finishSession();}
+  const text=currentUnit.prompts[promptIndex];
+  /* iOS 修正:不能 toggle 祖先 #prompt-bubble 的 opacity(會殺死子層 backdrop-filter 變牛奶白)
+     只淡出/淡入純文字 #prompt-text,泡泡 session 期間常駐 */
+  const firstShow=!$("prompt-bubble").classList.contains("show");
+  if(!firstShow){ // 第一句不用等:泡泡還沒出現,沒有舊字需要淡出
+    $("prompt-text").style.opacity="0";
+    drawPromptTo3D("");
+    await wait(2100);
+    if(!sessionActive)return;
+  }else{ // 第一句:先讓人沉浸場景約 2 秒,泡泡與文字才開始 2 秒的淡入登場
+    $("prompt-text").style.opacity="0";
+    await wait(2000);
+    if(!sessionActive)return;
+    $("prompt-bubble").classList.add("show");
+    await wait(60); // 隔一個影格,確保文字 transition 從 0 開始播放
+    if(!sessionActive)return;
+  }
+  $("prompt-text").textContent=text;
+  $("prompt-text").style.opacity="1";
+  if(firstShow)$("prompt-bubble").classList.add("show");
+  drawPromptTo3D(text);
+  $("progress-fill").style.width=((promptIndex+1)/currentUnit.prompts.length*100)+"%";
+  const myIndex=promptIndex;
+  promptTimer=setTimeout(()=>{
+    if(sessionActive&&!paused&&myIndex===promptIndex){promptIndex++;runPrompt();}
+  },readTime(text));
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+function jumpPrompt(d){
+  if(!sessionActive)return;
+  clearTimeout(promptTimer);
+  promptIndex=Math.max(0,promptIndex+d);
+  paused=false;$("btn-pause").textContent="⏸ 暫停";
+  runPrompt();
+}
+function togglePause(){
+  if(!sessionActive)return;
+  paused=!paused;
+  $("btn-pause").textContent=paused?"▶︎ 繼續":"⏸ 暫停";
+  if(paused)clearTimeout(promptTimer);
+  else runPrompt();
+}
+async function finishSession(){
+  $("prompt-text").style.opacity="0";
+  await wait(2100);
+  $("prompt-text").textContent="冥想完成。慢慢回來,帶著你的新頻率 🙏";
+  $("prompt-text").style.opacity="1";
+  drawPromptTo3D("冥想完成 · 帶著你的新頻率回來");
+  await wait(7000);
+  endSession(true);
+}
+function endSession(showRating){
+  sessionActive=false;paused=false;
+  clearTimeout(promptTimer);
+  stopSoundscape(3);
+  if(xrSession){try{xrSession.end()}catch(e){}}
+  document.body.classList.remove("in-session");
+  $("hud").classList.remove("show");
+  $("prompt-bubble").classList.remove("show");
+  $("progress-fill").style.width="0%";
+  setOrbVisible(false);clearEnv();
+  if(showRating)openRating();
+  else $("lobby").classList.remove("hidden");
+}
+
+/* ---------- WebXR(Meta Quest 3) ---------- */
+async function detectVR(){
+  const el=$("vr-status");
+  if(navigator.xr&&await navigator.xr.isSessionSupported("immersive-vr").catch(()=>false)){
+    el.textContent="VR 模式可用 · Quest 3 已就緒";
+    document.body.dataset.vr="1";
+    $("c-vr").style.display="";
+  }else{
+    el.textContent="2D 沉浸模式(用 Quest 3 瀏覽器開啟可進入 VR)";
+  }
+}
+async function enterVR(){
+  try{
+    xrSession=await navigator.xr.requestSession("immersive-vr",{optionalFeatures:["local-floor","bounded-floor"]});
+    await renderer.xr.setSession(xrSession);
+    textPlane.visible=sessionActive; // VR 內才顯示 3D 字板
+    xrSession.addEventListener("end",()=>{xrSession=null;textPlane.visible=false;});
+    for(const i of[0,1]){
+      const c=renderer.xr.getController(i);
+      c.addEventListener("select",()=>jumpPrompt(1));
+      scene.add(c);
+    }
+  }catch(e){console.warn("VR 啟動失敗",e);}
+}
+
+/* ---------- Siri 同心圓轉盤選單 ---------- */
+let wheelAngle=0,activeIdx=0,dragging=false,lastPointerAngle=0,nodeEls=[];
+let velSamples=[],lastMoveT=0,dragMoved=0; // 拉霸機:放手前的角速度取樣 / 累計拖曳量(抑制誤觸 click)
+const TAU=Math.PI*2,STEP=TAU/UNITS.length;
+function buildWheel(){
+  const box=$("wheel-items");
+  UNITS.forEach((u,i)=>{
+    const n=document.createElement("div");
+    n.className="w-node";
+    n.style.setProperty("--u-color",u.color);
+    n.innerHTML=`<div class="nd"></div><span>${u.id}</span>`;
+    n.onclick=e=>{e.stopPropagation();if(dragMoved>0.04)return;rotateTo(i);}; // 拖曳後補發的 click 不可打斷旋轉
+    box.appendChild(n);nodeEls.push(n);
+  });
+  layoutWheel();
+  setActive(0,true);
+
+  const wrap=$("wheel-wrap");
+  const getAngle=e=>{
+    const r=wrap.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-(r.left+r.width/2);
+    const y=(e.touches?e.touches[0].clientY:e.clientY)-(r.top+r.height/2);
+    return Math.atan2(y,x);
+  };
+  const down=e=>{
+    cancelAnimationFrame(snapAnim); // 按住即攔下任何進行中的旋轉
+    dragging=true;lastPointerAngle=getAngle(e);
+    lastMoveT=performance.now();velSamples=[];dragMoved=0;
+  };
+  const move=e=>{
+    if(!dragging)return;
+    const a=getAngle(e);
+    let d=a-lastPointerAngle;
+    if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;
+    wheelAngle+=d;lastPointerAngle=a;
+    dragMoved+=Math.abs(d);
+    // 取樣「轉盤角速度」(rad/s):轉盤拖曳時跟著游標走,
+    // 所以這個值的方向永遠等於使用者看到的拖曳方向(順拖=順轉、逆拖=逆轉),
+    // 而且不管是橫掃還是沿著圓周畫弧(順時針往下拉、往上推)都抓得到力道。
+    // 注意:手機上 pointermove 與 touchmove 對同一次移動會各觸發一次,
+    // 第二次 d≈0 是假樣本,需略過,否則力道被稀釋、甩不動
+    const now=performance.now(),dt=(now-lastMoveT)/1000;
+    if(dt>0.004&&Math.abs(d)>0.0008){
+      velSamples.push({v:d/dt,t:now});
+      if(velSamples.length>8)velSamples.shift();
+      lastMoveT=now;
+    }
+    layoutWheel();
+    e.preventDefault();
+  };
+  const up=()=>{
+    if(!dragging)return;dragging=false;
+    // 放手瞬間:取最近 160ms 內「角速度最快」的樣本判斷力道與方向
+    // (用峰值而非平均:放手前手指本來就會減速,平均會低估力道)
+    const now=performance.now();
+    const recent=velSamples.filter(s=>now-s.t<160);
+    let w=0;
+    for(const s of recent)if(Math.abs(s.v)>Math.abs(w))w=s.v;
+    velSamples=[];
+    if(Math.abs(w)>1.3){
+      startFling(w); // 順著放手前轉盤的轉動方向繼續旋轉
+    }else{
+      // 吸附到最近的單元(頂端 12 點鐘為作用位)
+      const idx=((Math.round(-wheelAngle/STEP)%UNITS.length)+UNITS.length)%UNITS.length;
+      rotateTo(idx);
+    }
+  };
+  wrap.addEventListener("pointerdown",down);
+  addEventListener("pointermove",move,{passive:false});
+  addEventListener("pointerup",up);
+  wrap.addEventListener("touchstart",down,{passive:true});
+  wrap.addEventListener("touchmove",move,{passive:false});
+  addEventListener("touchend",up);
+}
+function layoutWheel(){
+  const wrap=$("wheel-wrap"),R=wrap.clientWidth*0.448;
+  nodeEls.forEach((n,i)=>{
+    const a=-Math.PI/2+i*STEP+wheelAngle; // 0 號從頂端開始
+    n.style.left=(50+Math.cos(a)*R/wrap.clientWidth*100)+"%";
+    n.style.top=(50+Math.sin(a)*R/wrap.clientHeight*100)+"%";
+  });
+}
+let snapAnim=null;
+/* ---------- 拉霸機慣性旋轉 ----------
+   用力一甩 → 轉盤順著放手前的轉動方向高速旋轉(看到往哪轉就往哪飛),
+   摩擦力指數衰減,大力甩約轉 5 秒多,越轉越慢,最後吸附到落點單元。
+   轉動途中中央資訊會跟著「跳格」,製造未知的期待感。 */
+function startFling(v0){
+  cancelAnimationFrame(snapAnim);
+  const dir=v0<0?-1:1;
+  // 力道映射:輕甩至少 5 rad/s,狂甩上限 19 rad/s(約轉 5.3 秒)
+  let v=dir*Math.min(Math.max(Math.abs(v0)*1.1,5),19);
+  const K=0.84;            // 摩擦衰減常數:ln(19/0.22)/0.84 ≈ 5.3s
+  const STOP_V=0.22;       // 低於此角速度就進入最終吸附
+  let last=performance.now(),lastTick=-1;
+  const step=now=>{
+    const dt=Math.min((now-last)/1000,0.05);last=now;
+    wheelAngle+=v*dt;
+    v*=Math.exp(-K*dt);    // 指數摩擦:先快後慢,自然減速
+    layoutWheel();
+    // 經過每一格時即時更新中央顯示(拉霸機跳字感)
+    const idx=((Math.round(-wheelAngle/STEP)%UNITS.length)+UNITS.length)%UNITS.length;
+    if(idx!==lastTick){lastTick=idx;setActive(idx);}
+    if(Math.abs(v)>STOP_V)snapAnim=requestAnimationFrame(step);
+    else rotateTo(idx);    // 緩緩滑進最終落點
+  };
+  snapAnim=requestAnimationFrame(step);
+}
+function rotateTo(idx){
+  cancelAnimationFrame(snapAnim);
+  const target=-idx*STEP;
+  // 取最短路徑
+  let from=wheelAngle;
+  let diff=((target-from)%TAU+TAU*1.5)%TAU-TAU/2;
+  const t0=performance.now(),dur=420;
+  const ease=x=>1-Math.pow(1-x,3);
+  const step=now=>{
+    const k=Math.min((now-t0)/dur,1);
+    wheelAngle=from+diff*ease(k);
+    layoutWheel();
+    if(k<1)snapAnim=requestAnimationFrame(step);
+    else{wheelAngle=target;layoutWheel();}
+  };
+  snapAnim=requestAnimationFrame(step);
+  setActive(idx);
+}
+function setActive(idx,silent){
+  activeIdx=idx;currentUnit=UNITS[idx];
+  nodeEls.forEach((n,i)=>n.classList.toggle("active",i===idx));
+  $("c-num").textContent=`UNIT ${String(currentUnit.id).padStart(2,"0")} · ${currentUnit.en}`;
+  $("c-name").textContent=currentUnit.name;
+  $("c-meta").innerHTML=`<span class="chip">${currentUnit.freq} Hz</span><span class="chip">${beatLabel(currentUnit.beat)}</span><span class="chip">約 ${Math.round(currentUnit.prompts.length*0.8)} 分鐘</span><span class="chip">🎧 建議戴耳機</span>`;
+}
+function beatLabel(b){return b<=4?`Delta ${b}Hz`:b<=8?`Theta ${b}Hz`:`Alpha ${b}Hz`;}
+
+/* ---------- 面板開關 ---------- */
+function openSheet(id){$(id).classList.add("show")}
+function closeSheet(id){$(id).classList.remove("show")}
+
+/* ---------- 評分與紀錄 ---------- */
+let rateStars=0,rateEmos=new Set();
+function buildRating(){
+  const s=$("stars");
+  for(let i=1;i<=5;i++){
+    const e=document.createElement("span");e.className="star";e.textContent="★";
+    e.onclick=()=>{rateStars=i;[...s.children].forEach((c,j)=>c.classList.toggle("on",j<i));};
+    s.appendChild(e);
+  }
+  const g=$("emo-grid");
+  EMOTIONS.forEach(em=>{
+    const e=document.createElement("span");e.className="emo";e.textContent=em;
+    e.onclick=()=>{e.classList.toggle("on");e.classList.contains("on")?rateEmos.add(em):rateEmos.delete(em);};
+    g.appendChild(e);
+  });
+}
+function openRating(){
+  rateStars=0;rateEmos.clear();
+  [...$("stars").children].forEach(c=>c.classList.remove("on"));
+  [...$("emo-grid").children].forEach(c=>c.classList.remove("on"));
+  $("note-input").value="";
+  openSheet("rate-sheet");
+}
+function saveRating(){
+  const h=store.get("mani_history")||[];
+  h.unshift({d:new Date().toISOString(),unit:currentUnit.name,stars:rateStars,emos:[...rateEmos],note:$("note-input").value.trim()});
+  store.set("mani_history",h.slice(0,300));
+  closeSheet("rate-sheet");
+  $("lobby").classList.remove("hidden");
+}
+function openHistory(){
+  const h=store.get("mani_history")||[];
+  $("history-stat").textContent=h.length?`累計 ${h.length} 次冥想 · 平均 ${(h.reduce((a,b)=>a+(b.stars||0),0)/h.length).toFixed(1)} ★ · 持續顯化中`:"";
+  $("history-list").innerHTML=h.length?h.map(r=>{
+    const dt=new Date(r.d);
+    return `<div class="h-item"><div class="h-left"><span>${r.unit}${r.emos&&r.emos.length?` · ${r.emos.join("、")}`:""}</span>${r.note?`<span class="h-date">「${r.note}」</span>`:""}<span class="h-date">${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,"0")}:${String(dt.getMinutes()).padStart(2,"0")}</span></div><div class="h-stars">${"★".repeat(r.stars||0)}</div></div>`;
+  }).join(""):`<div class="h-empty">還沒有紀錄。<br>轉動圓盤,開始你的第一次顯化冥想吧</div>`;
+  openSheet("history-sheet");
+}
+
+/* ---------- 綁定 ---------- */
+function openIntro(){
+  const u=currentUnit;
+  $("intro-num").textContent="UNIT "+String(u.id).padStart(2,"0")+" · "+u.en;
+  $("intro-title").textContent=u.name;
+  $("intro-chips").innerHTML='<span class="chip">'+u.freq+' Hz</span><span class="chip">'+beatLabel(u.beat)+'</span><span class="chip">約 '+Math.round(u.prompts.length*0.8)+' 分鐘</span><span class="chip">🎧 建議戴耳機</span>';
+  $("intro-desc").textContent=u.desc;
+  $("intro-tech").innerHTML=u.tech.map(t=>'<div class="t">'+t+'</div>').join("");
+  openSheet("intro-sheet");
+}
+$("c-intro").onclick=openIntro;
+$("intro-close").onclick=()=>closeSheet("intro-sheet");
+$("intro-start").onclick=()=>{closeSheet("intro-sheet");startSession(currentUnit,false);};
+$("c-start").onclick=()=>startSession(currentUnit,false);
+$("c-vr").onclick=()=>startSession(currentUnit,true);
+$("btn-prev").onclick=()=>jumpPrompt(-1);
+$("btn-next").onclick=()=>jumpPrompt(1);
+$("btn-pause").onclick=togglePause;
+$("btn-end").onclick=()=>endSession(true);
+$("rate-skip").onclick=()=>{closeSheet("rate-sheet");$("lobby").classList.remove("hidden");};
+$("rate-save").onclick=saveRating;
+$("open-history").onclick=openHistory;
+$("hero-history").onclick=openHistory;
+$("hero-start").onclick=()=>$("wheel-wrap").scrollIntoView({behavior:"smooth",block:"center"});
+$("history-close").onclick=()=>closeSheet("history-sheet");
+addEventListener("resize",layoutWheel);
+
+/* ---------- 啟動 ---------- */
+initScene();buildWheel();buildRating();detectVR();
+</script>
+</body>
+</html>
