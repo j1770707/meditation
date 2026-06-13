@@ -144,18 +144,21 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 .ring.r2{width:76%;height:76%;background:rgba(255,255,255,.50);box-shadow:inset 0 4px 18px rgba(255,255,255,.7),0 6px 22px rgba(120,130,190,.08)}
 .ring.r3{width:52%;height:52%;background:rgba(255,255,255,.62);box-shadow:inset 0 3px 14px rgba(255,255,255,.8),0 4px 16px rgba(120,130,190,.07)}
 #wheel-items{position:absolute;inset:0}
+@property --ws{syntax:"<number>";inherits:false;initial-value:1}
 .w-node{
-  position:absolute;width:33px;height:33px;margin:-16.5px 0 0 -16.5px;border-radius:50%;
+  position:absolute;left:50%;top:50%;width:33px;height:33px;border-radius:50%;
+  --wx:0px;--wy:0px;--ws:1; /* 位移(JS 寫入) + 縮放(hover/active) 合併進同一個 transform */
+  transform:translate(var(--wx),var(--wy)) translate(-50%,-50%) scale(var(--ws));
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   background:rgba(255,255,255,.55);border:1px solid var(--glass-border);
   backdrop-filter:blur(10px) saturate(1.6);-webkit-backdrop-filter:blur(10px) saturate(1.6);
   font-size:12.5px;font-weight:600;color:var(--ink-2);
   box-shadow:0 6px 22px rgba(100,110,170,.10),inset 0 1px 0 rgba(255,255,255,.9);
-  transition:transform .35s cubic-bezier(.34,1.4,.64,1),box-shadow .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease);
+  transition:--ws .35s cubic-bezier(.34,1.4,.64,1),box-shadow .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease);
 }
-.w-node:hover{transform:scale(1.12);box-shadow:0 6px 22px rgba(100,110,170,.10),inset 0 1px 0 rgba(255,255,255,.9),0 0 14px rgba(80,170,255,.45),0 0 28px rgba(80,170,255,.18);}
+.w-node:hover{--ws:1.12;box-shadow:0 6px 22px rgba(100,110,170,.10),inset 0 1px 0 rgba(255,255,255,.9),0 0 14px rgba(80,170,255,.45),0 0 28px rgba(80,170,255,.18);}
 .w-node.active{
-  transform:scale(1.22);color:#0d0d0d;border-color:transparent;
+  --ws:1.22;color:#0d0d0d;border-color:transparent;
   box-shadow:0 10px 30px rgba(100,110,170,.18),0 0 0 3px rgba(255,255,255,.9),0 0 0 5px var(--u-color,#bcd);
 }
 .w-node .nd{position:absolute;inset:4px;border-radius:50%;opacity:.16;background:var(--u-color,#dde)}
@@ -172,7 +175,9 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 #wheel-center h2{margin-top:5px;font-size:clamp(17px,3vw,22px);font-weight:700;letter-spacing:-.01em}
 #wheel-center .c-meta{margin-top:7px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
 .chip{font-size:10.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--glass-border);background:rgba(255,255,255,.40);backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);color:#55556a;font-weight:500;box-shadow:0 2px 8px rgba(120,130,190,.09),inset 0 1px 0 rgba(255,255,255,.95)}
-#wheel-center .c-actions{margin-top:11px;display:flex;gap:8px;justify-content:center;pointer-events:auto;flex-wrap:wrap}
+#wheel-center .c-actions{margin-top:11px;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:auto}
+#wheel-center .c-row{display:flex;gap:8px;justify-content:center;flex-wrap:nowrap}
+#wheel-center .c-row>button{flex:0 0 auto;white-space:nowrap}
 .btn-dark{
   border:1px solid var(--glass-border);border-radius:999px;
   background:rgba(255,255,255,.28);color:var(--ink);font-family:inherit;
@@ -238,8 +243,8 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   #prompt-text{font-size:clamp(20px,1.9vw,28px);width:64%}
 }
 #prompt-bubble.show{visibility:visible}
-#prompt-bubble.show .bub{animation:bubIn 2s cubic-bezier(.22,1,.36,1) both,bubWobble 9s cubic-bezier(.45,0,.55,1) 2s infinite}
-@keyframes bubIn{from{opacity:0;transform:translate(0,0) scale(.92)}to{opacity:1;transform:translate(0,-16px) scale(1)}}
+#prompt-bubble.show .bub{animation:bubIn 2s cubic-bezier(.22,1,.36,1) both,bubWobble 8s ease-in-out 2s infinite}
+@keyframes bubIn{from{opacity:0;transform:translate(0,0) scale(.92)}to{opacity:1;transform:translate(0,-26px) scale(1)}}
 #prompt-bubble .bub{
   position:absolute;inset:0;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -283,12 +288,10 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   opacity:.85;filter:blur(2.5px);animation:rimspin 26s linear infinite;
 }
 @keyframes rimspin{to{transform:rotate(360deg)}}
-@keyframes bubWobble{
-  0%{transform:translate(0,-16px) scale(1,1)}
-  25%{transform:translate(15px,2px) scale(1.026,.976)}
-  50%{transform:translate(-3px,16px) scale(1,1)}
-  75%{transform:translate(-16px,-2px) scale(.976,1.026)}
-  100%{transform:translate(0,-16px) scale(1,1)}
+@keyframes bubWobble{ /* 上端 -26px、下端 +4px → 往上多,往下比之前再多一點點 */
+  0%{transform:translate(0,-26px) scale(1.01,.994)}
+  50%{transform:translate(0,4px) scale(.994,1.01)}
+  100%{transform:translate(0,-26px) scale(1.01,.994)}
 }
 #prompt-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68%;text-align:center;font-size:clamp(16.5px,2.6vw,21px);font-weight:500;line-height:2.05;letter-spacing:.05em;color:#16161c;text-shadow:0 1px 0 rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.95),0 0 30px rgba(255,255,255,.85);opacity:1;transition:opacity 2s cubic-bezier(.22,1,.36,1)}
 /* 呼吸模式:引導詞隨泡泡一起漲縮(比例固定,永不超出泡泡)。
@@ -312,9 +315,9 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 /* ===== 呼吸面板選取狀態:浮起 + 藍色光暈呼吸閃爍 ===== */
 @keyframes selPulse{
   0%,100%{box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),
-    0 0 12px rgba(80,170,255,.50),0 0 26px rgba(80,170,255,.22)}
+    0 0 6px rgba(80,170,255,.40),0 0 12px rgba(80,170,255,.16)}
   50%{box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),
-    0 0 24px rgba(80,170,255,.95),0 0 52px rgba(80,170,255,.50),0 0 80px rgba(120,200,255,.25)}
+    0 0 10px rgba(80,170,255,.65),0 0 20px rgba(80,170,255,.30)}
 }
 .b-sec.sel,.breath-min.sel{
   transform:translateY(-4px) scale(1.06)!important;
@@ -327,6 +330,47 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 
 @keyframes needPick{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .need-pick{animation:needPick .38s ease 2}
+
+/* ===== 夜間模式:HUD 與 2D 元素配色覆寫 ===== */
+body.night #prompt-text{
+  color:#eaf0ff;
+  text-shadow:0 1px 2px rgba(0,0,0,.5),0 0 16px rgba(40,60,120,.7),0 0 34px rgba(20,30,70,.6);
+}
+body.night #hud .unit-tag{background:rgba(30,40,75,.42);border-color:rgba(150,175,255,.32);color:#dbe5ff;
+  box-shadow:0 8px 28px rgba(0,0,0,.32)}
+body.night .hud-btn{background:rgba(30,40,75,.40);border-color:rgba(150,175,255,.30);color:#e3ebff;
+  box-shadow:0 10px 36px rgba(0,0,0,.30),inset 0 1px 0 rgba(180,200,255,.25)}
+body.night .hud-btn:hover,body.night .hud-btn:active{background:rgba(45,58,100,.55);
+  box-shadow:0 10px 36px rgba(0,0,0,.30),inset 0 1px 0 rgba(180,200,255,.25),0 0 16px rgba(90,140,255,.50),0 0 34px rgba(90,140,255,.22)}
+body.night #progress{background:rgba(180,195,240,.16)}
+/* 夜間泡泡:深玻璃,邊緣冷光 */
+body.night #prompt-bubble .bub{
+  background:
+    radial-gradient(ellipse 18% 10% at 33% 15%,rgba(200,220,255,.30) 0%,rgba(200,220,255,.10) 55%,rgba(255,255,255,0) 100%),
+    radial-gradient(circle at 50% 122%,rgba(40,60,120,.20) 0%,rgba(40,60,120,0) 44%);
+  border-color:rgba(150,175,255,.28);
+  box-shadow:0 24px 80px rgba(0,0,0,.32),0 0 0 .5px rgba(160,185,255,.30),
+    inset 0 1px 1px rgba(200,220,255,.30),inset 0 -14px 26px rgba(20,30,70,.30);
+}
+
+/* ===== 白天 / 夜間 模式卡片 ===== */
+.theme-grid{margin-top:24px;display:flex;gap:14px}
+.theme-card{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;
+  padding:26px 16px;border-radius:var(--r-md);cursor:pointer;font-family:inherit;
+  border:1px solid var(--glass-border);background:rgba(255,255,255,.34);
+  backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(20px) saturate(1.9);
+  box-shadow:var(--glass-shadow),var(--glass-glow);
+  transition:transform .35s cubic-bezier(.34,1.45,.64,1),box-shadow .35s var(--ease),background .35s var(--ease);
+}
+.theme-card:hover,.theme-card:active{transform:translateY(-4px) scale(1.04);
+  box-shadow:var(--glass-shadow),var(--glass-glow),0 0 16px rgba(80,170,255,.42),0 0 34px rgba(80,170,255,.18);}
+.tc-orb{width:54px;height:54px;border-radius:50%;box-shadow:inset 0 2px 6px rgba(255,255,255,.6),0 6px 18px rgba(100,110,170,.18)}
+.tc-orb.day{background:radial-gradient(circle at 34% 30%,#fff 0%,rgba(255,255,255,0) 42%),conic-gradient(from 200deg,#9bd6ff,#ffe2ae,#b6f4d8,#ffc2dd,#9bd6ff)}
+.tc-orb.night{background:radial-gradient(circle at 32% 28%,rgba(220,235,255,.95) 0%,rgba(255,255,255,0) 38%),radial-gradient(circle at 70% 75%,#2a3f7a 0%,#0e1430 70%),#0e1430}
+.tc-title{font-size:15.5px;font-weight:700;color:var(--ink)}
+.tc-sub{font-size:11.5px;color:var(--ink-2);letter-spacing:.04em}
+body.night .tc-title{color:#0d0d0d}
 
 /* ===== 評分與紀錄 ===== */
 .stars{margin-top:22px;display:flex;justify-content:center;gap:10px}
@@ -484,11 +528,170 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
 @media (max-width:520px){
   #wheel-center .c-actions .btn-light{padding:11px 14px;font-size:13px}
   #wheel-center .c-actions .btn-dark{padding:11px 18px;font-size:13px}
-  .w-node{width:26px;height:26px;margin:-13px 0 0 -13px;font-size:9.5px}
+  .w-node{width:26px;height:26px;font-size:9.5px}
+}
+
+/* ============================================================
+   日 / 夜 滑動切換開關(可用手指左右拖曳,也可點按)
+   ============================================================ */
+.nav-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.switch{
+  --kb:24px;
+  position:relative;width:62px;height:32px;flex:0 0 auto;
+  border-radius:999px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;
+  border:1px solid var(--glass-border);
+  background:rgba(150,185,255,.30);
+  backdrop-filter:blur(14px) saturate(1.7);-webkit-backdrop-filter:blur(14px) saturate(1.7);
+  box-shadow:inset 0 1px 3px rgba(80,100,160,.22),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:background-color .45s var(--ease),border-color .45s var(--ease),box-shadow .45s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+.switch:focus-visible{outline:2px solid rgba(110,160,255,.8);outline-offset:3px}
+.switch .ico{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;line-height:1;pointer-events:none;opacity:.5}
+.switch .ico.sun{left:8px}
+.switch .ico.moon{right:8px}
+.switch .knob{
+  position:absolute;top:50%;left:4px;width:var(--kb);height:var(--kb);margin-top:calc(var(--kb) / -2);
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 34% 30%,#ffffff 0%,#f3f6ff 60%,#e7ecfb 100%);
+  box-shadow:0 3px 8px rgba(40,60,120,.32),0 1px 2px rgba(40,60,120,.22),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translateX(0);
+  transition:transform .32s cubic-bezier(.34,1.45,.64,1),background .4s var(--ease),box-shadow .35s var(--ease);
+}
+.switch .knob .ki{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;line-height:1;transition:opacity .3s var(--ease)}
+.switch .knob .ki.sun{opacity:1}
+.switch .knob .ki.moon{opacity:0}
+.switch:active .knob{box-shadow:0 4px 12px rgba(40,60,120,.4),inset 0 1px 0 rgba(255,255,255,.9)}
+/* 夜間軌道 + 旋鈕 */
+.switch.night{
+  background:rgba(40,55,110,.62);border-color:rgba(150,175,255,.30);
+  box-shadow:inset 0 1px 3px rgba(0,0,8,.42),inset 0 1px 0 rgba(160,185,255,.25);
+}
+.switch.night .knob{
+  background:radial-gradient(circle at 34% 30%,#eaf0ff 0%,#cdd8ff 60%,#aebbf0 100%);
+  box-shadow:0 3px 10px rgba(0,0,10,.5),inset 0 1px 0 rgba(255,255,255,.8);
+}
+.switch.night .knob .ki.sun{opacity:0}
+.switch.night .knob .ki.moon{opacity:1}
+
+/* 整頁主題切換改用交叉淡化(見 #bg-night / .ring.r1::after / 過渡規則),不再使用純色遮罩 */
+
+/* ============================================================
+   夜晚模式(整頁):深邃午夜玻璃,極光在暗空中發亮
+   以 body.page-night 覆寫,與「冥想中 session」的 body.night 完全獨立
+   ============================================================ */
+body.page-night{
+  --ink:#eef2ff;
+  --ink-2:#9aa6d0;
+  --glass:rgba(30,40,75,.40);
+  --glass-border:rgba(150,175,255,.22);
+  --glass-glow:inset 0 1px 0 rgba(180,200,255,.22),inset 0 0 18px rgba(120,150,255,.10);
+  --glass-shadow:0 12px 44px rgba(0,0,6,.45);
+  --line:rgba(150,175,255,.18);
+  --bg:#070a18;
+  background:#070a18;color:var(--ink);
+}
+
+/* 夜晚靜態底色:獨立成一層,用透明度與白天底色「交叉淡化」疊合,
+   過場時兩層重疊呈黃昏般融合色,不會經過純黑/純白 */
+#bg-night{
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;
+  transition:opacity .85s var(--ease);
+  background:
+    radial-gradient(85% 40% at 50% -6%,rgba(120,110,225,.30),rgba(120,110,225,0) 70%),
+    radial-gradient(60% 45% at -8% 30%,rgba(70,130,235,.32),rgba(70,130,235,0) 68%),
+    radial-gradient(50% 38% at -4% 58%,rgba(60,180,150,.24),rgba(60,180,150,0) 66%),
+    radial-gradient(70% 62% at 108% 46%,rgba(225,165,80,.26),rgba(225,165,80,0) 70%),
+    radial-gradient(58% 46% at -6% 102%,rgba(225,95,175,.26),rgba(225,95,175,0) 66%),
+    radial-gradient(62% 50% at 104% 104%,rgba(225,135,90,.24),rgba(225,135,90,0) 68%),
+    radial-gradient(130% 95% at 50% 50%,rgba(7,10,24,0),rgba(5,7,18,.62) 100%),
+    #070a18;
+}
+body.page-night #bg-night{opacity:1}
+/* 極光泡泡:日夜共用同一組顏色,夜裡因暗底自然更顯明亮(不需突跳換色) */
+
+/* 轉盤外圈 r1 的夜間配色,也用 ::after 交叉淡化 */
+.ring.r1::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:0;
+  transition:opacity .85s var(--ease);
+  background:
+    radial-gradient(closest-side,rgba(7,10,24,0) 90%,rgba(150,175,255,.34) 96%),
+    conic-gradient(from 210deg,#3a2d52,#2a3358,#1e3a52,#23402e,#4a3d22,#3a2d52);}
+body.page-night .ring.r1::after{opacity:1}
+
+/* 日夜切換時:平面玻璃面與文字平滑過渡(漸層背景由上面的層交叉淡化處理) */
+body,
+.hero-panel,.eyebrow,.hero-p,.pill,.info-card,.ic-label,.ic-text,.vr-pill,
+.ring.r1,.ring.r2,.ring.r3,.chip,.wheel-hint,#wheel-center .c-num,
+.tech-list .t,.panel .panel-sub,.h-item,.h-date,.h-empty{
+  transition:background-color .7s var(--ease),color .7s var(--ease),border-color .7s var(--ease),box-shadow .7s var(--ease);
+}
+
+/* nav 按鈕 */
+body.page-night nav .nav-btn{border-color:rgba(150,175,255,.25);background:rgba(30,42,80,.44);color:var(--ink)}
+body.page-night nav .nav-btn:hover,body.page-night nav .nav-btn:active{background:rgba(48,62,110,.58);
+  box-shadow:var(--glass-shadow),0 0 16px rgba(90,150,255,.45),0 0 32px rgba(90,150,255,.20)}
+
+/* hero 區 */
+body.page-night .hero-panel{background:rgba(20,28,58,.48);border-color:rgba(150,175,255,.20);
+  box-shadow:0 18px 54px rgba(0,0,8,.5),var(--glass-glow)}
+body.page-night .eyebrow{color:#9aa6d0}
+body.page-night .hero-p{color:#bcc6e8}
+body.page-night .pill{background:rgba(30,42,80,.42);border-color:rgba(150,175,255,.22);color:#aeb8df}
+body.page-night .info-card{background:rgba(22,30,62,.46);border-color:rgba(150,175,255,.18)}
+body.page-night .ic-label{color:#8e98c4}
+body.page-night .ic-text{color:#c6cfee}
+body.page-night .vr-pill{background:rgba(30,42,80,.44);border-color:rgba(150,175,255,.22);color:#aeb8df}
+
+/* 轉盤 */
+body.page-night .ring.r1{box-shadow:0 24px 70px rgba(0,0,6,.5),inset 0 2px 14px rgba(120,150,255,.18)}
+body.page-night .ring.r2{background:rgba(30,40,75,.42);box-shadow:inset 0 4px 18px rgba(80,110,200,.18),0 6px 22px rgba(0,0,6,.4)}
+body.page-night .ring.r3{background:rgba(24,32,62,.54);box-shadow:inset 0 3px 14px rgba(80,110,200,.20),0 4px 16px rgba(0,0,6,.35)}
+body.page-night .w-node{background:rgba(34,46,86,.58);border-color:rgba(150,175,255,.22);color:#c6cfee;
+  box-shadow:0 6px 22px rgba(0,0,6,.4),inset 0 1px 0 rgba(180,200,255,.20)}
+body.page-night .w-node:hover{box-shadow:0 6px 22px rgba(0,0,6,.4),inset 0 1px 0 rgba(180,200,255,.20),0 0 14px rgba(90,150,255,.5),0 0 28px rgba(90,150,255,.22)}
+body.page-night .w-node.active{color:#fff;box-shadow:0 10px 30px rgba(0,0,8,.5),0 0 0 3px rgba(20,28,58,.92),0 0 0 5px var(--u-color,#5a78c8)}
+body.page-night .chip{background:rgba(30,42,80,.48);border-color:rgba(150,175,255,.22);color:#aeb8df}
+body.page-night .wheel-hint{color:#9aa6d0}
+
+/* 按鈕 */
+body.page-night .btn-dark{background:rgba(34,46,86,.48);border-color:rgba(150,175,255,.24);color:#eef2ff;
+  box-shadow:0 10px 36px rgba(0,0,8,.4),inset 0 1px 0 rgba(180,200,255,.22)}
+body.page-night .btn-dark:hover{background:linear-gradient(95deg,rgba(60,130,255,.24),rgba(150,100,255,.18) 40%,rgba(255,140,90,.16)),rgba(40,54,98,.6);
+  box-shadow:0 10px 36px rgba(0,0,8,.4),inset 0 1px 0 rgba(180,200,255,.22),0 0 18px rgba(90,150,255,.5),0 0 38px rgba(90,150,255,.22)}
+body.page-night .btn-dark:active{background:rgba(48,62,110,.7)}
+body.page-night .btn-light{background:rgba(30,42,80,.42);border-color:rgba(150,175,255,.22);color:#dbe3ff}
+body.page-night .btn-light:hover,body.page-night .btn-light:active{background:rgba(48,62,110,.55);
+  box-shadow:var(--glass-shadow),0 0 16px rgba(90,150,255,.42),0 0 34px rgba(90,150,255,.18)}
+
+/* 面板 / sheet */
+body.page-night .sheet{background:rgba(5,7,18,.6)}
+body.page-night .panel{background:rgba(20,28,58,.68);border-color:rgba(150,175,255,.2);
+  box-shadow:0 30px 90px rgba(0,0,8,.6),inset 0 1px 0 rgba(180,200,255,.18)}
+body.page-night .panel .panel-sub{color:#aeb8df}
+body.page-night .tech-list .t{background:rgba(26,36,70,.52);border-color:rgba(150,175,255,.18);color:#c6cfee}
+body.page-night .theme-card{background:rgba(26,36,70,.52);border-color:rgba(150,175,255,.2)}
+body.page-night .tc-sub{color:#9aa6d0}
+body.page-night #note-input{background:rgba(20,28,58,.55);border-color:rgba(150,175,255,.2);color:#eef2ff}
+body.page-night #note-input::placeholder{color:#7c86ad}
+body.page-night .star{background:rgba(30,42,80,.42);border-color:rgba(150,175,255,.2);color:rgba(170,185,235,.42)}
+body.page-night .emo{background:rgba(30,42,80,.42);border-color:rgba(150,175,255,.2);color:#aeb8df}
+body.page-night .h-item{border-bottom-color:rgba(150,175,255,.16)}
+body.page-night .h-date,body.page-night .h-empty{color:#9aa6d0}
+
+/* 漸層標題:暗底下提亮 */
+body.page-night .hero-h1,
+body.page-night #wheel-center h2,
+body.page-night .panel h2,
+body.page-night nav .brand .b-name{
+  background:linear-gradient(92deg,#7fb4ff 0%,#a99cff 32%,#cdd6f5 54%,#ffd98a 78%,#ffb066 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 </style>
 </head>
 <body>
+<script>try{if(JSON.parse(localStorage.getItem("pageTheme"))==="night")document.body.classList.add("page-night");}catch(e){}</script>
+<div id="bg-night" aria-hidden="true"></div>
 <div id="aurora" aria-hidden="true">
   <div class="ab ab1"></div><div class="ab ab2"></div><div class="ab ab3"></div>
   <div class="ab ab4"></div><div class="ab ab5"></div><div class="ab ab6"></div>
@@ -498,7 +701,14 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
 <main id="lobby">
   <nav class="noselect">
     <div class="brand"><span class="mini-orb"></span><span class="b-name">顯化殿堂</span></div>
-    <button class="nav-btn" id="open-history">冥想紀錄</button>
+    <div class="nav-right">
+      <div class="switch" id="theme-switch" role="switch" tabindex="0" aria-label="日夜模式切換" aria-checked="false">
+        <span class="ico sun">☀️</span>
+        <span class="ico moon">🌙</span>
+        <span class="knob"><span class="ki sun">☀️</span><span class="ki moon">🌙</span></span>
+      </div>
+      <button class="nav-btn" id="open-history">冥想紀錄</button>
+    </div>
   </nav>
   <section class="hero-panel noselect">
     <div class="eyebrow">MANIFEST SPACE · VR 顯化冥想</div>
@@ -526,8 +736,10 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
         <h2 id="c-name"></h2>
         <div class="c-meta" id="c-meta"></div>
         <div class="c-actions">
-          <button class="btn-dark" id="c-start">開始冥想</button>
-          <button class="btn-light" id="c-intro">介紹</button>
+          <div class="c-row">
+            <button class="btn-dark" id="c-start">開始冥想</button>
+            <button class="btn-light" id="c-intro">介紹</button>
+          </div>
           <button class="btn-light" id="c-vr" style="display:none">VR 模式</button>
         </div>
       </div>
@@ -575,6 +787,27 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
       <button class="btn-light" id="rate-skip">略過</button>
       <button class="btn-dark" id="rate-save">完成紀錄</button>
     </div>
+  </div>
+</div>
+
+<!-- 白天 / 夜間 模式選擇 -->
+<div class="sheet" id="theme-sheet">
+  <div class="panel" style="text-align:center">
+    <h2>選擇光之氛圍</h2>
+    <p class="panel-sub">你想在明亮的白晝,還是靜謐的夜晚裡冥想?</p>
+    <div class="theme-grid">
+      <button class="theme-card" id="theme-day">
+        <span class="tc-orb day"></span>
+        <span class="tc-title">白天模式</span>
+        <span class="tc-sub">明亮 · 清新 · 開闊</span>
+      </button>
+      <button class="theme-card" id="theme-night">
+        <span class="tc-orb night"></span>
+        <span class="tc-title">夜間模式</span>
+        <span class="tc-sub">靜謐 · 深邃 · 星光</span>
+      </button>
+    </div>
+    <div class="actions"><button class="btn-light" id="theme-close" style="flex:1">關閉</button></div>
   </div>
 </div>
 
@@ -954,11 +1187,15 @@ const store={
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 };
 
-/* ---------- Three.js 明亮場景 ---------- */
+/* ---------- Three.js 場景(支援白天/夜間雙主題) ---------- */
+let nightMode=false; // 由「開始冥想」前的選單設定
+let hemiLight=null,dirLight=null,floorCoreNight=false;
+const THEME={
+  day:{bg:0xffffff,fog:0xffffff,fogD:0.045,hemiSky:0xffffff,hemiGround:0xdfe3ee,hemiI:1.05,dir:0xfff4e0,dirI:0.7,core:"rgba(255,255,255,%a)"},
+  night:{bg:0x0b1024,fog:0x0b1024,fogD:0.050,hemiSky:0x9fb4e8,hemiGround:0x141b38,hemiI:0.62,dir:0x6f86c8,dirI:0.45,core:"rgba(150,180,255,%a)"}
+};
 function initScene(){
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0xffffff);
-  scene.fog=new THREE.FogExp2(0xffffff,0.045);
   camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.05,120);
   camera.position.set(0,1.5,0.001);
   renderer=new THREE.WebGLRenderer({canvas:$("bg-canvas"),antialias:true});
@@ -967,13 +1204,15 @@ function initScene(){
   renderer.xr.enabled=true;
   clock=new THREE.Clock();
 
-  scene.add(new THREE.HemisphereLight(0xffffff,0xdfe3ee,1.05));
-  const dl=new THREE.DirectionalLight(0xfff4e0,0.7);dl.position.set(2,4,1);scene.add(dl);
+  hemiLight=new THREE.HemisphereLight(0xffffff,0xdfe3ee,1.05);scene.add(hemiLight);
+  dirLight=new THREE.DirectionalLight(0xfff4e0,0.7);dirLight.position.set(2,4,1);scene.add(dirLight);
 
   // 地板:探照燈式極光大圈(依單元主色動態重繪)
   floor=new THREE.Mesh(new THREE.PlaneGeometry(34,34),
     new THREE.MeshBasicMaterial({map:null,transparent:true,depthWrite:false}));
   floor.rotation.x=-Math.PI/2;floor.position.y=0;scene.add(floor);
+
+  applyTheme(); // 套用初始(白天)主題:背景、霧、燈光
   paintFloor("#cfd8ff");
 
   // 常駐淡彩塵埃
@@ -993,6 +1232,15 @@ function initScene(){
   });
   renderer.setAnimationLoop(tick);
 }
+/* 套用白天/夜間主題到場景背景、霧、燈光 */
+function applyTheme(){
+  const T=nightMode?THEME.night:THEME.day;
+  scene.background=new THREE.Color(T.bg);
+  scene.fog=new THREE.FogExp2(T.fog,T.fogD);
+  hemiLight.color.setHex(T.hemiSky);hemiLight.groundColor.setHex(T.hemiGround);hemiLight.intensity=T.hemiI;
+  dirLight.color.setHex(T.dir);dirLight.intensity=T.dirI;
+  document.body.classList.toggle("night",nightMode); // 供 HUD 等 2D 元素配色
+}
 function paintFloor(hex){
   const c=new THREE.Color(hex);
   const c2=c.clone().offsetHSL(0.10,0,0.06),c3=c.clone().offsetHSL(-0.10,0,0.04);
@@ -1009,9 +1257,13 @@ function paintFloor(hex){
   blob(512,512,520,c,0.50);
   blob(330,600,360,c2,0.40);
   blob(700,400,380,c3,0.38);
-  /* 中央白色探照燈核心 */
+  /* 中央探照燈核心:白天用白光,夜間用冷藍光(白色在夜空底下會太突兀) */
+  const core=nightMode?[150,180,255]:[255,255,255];
+  const coreA=nightMode?0.55:0.95;
   const wg=fx.createRadialGradient(512,512,20,512,512,300);
-  wg.addColorStop(0,"rgba(255,255,255,.95)");wg.addColorStop(.5,"rgba(255,255,255,.45)");wg.addColorStop(1,"rgba(255,255,255,0)");
+  wg.addColorStop(0,`rgba(${core[0]},${core[1]},${core[2]},${coreA})`);
+  wg.addColorStop(.5,`rgba(${core[0]},${core[1]},${core[2]},${coreA*0.47})`);
+  wg.addColorStop(1,`rgba(${core[0]},${core[1]},${core[2]},0)`);
   fx.fillStyle=wg;fx.beginPath();fx.arc(512,512,300,0,6.283);fx.fill();
   const tex=new THREE.CanvasTexture(fc);
   if(floor.material.map)floor.material.map.dispose();
@@ -1175,8 +1427,13 @@ function wrapText(x,t,cx,cy,maxW,lh){
 function clearEnv(){particles.forEach(p=>{scene.remove(p);p.geometry.dispose();p.material.dispose()});particles=[];}
 function buildEnv(unit){
   clearEnv();
-  const col=new THREE.Color(unit.color).offsetHSL(0,0.05,-0.08); // 微降亮度,白底上才看得見
-  const col2=new THREE.Color(unit.color).offsetHSL(0.07,-0.05,-0.02);
+  // 白天:微降亮度才在白底上看得見;夜間:提亮加飽和,在深色夜空下像發光星塵
+  const col=nightMode
+    ?new THREE.Color(unit.color).offsetHSL(0,0.10,0.12)
+    :new THREE.Color(unit.color).offsetHSL(0,0.05,-0.08);
+  const col2=nightMode
+    ?new THREE.Color(unit.color).offsetHSL(0.07,0.05,0.06)
+    :new THREE.Color(unit.color).offsetHSL(0.07,-0.05,-0.02);
   const E=unit.env;
   /* 粒子一律離地:y < 1 的抬到 1.0~2.5,避免透視壓縮鋪成滿地彩點 */
   const lift=fn=>i=>{const pt=fn(i);if(pt[1]<1.0)pt[1]=1.0+Math.random()*1.5;return pt;};
@@ -1373,9 +1630,11 @@ const BREATH_INTRO=[ // 開場引導(每句各 9 秒,含 2 秒淡入與 2 秒淡
 ];
 const BREATH_LEAD=BREATH_INTRO.reduce((a,b)=>a+b.dur,0);
 let breath={active:false,elapsed:0,total:0,key:null,finishing:false,lastT:null};
+let breathDom={bub:null,txt:null,fill:null,lastTf:null,lastOp:null,lastPw:null}; // 呼吸動畫 DOM 快取,避免每幀查詢
 const BREATH_CAM=new THREE.Vector3(0,1.5,0); // 鏡頭位置:光點朝這裡聚攏
 async function runBreath(min){
   breath={active:false,elapsed:0,total:min*60,key:null,finishing:false,lastT:null};
+  breathDom={bub:$("prompt-bubble"),txt:$("prompt-text"),fill:$("progress-fill"),lastTf:null,lastOp:null,lastPw:null};
   $("prompt-text").style.opacity="0";
   $("prompt-text").textContent="";
   await wait(1800);
@@ -1442,7 +1701,7 @@ function makeBreathStream(dir){ // dir:+1 吸氣(飛向螢幕) / -1 吐氣(飛�
   const STRANDS=15,PER=40,SPARK=48,N=STRANDS*PER+SPARK;
   const g=new THREE.BufferGeometry();
   const pos=new Float32Array(N*3),sizes=new Float32Array(N),
-        spark=new Float32Array(N),tw=new Float32Array(N*2);
+        spark=new Float32Array(N),tw=new Float32Array(N*2),tint=new Float32Array(N);
   const data=[];let k=0;
   /* 絲縷飄帶:每條由密集小點排成的彎曲細線,整條同步流動 → 線條感 */
   for(let s=0;s<STRANDS;s++){
@@ -1452,10 +1711,11 @@ function makeBreathStream(dir){ // dir:+1 吸氣(飛向螢幕) / -1 吐氣(飛�
     const curve=1.2+Math.random()*2.2;      // 彎曲頻率
     const cph=Math.random()*6.283;
     const sp=0.45+Math.random()*0.5;        // 整條飄帶共用流速
+    const strandTint=Math.floor(Math.random()*4); // 整條飄帶同色族,四種漸層交錯混合
     for(let j=0;j<PER;j++,k++){
       data.push({p:(j/PER+Math.random()*0.012)%1,sp,ang,rad,amp,curve,cph});
       sizes[k]=0.034+Math.random()*0.024;   // 絲縷圓點再再縮小
-      spark[k]=0;tw[k*2]=0;tw[k*2+1]=0;
+      spark[k]=0;tw[k*2]=0;tw[k*2+1]=0;tint[k]=strandTint;
     }
   }
   /* 金色星光:散落在光束之間,各自閃爍 */
@@ -1467,12 +1727,14 @@ function makeBreathStream(dir){ // dir:+1 吸氣(飛向螢幕) / -1 吐氣(飛�
     spark[k]=1;
     tw[k*2]=2.5+Math.random()*4.5;          // 閃爍速度
     tw[k*2+1]=Math.random()*6.283;          // 閃爍相位
+    tint[k]=Math.floor(Math.random()*4);
   }
   for(let i=0;i<N;i++){pos[i*3]=0;pos[i*3+1]=-99;pos[i*3+2]=0;}
   g.setAttribute("position",new THREE.BufferAttribute(pos,3));
   g.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
   g.setAttribute("aSpark",new THREE.BufferAttribute(spark,1));
   g.setAttribute("aTw",new THREE.BufferAttribute(tw,2));
+  g.setAttribute("aTint",new THREE.BufferAttribute(tint,1));
   const m=new THREE.ShaderMaterial({
     transparent:true,depthWrite:false, // 白底場景:維持 Normal 混合,加法混合在白底上會隱形
     uniforms:{
@@ -1480,19 +1742,35 @@ function makeBreathStream(dir){ // dir:+1 吸氣(飛向螢幕) / -1 吐氣(飛�
       uMap:{value:getDotTexture()},
       uStar:{value:getStarTexture()},
       uScale:{value:(renderer?renderer.domElement.height:800)*0.5},
-      uColA:{value:new THREE.Color("#ff9ad6")}, // 深處:桃紅(調淡)
-      uColB:{value:new THREE.Color("#a58cff")}, // 近處:紫(調淡)
-      uColS:{value:new THREE.Color("#f4b65c")}  // 星光:淡暖金
+      uColA:{value:new THREE.Color(nightMode?"#ff7a3c":"#ff9ad6")}, // 深處:夜=橘 / 日=桃紅
+      uColB:{value:new THREE.Color(nightMode?"#ffc266":"#a58cff")}, // 近處:夜=淺橘金 / 日=紫
+      uColS:{value:new THREE.Color(nightMode?"#ffd98a":"#f4b65c")}, // 星光:夜=暖黃 / 日=淡暖金
+      uMulti:{value:1}, // 日夜都用四色族漸層混合(橘/珊瑚/紫/淺藍)
+      // 四種漸層的起(深處)→訖(近處)色:橘、珊瑚、紫、淺藍
+      uT0a:{value:new THREE.Color("#ff7a3c")},uT0b:{value:new THREE.Color("#ffb066")}, // 橘
+      uT1a:{value:new THREE.Color("#ff6f61")},uT1b:{value:new THREE.Color("#ffa897")}, // 珊瑚
+      uT2a:{value:new THREE.Color("#9b6bff")},uT2b:{value:new THREE.Color("#c9b0ff")}, // 紫
+      uT3a:{value:new THREE.Color("#5db4ff")},uT3b:{value:new THREE.Color("#a9dcff")}  // 淺藍
     },
     vertexShader:`
-      attribute float aSize;attribute float aSpark;attribute vec2 aTw;
-      uniform float uScale;uniform float uTime;
+      attribute float aSize;attribute float aSpark;attribute vec2 aTw;attribute float aTint;
+      uniform float uScale;uniform float uTime;uniform float uMulti;
       uniform vec3 uColA;uniform vec3 uColB;uniform vec3 uColS;
+      uniform vec3 uT0a;uniform vec3 uT0b;uniform vec3 uT1a;uniform vec3 uT1b;
+      uniform vec3 uT2a;uniform vec3 uT2b;uniform vec3 uT3a;uniform vec3 uT3b;
       varying vec3 vColor;varying float vA;varying float vSpark;
       void main(){
         float f=clamp((position.z+7.0)/8.1,0.0,1.0);   // 沿光束路徑 0~1
-        vec3 grad=mix(uColA,uColB,f);                  // 桃紅 → 紫 漸層
-        vColor=mix(grad,uColS,aSpark*0.9);             // 星光換成暖金色
+        vec3 single=mix(uColA,uColB,f);                // 白天:單一漸層(桃紅→紫)
+        // 夜間:依色族 id 選四種漸層之一,各自沿路徑漸變 → 四色交錯混合
+        vec3 ta,tb;
+        if(aTint<0.5){ta=uT0a;tb=uT0b;}               // 橘
+        else if(aTint<1.5){ta=uT1a;tb=uT1b;}          // 珊瑚
+        else if(aTint<2.5){ta=uT2a;tb=uT2b;}          // 紫
+        else{ta=uT3a;tb=uT3b;}                        // 淺藍
+        vec3 multi=mix(ta,tb,f);
+        vec3 base=mix(single,multi,uMulti);
+        vColor=mix(base,uMulti>0.5?mix(multi,vec3(1.0,0.9,0.7),0.5):uColS,aSpark*0.9); // 星光:夜間偏亮暖白
         vSpark=aSpark;
         float twk=aTw.x>0.0?(0.2+0.8*(0.5+0.5*sin(uTime*aTw.x+aTw.y))):1.0;
         vA=twk*(1.3+aSpark*0.7);                       // 絲縷亮度上修(原 1.0 太淡)
@@ -1608,15 +1886,20 @@ function updateBreath(){
     const tIn=inhale?tc:tc-BREATH_IN;
     fadeOut=tIn>(inhale?BREATH_IN:BREATH_OUT)-2.2; // 每句最後 2 秒淡出
     breathSetWorld(v);
-    $("progress-fill").style.width=Math.min((e-BREATH_LEAD)/breath.total*100,100)+"%";
+    const pw=Math.min((e-BREATH_LEAD)/breath.total*100,100).toFixed(1)+"%";
+    if(pw!==breathDom.lastPw){breathDom.fill.style.width=pw;breathDom.lastPw=pw;}
   }
-  $("prompt-bubble").style.transform=`translate(-50%,-50%) scale(${scale.toFixed(4)})`; // 引導詞隨泡泡一起漲縮
+  // 快取 DOM 引用(避免每幀 getElementById);只在值改變時寫 style(避免無謂的 style 失效)
+  const bub=breathDom.bub,ptxt=breathDom.txt;
+  const tf=`translate(-50%,-50%) scale(${scale.toFixed(4)})`;
+  if(tf!==breathDom.lastTf){bub.style.transform=tf;breathDom.lastTf=tf;}
   if(key!==breath.key){ // 換句:新字以 2 秒淡入(#prompt-text 自帶 2s opacity 過渡)
     breath.key=key;
-    $("prompt-text").textContent=txt;
-    if(xrSession)drawPromptTo3D(txt); // 2D 模式 textPlane 不可見(setOrbVisible: v&&!!xrSession),880px canvas 重繪純粹是手機卡頓來源
+    ptxt.textContent=txt;
+    if(xrSession)drawPromptTo3D(txt); // 2D 模式 textPlane 不可見,880px canvas 重繪純粹是手機卡頓來源
   }
-  $("prompt-text").style.opacity=fadeOut?"0":"1";
+  const op=fadeOut?"0":"1";
+  if(op!==breathDom.lastOp){ptxt.style.opacity=op;breathDom.lastOp=op;}
 }
 async function finishBreath(){
   if(breath.finishing)return;
@@ -1701,7 +1984,7 @@ async function enterVR(){
 }
 
 /* ---------- Siri 同心圓轉盤選單 ---------- */
-let wheelAngle=0,activeIdx=0,dragging=false,lastPointerAngle=0,nodeEls=[];
+let wheelAngle=0,activeIdx=0,dragging=false,lastPointerAngle=0,nodeEls=[],wheelGeo=null;
 let velSamples=[],lastMoveT=0,dragMoved=0; // 拉霸機:放手前的角速度取樣 / 累計拖曳量(抑制誤觸 click)
 const TAU=Math.PI*2,STEP=TAU/UNITS.length;
 function buildWheel(){
@@ -1718,24 +2001,30 @@ function buildWheel(){
   setActive(0,true);
 
   const wrap=$("wheel-wrap");
-  const DEAD_R=0.14; // 圓心死區:atan2 在圓心附近 1px 抖動就是巨大角度,是「碰一下就狂轉」的元兇
+  const DEAD_R=0.20; // 圓心死區放大:atan2 在圓心附近抖動=巨大角度,是「碰一下就狂轉」的元兇
+  let cx=0,cy=0,cw=1; // down 時快取中心點與寬度,move 期間不再 getBoundingClientRect(避免 reflow)
+  let pendingAngle=null,rafPending=false; // move 用 rAF 節流:一個 frame 只 layout 一次
   const getPolar=e=>{
-    const r=wrap.getBoundingClientRect();
-    const px=(e.touches?e.touches[0].clientX:e.clientX)-(r.left+r.width/2);
-    const py=(e.touches?e.touches[0].clientY:e.clientY)-(r.top+r.height/2);
-    return {a:Math.atan2(py,px),rad:Math.hypot(px,py)/r.width};
+    const px=(e.touches?e.touches[0].clientX:e.clientX)-cx;
+    const py=(e.touches?e.touches[0].clientY:e.clientY)-cy;
+    return {a:Math.atan2(py,px),rad:Math.hypot(px,py)/cw};
   };
   const down=e=>{
     cancelAnimationFrame(snapAnim); // 按住即攔下任何進行中的旋轉
+    const r=wrap.getBoundingClientRect(); // 只在 down 量一次,快取中心
+    cx=r.left+r.width/2;cy=r.top+r.height/2;cw=r.width;
+    if(e.pointerId!=null&&wrap.setPointerCapture)try{wrap.setPointerCapture(e.pointerId)}catch(_){}
     dragging=true;lastPointerAngle=getPolar(e).a;
     lastMoveT=performance.now();velSamples=[];dragMoved=0;
   };
+  const applyLayout=()=>{rafPending=false;if(pendingAngle!=null){wheelAngle=pendingAngle;layoutWheel();}};
   const move=e=>{
     if(!dragging)return;
     const pl=getPolar(e);
     if(pl.rad<DEAD_R){lastPointerAngle=pl.a;e.preventDefault();return;} // 死區內只更新基準角,不轉盤
     let d=pl.a-lastPointerAngle;
     if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;
+    if(Math.abs(d)<0.012){e.preventDefault();return;} // 最小移動門檻提高:更不容易被手指微抖觸發,輕碰完全不轉
     wheelAngle+=d;lastPointerAngle=pl.a;
     dragMoved+=Math.abs(d);
     // 取樣「轉盤角速度」(rad/s):方向永遠等於使用者看到的拖曳方向
@@ -1745,18 +2034,22 @@ function buildWheel(){
       if(velSamples.length>8)velSamples.shift();
       lastMoveT=now;
     }
-    layoutWheel();
+    // rAF 節流:同一 frame 多個 pointermove 只重排一次,消除拖曳卡頓
+    pendingAngle=wheelAngle;
+    if(!rafPending){rafPending=true;requestAnimationFrame(applyLayout);}
     e.preventDefault();
   };
-  const up=()=>{
+  const up=e=>{
     if(!dragging)return;dragging=false;
+    if(e&&e.pointerId!=null&&wrap.releasePointerCapture)try{wrap.releasePointerCapture(e.pointerId)}catch(_){}
+    if(rafPending){rafPending=false;wheelAngle=pendingAngle;layoutWheel();} // 收尾:套用最後一次角度
     // 放手瞬間:取最近 160ms 內「角速度最快」的樣本判斷力道與方向
     const now=performance.now();
     const recent=velSamples.filter(s=>now-s.t<160);
     let w=0;
     for(const s of recent)if(Math.abs(s.v)>Math.abs(w))w=s.v;
     velSamples=[];
-    if(Math.abs(w)>1.3&&dragMoved>0.06){ // 必須真的拖過一段距離才允許甩動,輕點不再觸發
+    if(Math.abs(w)>2.6&&dragMoved>0.22){ // 門檻提高:角速度需更快、且要明顯拖過一段(約12°)才甩動,輕撥不再亂飛
       startFling(w); // 順著放手前轉盤的轉動方向繼續旋轉
     }else{
       // 吸附到最近的單元(頂端 12 點鐘為作用位)
@@ -1781,32 +2074,38 @@ function buildWheel(){
   }
 }
 function layoutWheel(){
-  const wrap=$("wheel-wrap"),R=wrap.clientWidth*0.448;
+  const wrap=$("wheel-wrap");
+  // 快取尺寸:拖曳期間不重複讀 clientWidth/Height(讀取會觸發 reflow → 卡頓)
+  if(!wheelGeo||wheelGeo.w!==wrap.clientWidth){
+    wheelGeo={w:wrap.clientWidth,h:wrap.clientHeight,R:wrap.clientWidth*0.448};
+  }
+  const {w,h,R}=wheelGeo;
   nodeEls.forEach((n,i)=>{
     const a=-Math.PI/2+i*STEP+wheelAngle; // 0 號從頂端開始
-    n.style.left=(50+Math.cos(a)*R/wrap.clientWidth*100)+"%";
-    n.style.top=(50+Math.sin(a)*R/wrap.clientHeight*100)+"%";
+    // 用 transform 取代 left/top 百分比:走合成層,不觸發 layout 重排
+    const x=Math.cos(a)*R, y=Math.sin(a)*R;
+    n.style.transform=`translate(${x.toFixed(2)}px,${y.toFixed(2)}px) translate(-50%,-50%)`;
   });
 }
 let snapAnim=null;
-/* ---------- 拉霸機慣性旋轉 ----------
-   用力一甩 → 轉盤順著放手前的轉動方向高速旋轉(看到往哪轉就往哪飛),
-   摩擦力指數衰減,大力甩約轉 5 秒多,越轉越慢,最後吸附到落點單元。
-   轉動途中中央資訊會跟著「跳格」,製造未知的期待感。 */
+/* ---------- 慣性旋轉 ----------
+   一甩 → 轉盤順著放手前的方向旋轉,指數摩擦自然減速,最後吸附到落點。
+   轉速與時長都收斂:初速上限 8 rad/s、摩擦 K=0.69 → 全程約 4.5 秒,
+   不會快到「左轉右轉分不清」。 */
 function startFling(v0){
   cancelAnimationFrame(snapAnim);
   const dir=v0<0?-1:1;
-  // 力道映射:輕甩至少 5 rad/s,狂甩上限 19 rad/s(約轉 5.3 秒)
-  let v=dir*Math.min(Math.max(Math.abs(v0)*1.1,5),19);
-  const K=0.84;            // 摩擦衰減常數:ln(19/0.22)/0.84 ≈ 5.3s
-  const STOP_V=0.22;       // 低於此角速度就進入最終吸附
+  // 力道映射:輕甩至少 3.2 rad/s,狂甩上限 8 rad/s(避免轉太快看不清方向)
+  let v=dir*Math.min(Math.max(Math.abs(v0)*0.8,2.8),6.5);
+  const K=0.69;            // 摩擦衰減:ln(8/0.5)/0.69 ≈ 4s 慣性 + 吸附 → 全程約 4.5s
+  const STOP_V=0.5;        // 低於此角速度就進入最終吸附(提高 → 更早收尾)
   let last=performance.now(),lastTick=-1;
   const step=now=>{
     const dt=Math.min((now-last)/1000,0.05);last=now;
     wheelAngle+=v*dt;
     v*=Math.exp(-K*dt);    // 指數摩擦:先快後慢,自然減速
     layoutWheel();
-    // 經過每一格時即時更新中央顯示(拉霸機跳字感)
+    // 經過每一格時即時更新中央顯示
     const idx=((Math.round(-wheelAngle/STEP)%UNITS.length)+UNITS.length)%UNITS.length;
     if(idx!==lastTick){lastTick=idx;setActive(idx);}
     if(Math.abs(v)>STOP_V)snapAnim=requestAnimationFrame(step);
@@ -1907,11 +2206,22 @@ function openIntro(){
   $("intro-tech").innerHTML=u.tech.map(t=>'<div class="t">'+t+'</div>').join("");
   openSheet("intro-sheet");
 }
-let pendingVR=false;
+let pendingVR=false,pendingStartVR=false;
+/* 按「開始冥想」:先彈出白天/夜間選單,選完才真正進入課程 */
 function requestStart(vr){
-  if(currentUnit.breath){pendingVR=vr;openSheet("breath-sheet");}
+  pendingStartVR=vr;
+  openSheet("theme-sheet");
+}
+/* 選好主題後真正啟動 */
+function proceedAfterTheme(){
+  closeSheet("theme-sheet");
+  const vr=pendingStartVR;
+  if(currentUnit.breath){pendingVR=vr;setTimeout(()=>openSheet("breath-sheet"),300);} // 呼吸課程仍需選秒數/分鐘
   else startSession(currentUnit,vr);
 }
+$("theme-day").onclick=()=>{nightMode=false;applyTheme();proceedAfterTheme();};
+$("theme-night").onclick=()=>{nightMode=true;applyTheme();proceedAfterTheme();};
+$("theme-close").onclick=()=>closeSheet("theme-sheet");
 $("c-intro").onclick=openIntro;
 $("intro-close").onclick=()=>closeSheet("intro-sheet");
 $("intro-start").onclick=()=>{closeSheet("intro-sheet");requestStart(false);};
@@ -1952,6 +2262,71 @@ $("hero-history").onclick=openHistory;
 $("hero-start").onclick=()=>$("wheel-wrap").scrollIntoView({behavior:"smooth",block:"center"});
 $("history-close").onclick=()=>closeSheet("history-sheet");
 addEventListener("resize",layoutWheel);
+
+/* ---------- 整頁 日 / 夜 模式:滑動開關 + 淡入淡出(與 session 主題各自獨立) ---------- */
+const swTrack=$("theme-switch");
+const swKnob=swTrack?swTrack.querySelector(".knob"):null;
+function knobTravel(){return Math.max(0,swTrack.clientWidth-swKnob.offsetWidth-8);}
+function placeKnob(night,animate){
+  if(!swKnob)return;
+  swKnob.style.transition=animate===false?"none":"";
+  swKnob.style.transform="translateX("+(night?knobTravel():0)+"px)";
+}
+function paintSwitch(night){
+  if(!swTrack)return;
+  swTrack.classList.toggle("night",night);
+  swTrack.setAttribute("aria-checked",String(night));
+}
+function setPageTheme(mode,opt){
+  opt=opt||{};
+  const night=mode==="night";
+  document.body.classList.toggle("page-night",night);
+  paintSwitch(night);
+  placeKnob(night,opt.animate!==false);
+  const mt=document.querySelector('meta[name="theme-color"]');
+  if(mt)mt.setAttribute("content",night?"#070a18":"#ffffff");
+  if(opt.save!==false)store.set("pageTheme",mode);
+}
+/* 切換主題:交叉淡化全部交給 CSS,JS 只負責切換狀態與旋鈕 */
+function applyMode(night){
+  if(night===document.body.classList.contains("page-night")){placeKnob(night,true);return;} // 沒變,旋鈕歸位
+  setPageTheme(night?"night":"day");
+}
+function toggleTheme(){applyMode(!document.body.classList.contains("page-night"));}
+if(swTrack&&swKnob){
+  let dragging=false,moved=false,startX=0,startPos=0;
+  const getX=e=>(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;
+  const down=e=>{
+    dragging=true;moved=false;startX=getX(e);
+    startPos=document.body.classList.contains("page-night")?knobTravel():0;
+    swKnob.style.transition="none";
+    if(e.pointerId!=null&&swTrack.setPointerCapture){try{swTrack.setPointerCapture(e.pointerId);}catch(_){}}
+  };
+  const move=e=>{
+    if(!dragging)return;
+    const dx=getX(e)-startX;
+    if(Math.abs(dx)>3)moved=true;
+    const p=Math.max(0,Math.min(knobTravel(),startPos+dx));
+    swKnob.style.transform="translateX("+p+"px)";
+    if(e.cancelable)e.preventDefault();
+  };
+  const up=()=>{
+    if(!dragging)return;dragging=false;
+    swKnob.style.transition="";
+    let cur=startPos;
+    try{cur=new DOMMatrixReadOnly(getComputedStyle(swKnob).transform).m41;}catch(_){}
+    const night=moved?(cur>knobTravel()/2):!document.body.classList.contains("page-night");
+    applyMode(night);
+  };
+  swTrack.addEventListener("pointerdown",down);
+  window.addEventListener("pointermove",move,{passive:false});
+  window.addEventListener("pointerup",up);
+  window.addEventListener("pointercancel",up);
+  swTrack.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggleTheme();}});
+}
+addEventListener("resize",()=>placeKnob(document.body.classList.contains("page-night"),false));
+/* 啟動時套用上次選擇(預設白天,無動畫) */
+setPageTheme(store.get("pageTheme")==="night"?"night":"day",{animate:false});
 
 /* ---------- 啟動 ---------- */
 initScene();buildWheel();buildRating();detectVR();
