@@ -532,48 +532,48 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
 }
 
 /* ============================================================
-   日 / 夜 滑動切換開關(可用手指左右拖曳,也可點按)
+   日 / 夜 分段切換按鈕(兩顆藥丸,點按切換整頁主題)
    ============================================================ */
 .nav-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
-.switch{
-  --kb:24px;
-  position:relative;width:62px;height:32px;flex:0 0 auto;
-  border-radius:999px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;
+.theme-seg{
+  display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;
+  padding:4px;border-radius:999px;
   border:1px solid var(--glass-border);
-  background:rgba(150,185,255,.30);
+  background:rgba(255,255,255,.30);
   backdrop-filter:blur(14px) saturate(1.7);-webkit-backdrop-filter:blur(14px) saturate(1.7);
-  box-shadow:inset 0 1px 3px rgba(80,100,160,.22),inset 0 1px 0 rgba(255,255,255,.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 10px rgba(120,130,190,.10);
   transition:background-color .45s var(--ease),border-color .45s var(--ease),box-shadow .45s var(--ease);
   -webkit-tap-highlight-color:transparent;
 }
-.switch:focus-visible{outline:2px solid rgba(110,160,255,.8);outline-offset:3px}
-.switch .ico{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;line-height:1;pointer-events:none;opacity:.5}
-.switch .ico.sun{left:8px}
-.switch .ico.moon{right:8px}
-.switch .knob{
-  position:absolute;top:50%;left:4px;width:var(--kb);height:var(--kb);margin-top:calc(var(--kb) / -2);
-  border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle at 34% 30%,#ffffff 0%,#f3f6ff 60%,#e7ecfb 100%);
-  box-shadow:0 3px 8px rgba(40,60,120,.32),0 1px 2px rgba(40,60,120,.22),inset 0 1px 0 rgba(255,255,255,.9);
-  transform:translateX(0);
-  transition:transform .32s cubic-bezier(.34,1.45,.64,1),background .4s var(--ease),box-shadow .35s var(--ease);
+.seg-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:0;cursor:pointer;font-family:inherit;
+  padding:8px 16px;border-radius:999px;
+  font-size:13.5px;font-weight:600;line-height:1;white-space:nowrap;
+  color:var(--ink-2);background:transparent;
+  transition:background .3s var(--ease),color .3s var(--ease),box-shadow .3s var(--ease);
+  -webkit-tap-highlight-color:transparent;
 }
-.switch .knob .ki{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:13px;line-height:1;transition:opacity .3s var(--ease)}
-.switch .knob .ki.sun{opacity:1}
-.switch .knob .ki.moon{opacity:0}
-.switch:active .knob{box-shadow:0 4px 12px rgba(40,60,120,.4),inset 0 1px 0 rgba(255,255,255,.9)}
-/* 夜間軌道 + 旋鈕 */
-.switch.night{
-  background:rgba(40,55,110,.62);border-color:rgba(150,175,255,.30);
-  box-shadow:inset 0 1px 3px rgba(0,0,8,.42),inset 0 1px 0 rgba(160,185,255,.25);
+.seg-btn .seg-ico{font-size:13px;line-height:1}
+.seg-btn:hover{color:var(--ink)}
+.seg-btn:focus-visible{outline:2px solid rgba(110,160,255,.8);outline-offset:2px}
+.seg-btn.on{
+  color:#1c2030;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 2px 8px rgba(40,60,120,.20),0 1px 2px rgba(40,60,120,.14),inset 0 1px 0 rgba(255,255,255,.9);
 }
-.switch.night .knob{
-  background:radial-gradient(circle at 34% 30%,#eaf0ff 0%,#cdd8ff 60%,#aebbf0 100%);
-  box-shadow:0 3px 10px rgba(0,0,10,.5),inset 0 1px 0 rgba(255,255,255,.8);
+/* 夜間:容器加深,選中藥丸帶藍白高光 */
+.theme-seg.night{
+  background:rgba(40,55,110,.50);border-color:rgba(150,175,255,.26);
+  box-shadow:inset 0 1px 0 rgba(160,185,255,.18),0 2px 12px rgba(0,0,10,.30);
 }
-.switch.night .knob .ki.sun{opacity:0}
-.switch.night .knob .ki.moon{opacity:1}
+.theme-seg.night .seg-btn{color:#aeb8df}
+.theme-seg.night .seg-btn:hover{color:#eef2ff}
+.theme-seg.night .seg-btn.on{
+  color:#0c1228;
+  background:radial-gradient(circle at 36% 28%,#ffffff 0%,#eaf0ff 70%,#d6e0ff 100%);
+  box-shadow:0 3px 12px rgba(0,0,10,.5),0 0 16px rgba(120,160,255,.30),inset 0 1px 0 rgba(255,255,255,.85);
+}
 
 /* 整頁主題切換改用交叉淡化(見 #bg-night / .ring.r1::after / 過渡規則),不再使用純色遮罩 */
 
@@ -702,10 +702,9 @@ body.page-night nav .brand .b-name{
   <nav class="noselect">
     <div class="brand"><span class="mini-orb"></span><span class="b-name">顯化殿堂</span></div>
     <div class="nav-right">
-      <div class="switch" id="theme-switch" role="switch" tabindex="0" aria-label="日夜模式切換" aria-checked="false">
-        <span class="ico sun">☀️</span>
-        <span class="ico moon">🌙</span>
-        <span class="knob"><span class="ki sun">☀️</span><span class="ki moon">🌙</span></span>
+      <div class="theme-seg" id="theme-seg" role="group" aria-label="日夜模式切換">
+        <button type="button" class="seg-btn on" id="page-day" aria-pressed="true"><span class="seg-ico">☀️</span>白天模式</button>
+        <button type="button" class="seg-btn" id="page-night" aria-pressed="false"><span class="seg-ico">🌙</span>夜晚模式</button>
       </div>
       <button class="nav-btn" id="open-history">冥想紀錄</button>
     </div>
@@ -2004,6 +2003,11 @@ function buildWheel(){
   const DEAD_R=0.20; // 圓心死區放大:atan2 在圓心附近抖動=巨大角度,是「碰一下就狂轉」的元兇
   let cx=0,cy=0,cw=1; // down 時快取中心點與寬度,move 期間不再 getBoundingClientRect(避免 reflow)
   let pendingAngle=null,rafPending=false; // move 用 rAF 節流:一個 frame 只 layout 一次
+  let captureId=null,captured=false; // 延後捕捉:只有真的旋轉時才 setPointerCapture
+  const capturePtr=()=>{ // 開始旋轉後才捕捉指標,確保純點擊(未旋轉)時 click 能正常送達按鈕/號碼
+    if(captured||captureId==null||!wrap.setPointerCapture)return;
+    try{wrap.setPointerCapture(captureId);captured=true;}catch(_){}
+  };
   const getPolar=e=>{
     const px=(e.touches?e.touches[0].clientX:e.clientX)-cx;
     const py=(e.touches?e.touches[0].clientY:e.clientY)-cy;
@@ -2013,7 +2017,11 @@ function buildWheel(){
     cancelAnimationFrame(snapAnim); // 按住即攔下任何進行中的旋轉
     const r=wrap.getBoundingClientRect(); // 只在 down 量一次,快取中心
     cx=r.left+r.width/2;cy=r.top+r.height/2;cw=r.width;
-    if(e.pointerId!=null&&wrap.setPointerCapture)try{wrap.setPointerCapture(e.pointerId)}catch(_){}
+    /* 不在 down 就 setPointerCapture:會把後續 pointerup 全導向 #wheel-wrap,
+       中央按鈕(開始冥想/介紹/VR)與號碼節點因此收不到 click → 整盤按鈕失效。
+       全域 window 已監聽 pointermove/up,拖曳追蹤本不需 capture;
+       改為「真的開始旋轉」時才在 move 裡延後捕捉(capturePtr)。 */
+    captureId=e.pointerId;captured=false;
     dragging=true;lastPointerAngle=getPolar(e).a;
     lastMoveT=performance.now();velSamples=[];dragMoved=0;
   };
@@ -2025,6 +2033,7 @@ function buildWheel(){
     let d=pl.a-lastPointerAngle;
     if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;
     if(Math.abs(d)<0.012){e.preventDefault();return;} // 最小移動門檻提高:更不容易被手指微抖觸發,輕碰完全不轉
+    capturePtr(); // 確定是旋轉手勢了,此時才捕捉指標(純點擊不會走到這裡,click 保持正常)
     wheelAngle+=d;lastPointerAngle=pl.a;
     dragMoved+=Math.abs(d);
     // 取樣「轉盤角速度」(rad/s):方向永遠等於使用者看到的拖曳方向
@@ -2041,7 +2050,8 @@ function buildWheel(){
   };
   const up=e=>{
     if(!dragging)return;dragging=false;
-    if(e&&e.pointerId!=null&&wrap.releasePointerCapture)try{wrap.releasePointerCapture(e.pointerId)}catch(_){}
+    if(captured&&e&&e.pointerId!=null&&wrap.releasePointerCapture)try{wrap.releasePointerCapture(e.pointerId)}catch(_){}
+    captured=false;captureId=null;
     if(rafPending){rafPending=false;wheelAngle=pendingAngle;layoutWheel();} // 收尾:套用最後一次角度
     // 放手瞬間:取最近 160ms 內「角速度最快」的樣本判斷力道與方向
     const now=performance.now();
@@ -2263,68 +2273,31 @@ $("hero-start").onclick=()=>$("wheel-wrap").scrollIntoView({behavior:"smooth",bl
 $("history-close").onclick=()=>closeSheet("history-sheet");
 addEventListener("resize",layoutWheel);
 
-/* ---------- 整頁 日 / 夜 模式:滑動開關 + 淡入淡出(與 session 主題各自獨立) ---------- */
-const swTrack=$("theme-switch");
-const swKnob=swTrack?swTrack.querySelector(".knob"):null;
-function knobTravel(){return Math.max(0,swTrack.clientWidth-swKnob.offsetWidth-8);}
-function placeKnob(night,animate){
-  if(!swKnob)return;
-  swKnob.style.transition=animate===false?"none":"";
-  swKnob.style.transform="translateX("+(night?knobTravel():0)+"px)";
-}
-function paintSwitch(night){
-  if(!swTrack)return;
-  swTrack.classList.toggle("night",night);
-  swTrack.setAttribute("aria-checked",String(night));
+/* ---------- 整頁 日 / 夜 模式:分段按鈕 + 淡入淡出(與 session 主題各自獨立) ---------- */
+const segWrap=$("theme-seg");
+const segDay=$("page-day"),segNight=$("page-night");
+function paintSeg(night){
+  if(segWrap)segWrap.classList.toggle("night",night);
+  if(segDay){segDay.classList.toggle("on",!night);segDay.setAttribute("aria-pressed",String(!night));}
+  if(segNight){segNight.classList.toggle("on",night);segNight.setAttribute("aria-pressed",String(night));}
 }
 function setPageTheme(mode,opt){
   opt=opt||{};
   const night=mode==="night";
   document.body.classList.toggle("page-night",night);
-  paintSwitch(night);
-  placeKnob(night,opt.animate!==false);
+  paintSeg(night);
   const mt=document.querySelector('meta[name="theme-color"]');
   if(mt)mt.setAttribute("content",night?"#070a18":"#ffffff");
   if(opt.save!==false)store.set("pageTheme",mode);
 }
-/* 切換主題:交叉淡化全部交給 CSS,JS 只負責切換狀態與旋鈕 */
+/* 切換主題:交叉淡化全部交給 CSS,JS 只負責切換狀態 */
 function applyMode(night){
-  if(night===document.body.classList.contains("page-night")){placeKnob(night,true);return;} // 沒變,旋鈕歸位
+  if(night===document.body.classList.contains("page-night"))return; // 沒變就不動
   setPageTheme(night?"night":"day");
 }
 function toggleTheme(){applyMode(!document.body.classList.contains("page-night"));}
-if(swTrack&&swKnob){
-  let dragging=false,moved=false,startX=0,startPos=0;
-  const getX=e=>(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;
-  const down=e=>{
-    dragging=true;moved=false;startX=getX(e);
-    startPos=document.body.classList.contains("page-night")?knobTravel():0;
-    swKnob.style.transition="none";
-    if(e.pointerId!=null&&swTrack.setPointerCapture){try{swTrack.setPointerCapture(e.pointerId);}catch(_){}}
-  };
-  const move=e=>{
-    if(!dragging)return;
-    const dx=getX(e)-startX;
-    if(Math.abs(dx)>3)moved=true;
-    const p=Math.max(0,Math.min(knobTravel(),startPos+dx));
-    swKnob.style.transform="translateX("+p+"px)";
-    if(e.cancelable)e.preventDefault();
-  };
-  const up=()=>{
-    if(!dragging)return;dragging=false;
-    swKnob.style.transition="";
-    let cur=startPos;
-    try{cur=new DOMMatrixReadOnly(getComputedStyle(swKnob).transform).m41;}catch(_){}
-    const night=moved?(cur>knobTravel()/2):!document.body.classList.contains("page-night");
-    applyMode(night);
-  };
-  swTrack.addEventListener("pointerdown",down);
-  window.addEventListener("pointermove",move,{passive:false});
-  window.addEventListener("pointerup",up);
-  window.addEventListener("pointercancel",up);
-  swTrack.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggleTheme();}});
-}
-addEventListener("resize",()=>placeKnob(document.body.classList.contains("page-night"),false));
+if(segDay)segDay.addEventListener("click",()=>applyMode(false));
+if(segNight)segNight.addEventListener("click",()=>applyMode(true));
 /* 啟動時套用上次選擇(預設白天,無動畫) */
 setPageTheme(store.get("pageTheme")==="night"?"night":"day",{animate:false});
 
