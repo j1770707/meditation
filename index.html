@@ -172,9 +172,11 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 #wheel-center h2{margin-top:5px;font-size:clamp(17px,3vw,22px);font-weight:700;letter-spacing:-.01em}
 #wheel-center .c-meta{margin-top:7px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
 .chip{font-size:10.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--glass-border);background:rgba(255,255,255,.40);backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);color:#55556a;font-weight:500;box-shadow:0 2px 8px rgba(120,130,190,.09),inset 0 1px 0 rgba(255,255,255,.95)}
-#wheel-center .c-actions{margin-top:11px;display:flex;gap:8px;justify-content:center;pointer-events:auto;flex-wrap:nowrap;width:100%}
-#wheel-center #c-start{flex:1.5} /* 開始冥想:靠左、較寬(照圖 1) */
-#wheel-center #c-intro{flex:1}   /* 介紹:靠右、較窄(照圖 1) */
+#wheel-center .c-actions{margin-top:11px;display:flex;gap:10px;justify-content:center;align-items:center;pointer-events:auto;flex-wrap:nowrap;width:100%}
+/* 照圖 2:兩顆膠囊用「自然寬度 + 單行不換行」。開始冥想 4 字本來就比介紹寬,不需 flex 撐滿。
+   ⚠️ 之前用 flex 撐滿,容器一窄就把「開始冥想」逼成兩行 → 變高 → flex 等高拉伸 + 999px 圓角 → 脹成大圓塊(圖 1)。 */
+#wheel-center .c-actions .btn-dark,
+#wheel-center .c-actions .btn-light{flex:0 0 auto;white-space:nowrap}
 .btn-dark{
   border:1px solid var(--glass-border);border-radius:999px;
   background:rgba(255,255,255,.28);color:var(--ink);font-family:inherit;
@@ -501,8 +503,8 @@ nav .brand .mini-orb::after,#wheel-center .c-orb::after{
 
 
 @media (max-width:520px){
-  #wheel-center .c-actions .btn-light{padding:11px 14px;font-size:13px}
-  #wheel-center .c-actions .btn-dark{padding:11px 18px;font-size:13px}
+  #wheel-center .c-actions .btn-light{padding:12px 18px;font-size:13.5px}
+  #wheel-center .c-actions .btn-dark{padding:12px 20px;font-size:13.5px}
   .w-node{width:26px;height:26px;margin:-13px 0 0 -13px;font-size:9.5px}
 }
 
