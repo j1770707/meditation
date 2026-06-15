@@ -260,7 +260,7 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
     radial-gradient(closest-side,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 70%,rgba(255,255,255,.03) 84%,rgba(255,255,255,.12) 94%,rgba(255,255,255,0) 100%),
     radial-gradient(circle at 50% 122%,rgba(85,100,145,.10) 0%,rgba(85,100,145,0) 44%);
   border:1px solid rgba(255,255,255,.32);
-  backdrop-filter:blur(5px) saturate(1.7) brightness(1.02);-webkit-backdrop-filter:blur(5px) saturate(1.7) brightness(1.02);
+  backdrop-filter:blur(4px) saturate(1.7) brightness(1.02);-webkit-backdrop-filter:blur(4px) saturate(1.7) brightness(1.02);
   box-shadow:
     0 24px 80px rgba(110,125,185,.10),
     0 0 0 .5px rgba(255,255,255,.4),
@@ -276,8 +276,8 @@ body:not(.scene-night) #prompt-bubble .bub{
     radial-gradient(ellipse 9% 5% at 64% 89%,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 100%),
     radial-gradient(closest-side,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 80%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%),
     radial-gradient(circle at 50% 122%,rgba(85,100,145,.05) 0%,rgba(85,100,145,0) 44%);
-  backdrop-filter:blur(1.5px) saturate(1.1) brightness(1.01);
-  -webkit-backdrop-filter:blur(1.5px) saturate(1.1) brightness(1.01);
+  backdrop-filter:blur(2.5px) saturate(1.1) brightness(1.01);
+  -webkit-backdrop-filter:blur(2.5px) saturate(1.1) brightness(1.01);
   box-shadow:
     0 24px 80px rgba(110,125,185,.08),
     0 0 0 .5px rgba(255,255,255,.34),
@@ -737,34 +737,26 @@ body.night .theme-toggle .tg-thumb{
   .theme-toggle .tg-ico{font-size:16px}
 }
 
-/* ===== 冥想光境選單(照圖:固定深色氛圍 + 白天彩球 / 夜間深球) ===== */
-#mode-sheet{background:rgba(8,10,20,.58)} /* 不論目前主題,選單一律深色遮罩 */
-#mode-sheet .panel{
-  background:linear-gradient(160deg,rgba(32,38,66,.94),rgba(18,22,42,.96));
-  border:1px solid rgba(150,165,225,.20);
-  box-shadow:0 30px 90px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.10);
-}
-#mode-sheet .panel h2{ /* 標題用較亮的漸層,在深底上更清楚 */
-  background:linear-gradient(92deg,#6fa8ff 0%,#9aa6ff 30%,#c5cbe0 52%,#ffce7e 78%,#ffb160 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-#mode-sheet .panel-sub{color:#aeb2d2}
+/* ===== 冥想光境選單(跟著首頁主題:白天=亮玻璃 / 夜晚=深色氛圍) ===== */
 .mode-grid{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* 卡片:預設(首頁白天)亮玻璃 + 深色文字 */
 .mode-opt{
   display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;
   padding:26px 14px 22px;border-radius:22px;font-family:inherit;
-  border:1px solid rgba(150,165,225,.22);background:rgba(42,50,84,.40);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.32);
+  border:1px solid var(--glass-border);background:rgba(255,255,255,.42);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 24px rgba(100,110,170,.10);
   transition:transform .35s cubic-bezier(.34,1.45,.64,1),box-shadow .35s var(--ease),background .35s var(--ease),border-color .35s var(--ease);
 }
 .mode-opt:hover,.mode-opt:active{transform:translateY(-4px) scale(1.03);
-  border-color:rgba(170,190,255,.5);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.4),0 0 18px rgba(110,160,255,.4),0 0 36px rgba(110,160,255,.18)}
-/* 選取後:藍色光暈持續呼吸發光(沿用 selPulse),卡片底色提亮、邊框轉藍 */
+  border-color:rgba(150,180,255,.7);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 10px 28px rgba(100,110,170,.14),0 0 16px rgba(80,170,255,.4),0 0 32px rgba(80,170,255,.16)}
+/* 選取後:藍色光暈持續呼吸發光(沿用 selPulse) */
 .mode-opt.sel{transform:translateY(-4px) scale(1.03);
-  border-color:rgba(150,195,255,.95);background:rgba(70,98,158,.5);
+  border-color:rgba(140,195,255,.95);background:rgba(235,245,255,.72);
   animation:selPulse 1.5s ease-in-out infinite;}
-/* 卡片內的兩顆球 */
+.mode-opt .mode-name{font-size:18px;font-weight:700;color:#1c1c28;letter-spacing:.01em}
+.mode-opt .mode-desc{font-size:13px;color:#6e6e80;letter-spacing:.06em}
+/* 卡片內的兩顆球(白天彩球 / 夜間深球,兩種主題通用) */
 .mode-orb{width:92px;height:92px;border-radius:50%;position:relative}
 .mode-orb-day{ /* 白天:柔彩液態玻璃球 */
   background:
@@ -772,27 +764,48 @@ body.night .theme-toggle .tg-thumb{
     conic-gradient(from 200deg,#9bd6ff,#c5b3ff,#ffc2dd,#ffe2ae,#b6f4d8,#9bd6ff);
   box-shadow:0 10px 28px rgba(120,140,200,.45),inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 18px rgba(255,255,255,.4);
 }
-.mode-orb-night{ /* 夜間:深藍光澤珍珠球 */
+.mode-orb-night{ /* 夜晚:深藍光澤珍珠球 */
   background:
     radial-gradient(circle at 38% 28%,rgba(205,218,255,.85) 0%,rgba(150,170,235,.28) 20%,rgba(40,52,92,0) 46%),
     radial-gradient(circle at 52% 60%,#33436f 0%,#1d2750 48%,#0d1430 100%);
   box-shadow:0 12px 30px rgba(0,0,0,.55),inset 0 -10px 22px rgba(0,0,0,.45),inset 0 3px 8px rgba(190,205,255,.3);
 }
-.mode-opt .mode-name{font-size:18px;font-weight:700;color:#f1f3ff;letter-spacing:.01em}
-.mode-opt .mode-desc{font-size:13px;color:#a6abcc;letter-spacing:.06em}
 #mode-sheet .actions{margin-top:18px}
-/* 進入冥想:主要 CTA(深底上的藍紫漸層膠囊) */
-#mode-sheet .actions .btn-dark{
-  background:linear-gradient(95deg,rgba(90,150,255,.32),rgba(150,120,255,.28));
-  color:#fff;border-color:rgba(160,185,255,.45);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 30px rgba(0,0,0,.4)}
-#mode-sheet .actions .btn-dark:hover,#mode-sheet .actions .btn-dark:active{
-  background:linear-gradient(95deg,rgba(110,170,255,.46),rgba(170,140,255,.4))}
-#mode-sheet .actions .btn-light{ /* 關閉:深色玻璃膠囊 + 白字 */
+/* 進入冥想:白天沿用一般亮玻璃 .btn-dark(與其他「開始」鈕一致);夜晚才換成藍紫漸層 CTA */
+body.night #mode-sheet .actions .btn-dark{
+  background:linear-gradient(95deg,rgba(90,150,255,.34),rgba(150,120,255,.30));
+  color:#fff;border-color:rgba(160,185,255,.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 28px rgba(0,0,0,.4)}
+body.night #mode-sheet .actions .btn-dark:hover,body.night #mode-sheet .actions .btn-dark:active{
+  background:linear-gradient(95deg,rgba(110,170,255,.48),rgba(170,140,255,.42))}
+
+/* --- 首頁夜晚:整個光境選單回到原本的深色氛圍 --- */
+body.night #mode-sheet{background:rgba(8,10,20,.58)}
+body.night #mode-sheet .panel{
+  background:linear-gradient(160deg,rgba(32,38,66,.94),rgba(18,22,42,.96));
+  border:1px solid rgba(150,165,225,.20);
+  box-shadow:0 30px 90px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.10);
+}
+body.night #mode-sheet .panel h2{ /* 深底上用較亮的漸層 */
+  background:linear-gradient(92deg,#6fa8ff 0%,#9aa6ff 30%,#c5cbe0 52%,#ffce7e 78%,#ffb160 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body.night #mode-sheet .panel-sub{color:#aeb2d2}
+body.night .mode-opt{
+  border:1px solid rgba(150,165,225,.22);background:rgba(42,50,84,.40);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.32);
+}
+body.night .mode-opt:hover,body.night .mode-opt:active{
+  border-color:rgba(170,190,255,.5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.4),0 0 18px rgba(110,160,255,.4),0 0 36px rgba(110,160,255,.18)}
+body.night .mode-opt.sel{border-color:rgba(150,195,255,.95);background:rgba(70,98,158,.5)}
+body.night .mode-opt .mode-name{color:#f1f3ff}
+body.night .mode-opt .mode-desc{color:#a6abcc}
+body.night #mode-sheet .actions .btn-light{ /* 關閉:深色玻璃膠囊 + 白字 */
   background:rgba(255,255,255,.08);color:#eef0fb;border-color:rgba(255,255,255,.16);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 24px rgba(0,0,0,.3);
 }
-#mode-sheet .actions .btn-light:hover,#mode-sheet .actions .btn-light:active{background:rgba(255,255,255,.16)}
+body.night #mode-sheet .actions .btn-light:hover,body.night #mode-sheet .actions .btn-light:active{background:rgba(255,255,255,.16)}
 @media (max-width:480px){
   .mode-orb{width:78px;height:78px}
   .mode-opt{padding:20px 10px 18px}
@@ -888,7 +901,7 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
       </button>
       <button class="mode-opt" data-mode="night">
         <span class="mode-orb mode-orb-night"></span>
-        <span class="mode-name">夜間模式</span>
+        <span class="mode-name">夜晚模式</span>
         <span class="mode-desc">靜謐 · 深邃 · 星光</span>
       </button>
     </div>
@@ -1099,9 +1112,9 @@ const UNITS = [
  desc:"432Hz 自然律調音。感恩是顯化的加速器:對已擁有的感恩,會把頻率直接調到「接收」模式。",
  tech:["感恩灌注法:連續喚起十個感謝","對未來感恩:為還沒發生的事先說謝謝","感恩的身體記憶定錨"],
  prompts:[
- "歡迎來到流螢之谷。每一點光,都是一件值得感謝的事。",
+ "歡迎來到螢火之谷。每一點光,都是一件值得感謝的事。",
  "深呼吸,讓嘴角自然放鬆,微微上揚。",
- "想起今天一件小小的好事。對它說:謝謝。看,一顆流螢亮了。",
+ "想起今天一件小小的好事。對它說:謝謝。看,一顆螢火亮了。",
  "想起一個愛你的人。謝謝。又一顆亮了。",
  "想起你的身體、你的呼吸、此刻的安全。謝謝。",
  "讓感謝一個接一個浮現,山谷越來越亮,你的胸口也是。",
@@ -1421,35 +1434,77 @@ function getDotTexture(){
   dotTexture=new THREE.CanvasTexture(c);
   return dotTexture;
 }
-function makePoints(n,posFn,color,size,opacity,blend){
-  const g=new THREE.BufferGeometry(),arr=new Float32Array(n*3),sizes=new Float32Array(n);
+/* 玫瑰花瓣貼圖:圓潤外緣 + 尖端基部的單片花瓣(白色,顏色由著色器的 uColor 上色) */
+let petalTexture=null;
+function getPetalTexture(){
+  if(petalTexture)return petalTexture;
+  const S=128,c=document.createElement("canvas");c.width=c.height=S;
+  const x=c.getContext("2d");
+  const cx=S/2;
+  /* 玫瑰花瓣輪廓:基部(下)收尖、頂端(上)飽滿圓潤帶淺凹口(心形感),整體較寬厚 */
+  x.beginPath();
+  x.moveTo(cx,S*0.91);                                                // 底部尖端(花瓣基部)
+  x.bezierCurveTo(S*0.14,S*0.74, S*0.06,S*0.36, S*0.23,S*0.14);       // 左緣外擴上行
+  x.bezierCurveTo(S*0.34,S*0.03, S*0.45,S*0.12, cx,S*0.22);           // 左上進入頂端凹口
+  x.bezierCurveTo(S*0.55,S*0.12, S*0.66,S*0.03, S*0.77,S*0.14);       // 出凹口到右上
+  x.bezierCurveTo(S*0.94,S*0.36, S*0.86,S*0.74, cx,S*0.91);           // 右緣下行回尖端
+  x.closePath();
+  x.save();x.clip();
+  /* 柔和明暗:偏上方亮芯,往邊緣與基部淡出(留一點透明感) */
+  const g=x.createRadialGradient(cx,S*0.36,2,cx,S*0.46,S*0.62);
+  g.addColorStop(0,"rgba(255,255,255,1)");
+  g.addColorStop(.5,"rgba(255,255,255,.92)");
+  g.addColorStop(.85,"rgba(255,255,255,.52)");
+  g.addColorStop(1,"rgba(255,255,255,.12)");
+  x.fillStyle=g;x.fillRect(0,0,S,S);
+  x.restore();
+  petalTexture=new THREE.CanvasTexture(c);
+  return petalTexture;
+}
+function makePoints(n,posFn,color,size,opacity,blend,tex,petal){
+  const g=new THREE.BufferGeometry(),arr=new Float32Array(n*3),sizes=new Float32Array(n),rots=new Float32Array(n),shades=new Float32Array(n);
   for(let i=0;i<n;i++){
     const p=posFn(i);arr[i*3]=p[0];arr[i*3+1]=p[1];arr[i*3+2]=p[2];
-    sizes[i]=size*(0.45+Math.random()*1.6); // 每顆圓點大小不一
+    sizes[i]=size*(0.45+Math.random()*1.6); // 每顆圓點/花瓣大小不一
+    rots[i]=Math.random()*6.283; // 每顆隨機旋轉(圓點看不出差別;花瓣會各自轉向不同角度)
+    shades[i]=Math.random(); // 花瓣:每片深淺不一的粉紅(圓點模式不使用)
   }
   g.setAttribute("position",new THREE.BufferAttribute(arr,3));
   g.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
+  g.setAttribute("aRot",new THREE.BufferAttribute(rots,1));
+  g.setAttribute("aShade",new THREE.BufferAttribute(shades,1));
   const m=new THREE.ShaderMaterial({
     transparent:true,depthWrite:false,blending:blend||THREE.NormalBlending,
     uniforms:{
       uColor:{value:new THREE.Color(color)},
       uOpacity:{value:opacity},
-      uMap:{value:getDotTexture()},
-      uScale:{value:(renderer?renderer.domElement.height:800)*0.5}
+      uMap:{value:tex||getDotTexture()},
+      uScale:{value:(renderer?renderer.domElement.height:800)*0.5},
+      uPetal:{value:petal?1:0},
+      uPink1:{value:new THREE.Color("#ffc2d8")}, // 淺粉
+      uPink2:{value:new THREE.Color("#ec5a82")}  // 深玫瑰粉
     },
     vertexShader:`
-      attribute float aSize;uniform float uScale;
+      attribute float aSize;attribute float aRot;attribute float aShade;uniform float uScale;
+      varying float vRot;varying float vShade;
       void main(){
+        vRot=aRot;vShade=aShade;
         vec4 mv=modelViewMatrix*vec4(position,1.0);
         gl_PointSize=aSize*(uScale/-mv.z);
         gl_Position=projectionMatrix*mv;
       }`,
     fragmentShader:`
       uniform vec3 uColor;uniform float uOpacity;uniform sampler2D uMap;
+      uniform float uPetal;uniform vec3 uPink1;uniform vec3 uPink2;
+      varying float vRot;varying float vShade;
       void main(){
-        vec4 t=texture2D(uMap,gl_PointCoord);
+        vec2 uv=gl_PointCoord-0.5;            // 以中心為原點旋轉貼圖
+        float c=cos(vRot),s=sin(vRot);
+        uv=mat2(c,-s,s,c)*uv+0.5;
+        vec4 t=texture2D(uMap,uv);
         if(t.a<0.02)discard;
-        gl_FragColor=vec4(uColor,uOpacity*t.a);
+        vec3 col=(uPetal>0.5)?mix(uPink1,uPink2,vShade):uColor; // 花瓣:深淺不一的粉紅;圓點:原色
+        gl_FragColor=vec4(col,uOpacity*t.a);
       }`
   });
   return new THREE.Points(g,m);
@@ -1575,11 +1630,14 @@ function buildEnv(unit){
   const E=unit.env;
   /* 粒子一律離地:y < 1 的抬到 1.0~2.5,避免透視壓縮鋪成滿地彩點 */
   const lift=fn=>i=>{const pt=fn(i);if(pt[1]<1.0)pt[1]=1.0+Math.random()*1.5;return pt;};
-  const mk=(n,fn,c,s,o,vel)=>{const p=makePoints(n,lift(fn),c,s,Math.min(o*oMul,1));p.userData.vel=vel;particles.push(p);scene.add(p);};
+  const dotMul=unit.breath?1:1.5; // 非呼吸課程:背景圓形圓點數量 ×1.5(呼吸練習維持原樣)
+  const isRose=(E==="rose"); // 愛情顯化:圓點改成深淺不一的粉紅玫瑰花瓣
+  const partTex=isRose?getPetalTexture():getDotTexture();
+  const mk=(n,fn,c,s,o,vel)=>{const p=makePoints(Math.round(n*dotMul),lift(fn),c,s,Math.min(o*oMul,1),null,partTex,isRose);p.userData.vel=vel;particles.push(p);scene.add(p);};
   if(E==="goldrain")      {mk(1500,()=>[(Math.random()-.5)*22,Math.random()*14-2,(Math.random()-.5)*22],col,0.05,.85,{y:-0.4,swirl:.05});}
   else if(E==="forest")   {mk(1100,()=>[(Math.random()-.5)*18,Math.random()*9-1,(Math.random()-.5)*18],col,0.055,.75,{y:0.12,swirl:.18});}
   else if(E==="galaxy")   {mk(2200,i=>{const a=i*0.07,r=0.8+i*0.004;return[Math.cos(a)*r,(Math.random()-.5)*3+1.4,Math.sin(a)*r-2]},col,0.045,.85,{rot:.05});}
-  else if(E==="rose")     {mk(1400,()=>[(Math.random()-.5)*16,Math.random()*8,(Math.random()-.5)*16],col,0.06,.75,{y:0.06,swirl:.3});}
+  else if(E==="rose")     {mk(1400,()=>[(Math.random()-.5)*16,Math.random()*8,(Math.random()-.5)*16],col,0.095,.78,{y:0.06,swirl:.3});}
   else if(E==="dawn")     {mk(1300,()=>[(Math.random()-.5)*26,Math.random()*5,(Math.random()-.5)*26-6],col,0.065,.8,{y:0.18,swirl:.04});}
   else if(E==="sun")      {mk(1200,()=>{const a=Math.random()*6.28,r=2+Math.random()*8;return[Math.cos(a)*r,Math.random()*7,Math.sin(a)*r-3]},col,0.06,.8,{rot:.1});}
   else if(E==="ocean")    {mk(1600,()=>[(Math.random()-.5)*24,Math.random()*6-1.5,(Math.random()-.5)*24],col,0.055,.65,{y:-0.05,swirl:.1});}
@@ -1588,7 +1646,7 @@ function buildEnv(unit){
   else if(E==="coral")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*7,(Math.random()-.5)*16],col,0.06,.7,{y:0.08,swirl:.22});}
   else if(E==="aurora")   {mk(1900,i=>[(i%200)*0.12-12,3+Math.sin(i*0.05)*1.6+Math.random(),-5-Math.random()*8],col,0.075,.6,{wave:1});}
   else if(E==="lake")     {mk(unit.breath?2200:1000,()=>[(Math.random()-.5)*22,Math.random()*0.4,(Math.random()-.5)*22],col,0.05,.55,{swirl:.05});}
-  else if(E==="plasma")   {mk(1400,()=>{const a=Math.random()*6.28,r=1.5+Math.random()*7;return[Math.cos(a)*r,Math.random()*6,Math.sin(a)*r-2]},col,0.065,.85,{rot:.18});}
+  else if(E==="plasma")   {mk(1400,()=>{const a=Math.random()*6.28,r=1.5+Math.random()*7;return[Math.cos(a)*r,Math.random()*11+1,Math.sin(a)*r-2]},col,0.065,.85,{y:0.5,swirl:0.05});} // 身體能量:圓點由下往上飄動(原本為旋轉)
   else if(E==="ember")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*9-1,(Math.random()-.5)*16],col,0.055,.85,{y:0.35,swirl:.12});}
   else if(E==="crystal")  {mk(950,()=>[(Math.random()-.5)*18,Math.random()*8,(Math.random()-.5)*18],col,0.065,.8,{y:0.03,swirl:.03});}
   else if(E==="hearth")   {mk(950,()=>[(Math.random()-.5)*12,Math.random()*5,(Math.random()-.5)*12],col,0.065,.8,{y:0.1,swirl:.15});}
@@ -1600,7 +1658,7 @@ function buildEnv(unit){
        rot:.3 → 公轉週期 2π/0.3 ≈ 21 秒,光點繞到鏡頭後方約 10 秒回來(放慢飛行速度) */
     mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.3});
   }
-  mk(unit.breath?1700:800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,{swirl:.06}); // 呼吸課程背景圓點加量
+  mk(unit.breath?1700:800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,E==="plasma"?{y:0.4,swirl:0.04}:{swirl:.06}); // 背景圓點:身體能量課程同樣由下往上飄,其餘維持原樣
 }
 
 /* ---------- 動畫迴圈 ---------- */
@@ -1777,6 +1835,9 @@ let breath={active:false,elapsed:0,total:0,key:null,finishing:false,lastT:null};
 const BREATH_CAM=new THREE.Vector3(0,1.5,0); // 鏡頭位置:光點朝這裡聚攏
 async function runBreath(min){
   breath={active:false,elapsed:0,total:min*60,key:null,finishing:false,lastT:null};
+  /* 圓點改成「隨意慢慢飄動」(wander),取代原本會造成「一直往左移」的 swirl 旋轉。
+     呼吸階段也維持 wander → 在吸/吐切換的小空檔不會再偏左漂;呼吸的靠近/遠離(breathSetWorld)是另一套機制,不受影響。 */
+  for(const p of particles){p.userData.vel={wander:1};}
   $("prompt-text").style.opacity="0";
   $("prompt-text").textContent="";
   await wait(1800);
