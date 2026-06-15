@@ -159,6 +159,16 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   box-shadow:0 10px 30px rgba(100,110,170,.18),0 0 0 3px rgba(255,255,255,.9),0 0 0 5px var(--u-color,#bcd);
 }
 .w-node .nd{position:absolute;inset:4px;border-radius:50%;opacity:.16;background:var(--u-color,#dde)}
+/* === #1 轉盤旋轉/拖曳期間的效能急救 ===
+   21 個 .w-node 各帶 backdrop-filter:blur(10px),旋轉時每幀移動且疊在「會動的極光」上
+   → 每幀強制重算 21 次毛玻璃,正是 compositor 卡頓主因。
+   旋轉/拖曳時暫時關掉節點毛玻璃(改純半透明,移動中肉眼不易察覺)並凍結極光動畫,
+   讓旋轉變成便宜的合成;放手吸附完成後再恢復玻璃質感。 */
+body.wheel-busy .w-node{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  background:rgba(255,255,255,.72)}
+body.wheel-busy.night .w-node{background:rgba(255,255,255,.16)}
+body.wheel-busy #aurora .ab,
+body.wheel-busy #aurora-night .ab{animation-play-state:paused!important}
 #wheel-center{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:41%;text-align:center;pointer-events:none;
@@ -248,11 +258,17 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   }
   #prompt-text{font-size:clamp(20px,1.9vw,28px);width:64%}
 }
-#prompt-bubble.show{visibility:visible}
+#prompt-bubble.show{visibility:visible;opacity:1}
+/* #2 進場改「純 opacity 淡入」:不在出現瞬間位移/縮放帶 backdrop-filter 的 .bub,
+   避免進場那幾幀每幀重算毛玻璃造成卡頓。靜止位置(原 bubIn 終點 -26px)改放到 .bub base。 */
 #prompt-bubble.show .bub{animation:bubIn 2s cubic-bezier(.22,1,.36,1) both,bubWobble 9s cubic-bezier(.42,0,.58,1) 2s infinite}
-@keyframes bubIn{from{opacity:0;transform:translateY(0) scale(.92)}to{opacity:1;transform:translateY(-26px) scale(1)}}
+@keyframes bubIn{from{opacity:0}to{opacity:1}}
+/* #2 預熱:提前把毛玻璃合成層建立起來(整體隱形 opacity:0),
+   等真正淡入時就不必在出現瞬間才現場建層 → 消除「泡泡出現前卡一下」 */
+#prompt-bubble.prewarm{visibility:visible;opacity:0;pointer-events:none}
 #prompt-bubble .bub{
   position:absolute;inset:0;border-radius:50%;
+  transform:translateY(-26px);
   display:flex;align-items:center;justify-content:center;
   background:
     radial-gradient(ellipse 18% 10% at 33% 15%,rgba(255,255,255,.6) 0%,rgba(255,255,255,.22) 55%,rgba(255,255,255,0) 100%),
@@ -701,6 +717,7 @@ body.night .hero-h1,body.night #wheel-center h2,body.night .panel h2,body.night 
   position:relative;display:inline-flex;align-items:center;padding:4px;
   border:1px solid var(--glass-border);border-radius:999px;
   background:rgba(255,255,255,.26);
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
   backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);
   box-shadow:var(--glass-shadow),var(--glass-glow);
 }
@@ -712,9 +729,10 @@ body.night .hero-h1,body.night #wheel-center h2,body.night .panel h2,body.night 
   transition:transform .5s cubic-bezier(.34,1.3,.5,1),background .6s var(--ease),box-shadow .6s var(--ease);
 }
 .theme-toggle .tg-opt{
-  position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;
+  position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;
   border:0;background:transparent;cursor:pointer;font-family:inherit;white-space:nowrap;
   padding:7px 15px;border-radius:999px;font-size:13.5px;font-weight:600;
+  touch-action:manipulation;
   color:var(--ink-2);transition:color .4s var(--ease);
 }
 .theme-toggle .tg-ico{font-size:14px;line-height:1}
@@ -729,12 +747,12 @@ body.night .theme-toggle .tg-thumb{
   box-shadow:0 4px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22);
 }
 .theme-toggle:hover{box-shadow:var(--glass-shadow),var(--glass-glow),0 0 16px rgba(100,180,255,.35)}
-/* 手機:收成圖示滑動開關 */
+/* 手機:收成圖示滑動開關。命中區放大(左右拉寬 + 加高)讓觸控更靈敏 */
 @media (max-width:560px){
   .nav-right{gap:8px}
   .theme-toggle .tg-txt{display:none}
-  .theme-toggle .tg-opt{padding:8px 13px}
-  .theme-toggle .tg-ico{font-size:16px}
+  .theme-toggle .tg-opt{padding:11px 22px;min-height:24px}
+  .theme-toggle .tg-ico{font-size:17px}
 }
 
 /* ===== 冥想光境選單(跟著首頁主題:白天=亮玻璃 / 夜晚=深色氛圍) ===== */
@@ -1772,7 +1790,9 @@ async function startSession(unit,vr,minutes){
   currentUnit=unit;promptIndex=0;sessionActive=true;paused=false;
   ensureAudio();
   orb.material.uniforms.uHue.value=unit.hue;
-  buildEnv(unit);paintFloor(unit.color);setOrbVisible(true);   // 先把場景備好(畫布仍透明)
+  buildEnv(unit);setOrbVisible(true);   // 先把場景備好(畫布仍透明)
+  // #2 1024² 地板材質的繪製+GPU 上傳挪到下一幀,避免和大廳→場景轉場擠在同一幀造成 long frame
+  requestAnimationFrame(()=>{if(sessionActive)paintFloor(unit.color);});
   $("hud-unit").textContent=unit.breath
     ?`單元 ${unit.id} · ${unit.name} · 吸吐 ${BREATH_IN} 秒 · ${minutes} 分鐘`
     :`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
@@ -1803,8 +1823,10 @@ async function runPrompt(){
     if(!sessionActive)return;
   }else{ // 第一句:先讓人沉浸場景約 2 秒,泡泡與文字才開始 2 秒的淡入登場
     $("prompt-text").style.opacity="0";
+    $("prompt-bubble").classList.add("prewarm"); // #2 先(隱形)建立毛玻璃合成層,避免出現瞬間才建層卡頓
     await wait(2000);
     if(!sessionActive)return;
+    $("prompt-bubble").classList.remove("prewarm");
     $("prompt-bubble").classList.add("show");
     await wait(60); // 隔一個影格,確保文字 transition 從 0 開始播放
     if(!sessionActive)return;
@@ -1840,11 +1862,13 @@ async function runBreath(min){
   for(const p of particles){p.userData.vel={wander:1};}
   $("prompt-text").style.opacity="0";
   $("prompt-text").textContent="";
+  $("prompt-bubble").classList.add("prewarm"); // #2 先(隱形)建立毛玻璃合成層,避免出現瞬間才建層卡頓
   await wait(1800);
   if(!sessionActive)return;
   /* 修正卡頓:先把容器縮放寫成 0.58 再顯示。
      原本 .show 先出現(CSS 預設 scale 1),延遲一幀才寫入縮放 → 肉眼可見的瞬間跳縮 */
   setBreathBubbleScale(0.72); // 開場引導用較大的 0.72,字不會太小(縮放套在 .bub 自身)
+  $("prompt-bubble").classList.remove("prewarm");
   $("prompt-bubble").classList.add("show");
   await wait(60);
   if(!sessionActive)return;
@@ -2171,7 +2195,7 @@ function endSession(showRating){
   if(showRating)openRating();                     // 評分表淡入 2s
   else $("lobby").classList.remove("hidden");     // 或大廳淡入 2s
   setTimeout(()=>{                                 // 淡化結束後再做場景收尾(此時已看不到)
-    $("prompt-bubble").classList.remove("show","breath");
+    $("prompt-bubble").classList.remove("show","breath","prewarm");
     $("progress-fill").style.width="0%";
     $("btn-prev").style.display="";$("btn-next").style.display="";
     breathResetWorld(); // 還原泡泡與塵埃的縮放
@@ -2237,6 +2261,7 @@ function buildWheel(){
   };
   const down=e=>{
     cancelAnimationFrame(snapAnim); // 按住即攔下任何進行中的旋轉
+    setSpin(true);                  // #1 進入旋轉態 → 關節點毛玻璃 + 凍極光
     dragging=true;lastPointerAngle=getPolar(e).a;
     lastMoveT=performance.now();velSamples=[];dragMoved=0;
   };
@@ -2299,12 +2324,15 @@ function layoutWheel(){
   });
 }
 let snapAnim=null;
+/* #1 旋轉態總開關:body.wheel-busy 控制節點毛玻璃關閉與極光凍結 */
+function setSpin(on){document.body.classList.toggle("wheel-busy",on);}
 /* ---------- 拉霸機慣性旋轉 ----------
    用力一甩 → 轉盤順著放手前的轉動方向高速旋轉(看到往哪轉就往哪飛),
    摩擦力指數衰減,大力甩約轉 5 秒多,越轉越慢,最後吸附到落點單元。
    轉動途中中央資訊會跟著「跳格」,製造未知的期待感。 */
 function startFling(v0){
   cancelAnimationFrame(snapAnim);
+  setSpin(true);
   const dir=v0<0?-1:1;
   // 力道映射放慢:初速 2.8 ~ 6.5 rad/s(原 5 ~ 19),映射係數降到 0.85 → 不會一甩就飛太快
   let v=dir*Math.min(Math.max(Math.abs(v0)*0.85,2.8),6.5);
@@ -2328,6 +2356,7 @@ function startFling(v0){
 }
 function rotateTo(idx){
   cancelAnimationFrame(snapAnim);
+  setSpin(true);
   const target=-idx*STEP;
   // 取最短路徑
   let from=wheelAngle;
@@ -2339,7 +2368,7 @@ function rotateTo(idx){
     wheelAngle=from+diff*ease(k);
     layoutWheel();
     if(k<1)snapAnim=requestAnimationFrame(step);
-    else{wheelAngle=target;layoutWheel();}
+    else{wheelAngle=target;layoutWheel();setSpin(false);} // 吸附完成 → 恢復節點毛玻璃與極光
   };
   snapAnim=requestAnimationFrame(step);
   setActive(idx);
@@ -2635,9 +2664,42 @@ function applySceneOnlyTheme(night){
   const m=document.querySelector('meta[name="theme-color"]');
   if(m)m.setAttribute("content",night?"#0a0b14":"#ffffff"); // 課程當下的瀏覽器列顏色
 }
-document.querySelectorAll("#theme-toggle .tg-opt").forEach(b=>{
-  b.onclick=()=>applyHomeTheme(b.dataset.theme==="night",true);
-});
+/* #3 主題切換改「整顆膠囊」事件委派,大幅提升手機觸控可靠度:
+   - 點到按鈕之間縫隙/邊緣也算數(用觸點左右半判斷)
+   - 用 pointerup + 14px 移動容忍 + 指標捕捉:手指微滑或滑出小按鈕也照樣觸發,
+     不再像原本依賴 click(輕微移動就被瀏覽器取消 → 按了沒反應) */
+(function(){
+  const tg=$("theme-toggle");
+  if(!tg)return;
+  const decide=clientX=>{const r=tg.getBoundingClientRect();return (clientX==null?r.right:clientX)>r.left+r.width/2;}; // 右半=夜晚
+  const fire=(target,clientX)=>{
+    const opt=target&&target.closest?target.closest(".tg-opt"):null;
+    applyHomeTheme(opt?opt.dataset.theme==="night":decide(clientX),true);
+  };
+  if(window.PointerEvent){
+    let sx=0,sy=0,sid=null,moved=false;
+    tg.addEventListener("pointerdown",e=>{
+      sid=e.pointerId;sx=e.clientX;sy=e.clientY;moved=false;
+      try{tg.setPointerCapture(e.pointerId);}catch(_){}
+    });
+    tg.addEventListener("pointermove",e=>{
+      if(e.pointerId!==sid)return;
+      if(Math.abs(e.clientX-sx)>14||Math.abs(e.clientY-sy)>14)moved=true;
+    });
+    tg.addEventListener("pointerup",e=>{
+      if(e.pointerId!==sid)return;sid=null;
+      try{tg.releasePointerCapture(e.pointerId);}catch(_){}
+      if(moved)return;                 // 視為滑動,不切換
+      fire(e.target,e.clientX);
+    });
+    tg.addEventListener("pointercancel",()=>{sid=null;});
+  }else{
+    tg.addEventListener("click",e=>fire(e.target,e.clientX));
+  }
+  tg.querySelectorAll(".tg-opt").forEach(b=>{ // 鍵盤無障礙
+    b.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();applyHomeTheme(b.dataset.theme==="night",true);}});
+  });
+})();
 applyHomeTheme(document.body.classList.contains("night"),false); // 對齊已套用主題的 meta + 場景
 
 /* ---------- #6 呼吸模式:課程進行中的時間滑桿可拖曳跳轉 ---------- */
@@ -2674,6 +2736,45 @@ function setupBreathSeek(){
 
 /* ---------- 啟動 ---------- */
 initScene();buildWheel();buildRating();detectVR();setupBreathSeek();
+
+/* ===== ?perf=1 效能量測小工具 =====
+   在網址後加 ?perf=1 開啟。即時顯示:
+     FPS         · 過去 ~0.5s 平均幀率
+     last        · 上一幀耗時 (ms)
+     worst(1s)   · 過去 1 秒內最差的一幀 (ms,數字越大越卡)
+     long>50ms   · 開站至今超過 50ms 的卡頓幀總數
+     state       · 目前狀態(spin=轉盤旋轉中 / bubble=泡泡已顯示),方便對照哪個動作在掉幀
+   實機上做動作(點數字旋轉、進課程)時盯著 worst 與 long 計數即可定位殘留卡頓。 */
+(function(){
+  if(!/[?&]perf=1\b/.test(location.search))return;
+  const box=document.createElement("div");
+  box.style.cssText="position:fixed;top:8px;left:8px;z-index:99999;pointer-events:none;"+
+    "font:600 11px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;"+
+    "color:#0a0a0a;background:rgba(255,255,255,.82);border:1px solid rgba(0,0,0,.18);"+
+    "border-radius:10px;padding:7px 10px;white-space:pre;backdrop-filter:blur(6px);"+
+    "-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,.18)";
+  document.body.appendChild(box);
+  let last=performance.now(),acc=0,frames=0,worst=0,worstWin=performance.now(),
+      worstShown=0,longCount=0,fps=0;
+  function loop(now){
+    const dt=now-last;last=now;
+    if(dt>0){acc+=dt;frames++;}
+    if(dt>worst)worst=dt;
+    if(dt>50)longCount++;
+    if(acc>=480){fps=Math.round(1000/(acc/frames));acc=0;frames=0;}
+    if(now-worstWin>=1000){worstShown=worst;worst=0;worstWin=now;} // 每秒結算一次「過去 1 秒最差幀」
+    const spin=document.body.classList.contains("wheel-busy");
+    const bub=$("prompt-bubble").classList.contains("show");
+    box.textContent=
+      "FPS        "+fps+"\n"+
+      "last       "+dt.toFixed(1)+" ms\n"+
+      "worst(1s)  "+worstShown.toFixed(1)+" ms\n"+
+      "long>50ms  "+longCount+"\n"+
+      "state      "+(spin?"spin ":"")+(bub?"bubble":(spin?"":"idle"));
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
