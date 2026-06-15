@@ -1343,6 +1343,9 @@ const UNITS = [
 const EMOTIONS=["平靜","感動","放鬆","充滿能量","幸福","想睡","思緒變清晰","起雞皮疙瘩","鼻酸想哭","充滿希望","身體變輕","還在路上"];
 /* ================= 核心引擎 v2(明亮世界 · 無語音 · 轉盤選單) ================= */
 const $=id=>document.getElementById(id);
+/* #2 ?perf=1 時把進場各步驟耗時印到 console,方便實機確認哪一步還在掉幀 */
+window.__perf=/[?&]perf=1\b/.test(location.search);
+function perfTime(label,fn){if(!window.__perf)return fn();const t=performance.now();const r=fn();console.log("[perf] "+label+": "+(performance.now()-t).toFixed(1)+"ms");return r;}
 let scene,camera,renderer,clock,orb,textPlane,textTex,textCanvas,particles=[],dust,floor,hemiLight,dirLight;
 let isNight=document.body.classList.contains("night"); // 冥想場景目前是否為夜間光境
 let currentUnit=UNITS[0],promptIndex=0,sessionActive=false,paused=false;
@@ -1409,15 +1412,21 @@ function applySceneTheme(){
   }
   if(floor)paintFloor(currentUnit?currentUnit.color:"#cfd8ff"); // 用目前單元色重繪,核心色依 isNight
 }
+const floorTexCache=new Map(); // #2 地板材質快取(512²,上限8筆LRU):重進同色課程免重畫、免重新上傳GPU
 function paintFloor(hex){
+  const key=(isNight?"n:":"d:")+hex;
+  const cached=floorTexCache.get(key);
+  if(cached){floorTexCache.delete(key);floorTexCache.set(key,cached);floor.material.map=cached;floor.material.needsUpdate=true;return;}
+  const S=512,k=S/1024; // 由 1024 降到 512:畫布填色與 GPU 上傳成本各降到 1/4(柔光模糊地板肉眼無差)
   const c=new THREE.Color(hex);
   const c2=c.clone().offsetHSL(0.10,0,0.06),c3=c.clone().offsetHSL(-0.10,0,0.04);
   const css=(col,a)=>"rgba("+Math.round(col.r*255)+","+Math.round(col.g*255)+","+Math.round(col.b*255)+","+a+")";
-  const fc=document.createElement("canvas");fc.width=fc.height=1024;
+  const fc=document.createElement("canvas");fc.width=fc.height=S;
   const fx=fc.getContext("2d");
-  fx.clearRect(0,0,1024,1024);
+  fx.clearRect(0,0,S,S);
   /* 三個交疊的極光大圈,像探照燈打在地上 */
   const blob=(x,y,r,col,a)=>{
+    x*=k;y*=k;r*=k;
     const g=fx.createRadialGradient(x,y,r*0.05,x,y,r);
     g.addColorStop(0,css(col,a));g.addColorStop(.55,css(col,a*0.45));g.addColorStop(1,css(col,0));
     fx.fillStyle=g;fx.beginPath();fx.arc(x,y,r,0,6.283);fx.fill();
@@ -1426,15 +1435,16 @@ function paintFloor(hex){
   blob(330,600,360,c2,isNight?0.34:0.40);
   blob(700,400,380,c3,isNight?0.32:0.38);
   /* 中央探照燈核心:白天用亮白,夜間改用柔和藍白微光(避免暗底上一團刺眼白) */
-  const wg=fx.createRadialGradient(512,512,20,512,512,300);
+  const wg=fx.createRadialGradient(512*k,512*k,20*k,512*k,512*k,300*k);
   if(isNight){
     wg.addColorStop(0,"rgba(150,170,230,.34)");wg.addColorStop(.5,"rgba(120,140,210,.16)");wg.addColorStop(1,"rgba(120,140,210,0)");
   }else{
     wg.addColorStop(0,"rgba(255,255,255,.95)");wg.addColorStop(.5,"rgba(255,255,255,.45)");wg.addColorStop(1,"rgba(255,255,255,0)");
   }
-  fx.fillStyle=wg;fx.beginPath();fx.arc(512,512,300,0,6.283);fx.fill();
+  fx.fillStyle=wg;fx.beginPath();fx.arc(512*k,512*k,300*k,0,6.283);fx.fill();
   const tex=new THREE.CanvasTexture(fc);
-  if(floor.material.map)floor.material.map.dispose();
+  floorTexCache.set(key,tex);
+  if(floorTexCache.size>8){const ok=floorTexCache.keys().next().value,old=floorTexCache.get(ok);floorTexCache.delete(ok);if(old&&old!==floor.material.map)old.dispose();}
   floor.material.map=tex;floor.material.needsUpdate=true;
 }
 /* 圓點粒子:柔邊圓形貼圖(共用一張) */
@@ -1790,22 +1800,26 @@ async function startSession(unit,vr,minutes){
   currentUnit=unit;promptIndex=0;sessionActive=true;paused=false;
   ensureAudio();
   orb.material.uniforms.uHue.value=unit.hue;
-  buildEnv(unit);setOrbVisible(true);   // 先把場景備好(畫布仍透明)
-  // #2 1024² 地板材質的繪製+GPU 上傳挪到下一幀,避免和大廳→場景轉場擠在同一幀造成 long frame
-  requestAnimationFrame(()=>{if(sessionActive)paintFloor(unit.color);});
+  setOrbVisible(true);
   $("hud-unit").textContent=unit.breath
     ?`單元 ${unit.id} · ${unit.name} · 吸吐 ${BREATH_IN} 秒 · ${minutes} 分鐘`
     :`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
-  /* #3 同一時間:大廳淡出、場景畫布與 HUD 淡入 → 2 秒影像重疊 */
+  /* #2 進場這一幀只做「輕量 class 切換」→ 大廳淡出/HUD 淡入保持流暢;
+     重活(建粒子 buildEnv、地板材質 paintFloor、音場 startSoundscape)分散到接下來幾個影格,
+     不再擠在進場同一幀造成 long frame。泡泡約 2 秒後才出現,這段沉浸留白足夠把重活鋪開且看不見。 */
   document.body.classList.add("in-session");
   $("lobby").classList.add("hidden");
   $("hud").classList.add("show");
-  startSoundscape(unit);
-  /* 呼吸模式不需要上一句/下一句 */
   $("btn-prev").style.display=unit.breath?"none":"";
   $("btn-next").style.display=unit.breath?"none":"";
   $("progress").classList.toggle("seekable",!!unit.breath); // #6 呼吸模式才可拖曳時間滑桿
   if(vr)await enterVR();
+  await nextFrame();if(!sessionActive)return; // 先讓大廳→場景的轉場跑一幀
+  perfTime("buildEnv",()=>buildEnv(unit));     // 建粒子(中等成本)
+  await nextFrame();if(!sessionActive)return;
+  perfTime("paintFloor",()=>paintFloor(unit.color)); // 地板材質(已降 512²+快取;首次該色才有成本)
+  await nextFrame();if(!sessionActive)return;
+  perfTime("startSoundscape",()=>startSoundscape(unit)); // 音場
   if(unit.breath){$("prompt-bubble").classList.add("breath");buildBreathStreams();runBreath(minutes||3);}
   else runPrompt();
 }
@@ -1842,6 +1856,7 @@ async function runPrompt(){
   },readTime(text));
 }
 function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+function nextFrame(){return new Promise(r=>requestAnimationFrame(()=>r()));} // #2 等下一個繪製幀,用來把重活鋪開到不同影格
 
 /* ---------- 呼吸放鬆練習引擎 ----------
    吸氣 8 秒:大泡泡漸漸漲大,所有光點碎片向螢幕(使用者)飛來;
