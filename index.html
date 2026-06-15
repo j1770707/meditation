@@ -268,6 +268,22 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
     inset 0 -14px 26px rgba(85,100,145,.06),
     inset 10px 6px 24px rgba(255,255,255,.08);
 }
+/* 白天課程的大泡泡:更透明、幾乎沒有霧面感
+   (移除 backdrop 模糊 → 不再霧面;淡化白色霧層 → 看得到背後場景。夜晚課程 body.scene-night 不受影響) */
+body:not(.scene-night) #prompt-bubble .bub{
+  background:
+    radial-gradient(ellipse 18% 10% at 33% 15%,rgba(255,255,255,.30) 0%,rgba(255,255,255,.10) 55%,rgba(255,255,255,0) 100%),
+    radial-gradient(ellipse 9% 5% at 64% 89%,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 100%),
+    radial-gradient(closest-side,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 80%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%),
+    radial-gradient(circle at 50% 122%,rgba(85,100,145,.05) 0%,rgba(85,100,145,0) 44%);
+  backdrop-filter:blur(1.5px) saturate(1.1) brightness(1.01);
+  -webkit-backdrop-filter:blur(1.5px) saturate(1.1) brightness(1.01);
+  box-shadow:
+    0 24px 80px rgba(110,125,185,.08),
+    0 0 0 .5px rgba(255,255,255,.34),
+    inset 0 1px 1px rgba(255,255,255,.5),
+    inset 0 -14px 26px rgba(85,100,145,.04);
+}
 /* 折射環:邊緣那圈背景比中心「更清楚、更亮」=> 光線在邊緣彎折的錯覺 */
 #prompt-bubble .lens{
   position:absolute;inset:0;border-radius:50%;pointer-events:none;
@@ -819,7 +835,7 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
       <button class="btn-light" id="hero-history">我的冥想紀錄</button>
       <span class="pill">20 個頻率宇宙</span>
       <span class="pill">Quest 3 VR</span>
-      <span class="pill">285 — 963 Hz</span>
+      <span class="pill">285 — 588 Hz</span>
     </div>
     <div class="info-card"><div class="ic-label">METHODOLOGY · 方法論</div><div class="ic-text">SATS 活在結局 · 現在式 Scripting · 感恩灌注 · 肯定語 · 感官具身化 · 釋放臣服</div></div>
     <div class="info-card"><div class="ic-label">BEST FOR · 適合時刻</div><div class="ic-text">睡前、開工前、能量低落時、重要時刻之前的頻率校準</div></div>
@@ -999,8 +1015,8 @@ const UNITS = [
  "謝謝你,身體。謝謝你一直守護著我。",
  "把這份綠光留在身體裡,慢慢回來。"]},
 
-{id:3,name:"願望顯化冥想",en:"WISH",color:"#c9a6ff",hue:0.75,freq:963,beat:7,chord:[1,1.25,1.5,2],env:"galaxy",
- desc:"963Hz 對應最高意識連結。在星願銀河中以心靈 Scripting 書寫,用現在式宣告願望已成真。",
+{id:3,name:"願望顯化冥想",en:"WISH",color:"#c9a6ff",hue:0.75,freq:588,beat:7,chord:[1,1.25,1.5,2],env:"galaxy",
+ desc:"以柔和頻率對齊最高意識連結。在星願銀河中以心靈 Scripting 書寫,用現在式宣告願望已成真。",
  tech:["心靈 Scripting:以現在式在心中描述願望已實現的一天","越具體越有力:五感細節全開","封存交託:寫完就放手,信任宇宙時程"],
  prompts:[
  "歡迎來到星願銀河。每一顆星,都是一個已經實現的願望。",
@@ -1015,8 +1031,8 @@ const UNITS = [
  "已經寫下的,宇宙都收到了。你的工作是準備好迎接。",
  "帶著篤定回來。它不是會不會來,只是什麼時候到。"]},
 
-{id:4,name:"愛情顯化冥想",en:"LOVE",color:"#ff9ecf",hue:0.92,freq:639,beat:8,chord:[1,1.2,1.5,2],env:"rose",
- desc:"639Hz 是連結與關係的頻率。打開心輪,先成為愛本身,再讓對的關係被你吸引而來。",
+{id:4,name:"愛情顯化冥想",en:"LOVE",color:"#ff9ecf",hue:0.92,freq:480,beat:8,chord:[1,1.2,1.5,2],env:"rose",
+ desc:"連結與關係的頻率。打開心輪,先成為愛本身,再讓對的關係被你吸引而來。",
  tech:["心輪啟動:玫瑰金光由心擴散","先感受被愛:潛意識頻率先到位","理想關係場景 SATS 體驗"],
  prompts:[
  "歡迎來到玫瑰星雲。這裡的一切,都以愛的頻率振動。",
@@ -1031,8 +1047,8 @@ const UNITS = [
  "把這份心口的溫度記住,它是你的導航。",
  "帶著綻放的心回來。愛正在路上,而你已經是愛。"]},
 
-{id:5,name:"事業成功冥想",en:"CAREER",color:"#ffb27a",hue:0.07,freq:741,beat:10,chord:[1,1.5,1.875,2],env:"dawn",
- desc:"741Hz 對應清晰與問題解決。預演未來自我的高光時刻,讓大腦把成功當成既定路徑。",
+{id:5,name:"事業成功冥想",en:"CAREER",color:"#ffb27a",hue:0.07,freq:510,beat:10,chord:[1,1.5,1.875,2],env:"dawn",
+ desc:"對應清晰與問題解決的頻率。預演未來自我的高光時刻,讓大腦把成功當成既定路徑。",
  tech:["未來自我影像:看見三年後成功的你","高光時刻預演:慶祝場景全感官體驗","身分肯定:我就是做得到的人"],
  prompts:[
  "歡迎來到曙光之城。太陽正在升起,而你的時代也是。",
@@ -1095,8 +1111,8 @@ const UNITS = [
  "把手放在心口,把這份暖記下來。",
  "帶著滿谷的光回來。今天,多說幾次謝謝。"]},
 
-{id:9,name:"豐盛意識冥想",en:"ABUNDANCE",color:"#ffd87a",hue:0.1,freq:888,beat:6.5,chord:[1,1.5,2,2.667],env:"river",
- desc:"888 是豐盛之數。重點不是「得到更多」,而是切換到「本來就很多」的豐盛意識,讓匱乏感斷電。",
+{id:9,name:"豐盛意識冥想",en:"ABUNDANCE",color:"#ffd87a",hue:0.1,freq:564,beat:6.5,chord:[1,1.5,2,2.667],env:"river",
+ desc:"以豐盛能量的頻率共振。重點不是「得到更多」,而是切換到「本來就很多」的豐盛意識,讓匱乏感斷電。",
  tech:["匱乏感斷電:辨識並放下「不夠」的念頭","豐盛之河視覺化:資源不斷流動","我是管道不是水庫:流動心法"],
  prompts:[
  "歡迎來到豐盛之河。它從來沒有停止流動,一秒都沒有。",
@@ -1111,8 +1127,8 @@ const UNITS = [
  "對這條河說謝謝,然後跳進去,跟它一起流。",
  "帶著流動感回來。今天,大方一點。"]},
 
-{id:10,name:"人際關係冥想",en:"RELATION",color:"#ff9d8a",hue:0.04,freq:639,beat:12,chord:[1,1.2,1.6,2],env:"coral",
- desc:"639Hz 的連結頻率,搭配低語法(Whisper Method)概念:先在內在改寫你與他人的關係劇本。",
+{id:10,name:"人際關係冥想",en:"RELATION",color:"#ff9d8a",hue:0.04,freq:480,beat:12,chord:[1,1.2,1.6,2],env:"coral",
+ desc:"連結頻率,搭配低語法(Whisper Method)概念:先在內在改寫你與他人的關係劇本。",
  tech:["寬恕釋放:剪斷舊的負面能量索","低語法:在心中向對方傳遞善意訊息","看見關係和諧的新版本"],
  prompts:[
  "歡迎來到暖珊瑚海。所有的關係,都在這裡被溫柔地看見。",
@@ -1191,8 +1207,8 @@ const UNITS = [
  "跟自己約定一個二十四小時內的小行動。一個就好。",
  "帶著火種回來。記得,二十四小時內,動起來。"]},
 
-{id:15,name:"智慧清晰冥想",en:"CLARITY",color:"#cfe8ff",hue:0.55,freq:741,beat:12.5,chord:[1,1.25,1.5,1.875],env:"crystal",
- desc:"741Hz 對應清晰思維與決策。把問題交給潛意識這台超級電腦,答案常在安靜時自己浮現。",
+{id:15,name:"智慧清晰冥想",en:"CLARITY",color:"#cfe8ff",hue:0.55,freq:510,beat:12.5,chord:[1,1.25,1.5,1.875],env:"crystal",
+ desc:"對應清晰思維與決策的頻率。把問題交給潛意識這台超級電腦,答案常在安靜時自己浮現。",
  tech:["心智除霧:吐掉雜訊,留下重點","提問交託法:把問題交給潛意識運算","清晰之光:看見下一步"],
  prompts:[
  "歡迎來到水晶迴廊。這裡的空氣,連思緒都會變透明。",
@@ -1207,8 +1223,8 @@ const UNITS = [
  "不管有沒有,都謝謝這顆很努力的腦袋。",
  "帶著透明的腦回來。答案來的時候,你會認得它。"]},
 
-{id:16,name:"家庭和諧冥想",en:"FAMILY",color:"#ffc9a0",hue:0.08,freq:639,beat:5.5,chord:[1,1.25,1.5,2],env:"hearth",
- desc:"639Hz 關係頻率配溫暖 Theta 波。以餐桌場景 SATS 法,預先體驗家中流動著理解與笑聲的版本。",
+{id:16,name:"家庭和諧冥想",en:"FAMILY",color:"#ffc9a0",hue:0.08,freq:480,beat:5.5,chord:[1,1.25,1.5,2],env:"hearth",
+ desc:"關係頻率配溫暖 Theta 波。以餐桌場景 SATS 法,預先體驗家中流動著理解與笑聲的版本。",
  tech:["餐桌場景 SATS:全感官體驗和諧的家","理解之光:先看見家人行為背後的需要","新家庭劇本宣告"],
  prompts:[
  "歡迎回家。這裡有暖光、有飯菜香,有放鬆的空氣。",
@@ -1255,9 +1271,9 @@ const UNITS = [
  "對自己說:我已經做了我的部分,剩下的不歸我管。",
  "帶著輕盈回來。今天,少想一次它,就是進步。"]},
 
-{id:19,name:"直覺開啟冥想",en:"INTUITION",color:"#9db4ff",hue:0.68,freq:852,beat:6.3,chord:[1,1.2,1.5,1.8],env:"thirdeye",
- desc:"852Hz 對應直覺與內在秩序。降低腦中音量,聽見那個一直很準、只是常被忽略的內在聲音。",
- tech:["眉心聚焦:852Hz 第三眼頻率共振","內在聲音辨識:直覺很安靜,焦慮很大聲","直覺信任合約"],
+{id:19,name:"直覺開啟冥想",en:"INTUITION",color:"#9db4ff",hue:0.68,freq:540,beat:6.3,chord:[1,1.2,1.5,1.8],env:"thirdeye",
+ desc:"對齊直覺與內在秩序的頻率。降低腦中音量,聽見那個一直很準、只是常被忽略的內在聲音。",
+ tech:["眉心聚焦:第三眼頻率共振","內在聲音辨識:直覺很安靜,焦慮很大聲","直覺信任合約"],
  prompts:[
  "歡迎來到靛藍之境。這裡很安靜,安靜到聽得見直覺。",
  "深呼吸,把注意力輕輕放在眉心,不用力,像羽毛停在那裡。",
@@ -1271,8 +1287,8 @@ const UNITS = [
  "謝謝這位從不出錯只是常被忽略的老朋友。",
  "帶著打開的天線回來。今天,跟著直覺做一個小決定。"]},
 
-{id:20,name:"未來自我冥想",en:"FUTURE SELF",color:"#fff0c9",hue:0.14,freq:963,beat:10.2,chord:[1,1.25,1.5,2,3],env:"timegate",
- desc:"963Hz 最高頻搭配 Alpha 波。穿越時光之門與未來的自己合一,直接下載那個版本的頻率與習慣。",
+{id:20,name:"未來自我冥想",en:"FUTURE SELF",color:"#fff0c9",hue:0.14,freq:588,beat:10.2,chord:[1,1.25,1.5,2,3],env:"timegate",
+ desc:"柔和高頻搭配 Alpha 波。穿越時光之門與未來的自己合一,直接下載那個版本的頻率與習慣。",
  tech:["時光之門:與五年後最佳版本的自己見面","頻率下載:複製未來自我的狀態與眼神","合一儀式:今天就開始當那個人"],
  prompts:[
  "歡迎來到時光之門。門的另一邊,站著五年後最好版本的你。",
@@ -1636,6 +1652,7 @@ function startSoundscape(unit){
   ensureAudio();stopSoundscape(0);
   master=AC.createGain();master.gain.value=0;master.connect(AC.destination);
   const f=unit.freq,beat=unit.beat;
+  const cap600=fr=>{while(fr>600)fr/=2;return fr;}; // 八度下折:把任何音(泛音/星光)都壓到 600Hz 以下
   const mkOsc=(freq,pan,gain)=>{
     const o=AC.createOscillator();o.type="sine";o.frequency.value=freq;
     const p=AC.createStereoPanner?AC.createStereoPanner():null;
@@ -1646,15 +1663,15 @@ function startSoundscape(unit){
   };
   mkOsc(f,-1,0.05);mkOsc(f+beat,1,0.05);
   const pad=AC.createGain();pad.gain.value=0.10;
-  const lp=AC.createBiquadFilter();lp.type="lowpass";lp.frequency.value=900;lp.Q.value=0.4;
+  const lp=AC.createBiquadFilter();lp.type="lowpass";lp.frequency.value=480;lp.Q.value=0.4;
   pad.connect(lp);lp.connect(master);
   const lfo=AC.createOscillator();lfo.frequency.value=1/11;
-  const lfoG=AC.createGain();lfoG.gain.value=420;
+  const lfoG=AC.createGain();lfoG.gain.value=120;
   lfo.connect(lfoG);lfoG.connect(lp.frequency);lfo.start();
   audioNodes.push(pad,lp,lfo,lfoG);
   unit.chord.forEach((r,i)=>{
     const o=AC.createOscillator();o.type=i%2?"triangle":"sine";
-    o.frequency.value=(f/2)*r;o.detune.value=(Math.random()-.5)*6;
+    o.frequency.value=cap600((f/2)*r);o.detune.value=(Math.random()-.5)*6;
     const g=AC.createGain();g.gain.value=0.5/unit.chord.length;
     const wob=AC.createOscillator();wob.frequency.value=0.05+Math.random()*0.08;
     const wobG=AC.createGain();wobG.gain.value=0.18/unit.chord.length;
@@ -1665,7 +1682,7 @@ function startSoundscape(unit){
   const sparkle=()=>{
     if(!master)return;
     const r=unit.chord[Math.floor(Math.random()*unit.chord.length)];
-    const o=AC.createOscillator();o.type="sine";o.frequency.value=f*r*(Math.random()<0.5?1:2);
+    const o=AC.createOscillator();o.type="sine";o.frequency.value=cap600(f*r*(Math.random()<0.5?1:2));
     const g=AC.createGain();g.gain.value=0;
     o.connect(g);g.connect(master);
     const now=AC.currentTime;
