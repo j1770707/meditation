@@ -199,6 +199,11 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   opacity:0;pointer-events:none;transition:opacity .42s var(--ease)}
 .sheet.show{opacity:1;pointer-events:auto}
 .sheet.closing{opacity:0;pointer-events:none;transition:opacity .75s var(--ease)}
+/* 進入課程專用:選單背景以 2 秒慢速淡出,與場景畫布 2 秒淡入「交叉重疊溶解」(對稱於課程結束的轉場) */
+.sheet.slowclose{transition:opacity 2s var(--ease)!important}
+/* 光境選單專用:以 2 秒慢速淡入(背後大廳仍在 → 影像重疊),對稱於進出課程的 2 秒轉場 */
+.sheet.slowopen{transition:opacity 2s var(--ease)!important}
+.sheet.slowopen .panel{transition:transform 2s var(--ease),opacity 2s var(--ease)!important}
 .panel{width:min(540px,100%);max-height:86vh;overflow-y:auto;border-radius:var(--r-lg);padding:34px 30px;
   background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.62);
   backdrop-filter:blur(26px) saturate(1.9);-webkit-backdrop-filter:blur(36px) saturate(2);
@@ -331,7 +336,7 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
 #progress.seekable .fill{transition:none}
 #progress.seekable .thumb{width:15px;height:15px;opacity:1}
 #progress.seekable::after{content:"";position:absolute;left:-10px;right:-10px;top:-20px;bottom:-20px}
-body.night #progress.seekable .thumb{background:#eef0fb;box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.12)}
+body.scene-night #progress.seekable .thumb{background:#eef0fb;box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.12)}
 #hud .bottom{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;gap:10px;pointer-events:auto}
 .hud-btn{background:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.58);color:#26262e;font-family:inherit;font-weight:600;
   backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);
@@ -346,7 +351,7 @@ body.night #progress.seekable .thumb{background:#eef0fb;box-shadow:0 2px 8px rgb
   50%{box-shadow:0 10px 36px rgba(100,110,170,.12),inset 0 1px 0 rgba(255,255,255,.85),
     0 0 24px rgba(80,170,255,.95),0 0 52px rgba(80,170,255,.50),0 0 80px rgba(120,200,255,.25)}
 }
-.b-sec.sel,.breath-min.sel{
+.b-sec.sel,.breath-min.sel,.freq-opt.sel{
   transform:translateY(-4px) scale(1.06)!important;
   border-color:rgba(140,195,255,.95);
   background:rgba(235,245,255,.72);
@@ -354,6 +359,11 @@ body.night #progress.seekable .thumb{background:#eef0fb;box-shadow:0 2px 8px rgb
 }
 .b-sec.sel{color:#1d5dba;font-weight:600}
 .breath-min.sel{color:#1d5dba}
+.freq-opt.sel,.freq-opt.sel .freq-sub{color:#1d5dba}
+/* 深層睡眠:頻率選擇按鈕(Hz 大字 + 小描述,直排) */
+.freq-opt{display:flex;flex-direction:column;gap:3px;line-height:1.25}
+.freq-opt .freq-hz{font-size:16px;font-weight:700;letter-spacing:.01em}
+.freq-opt .freq-sub{font-size:11.5px;font-weight:500;opacity:.74;letter-spacing:.04em}
 
 @keyframes needPick{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .need-pick{animation:needPick .38s ease 2}
@@ -646,17 +656,19 @@ body.night #note-input{background:rgba(255,255,255,.05);
 body.night #note-input::placeholder{color:#7c7e9a}
 body.night .h-empty{color:#9c9eba}
 
-/* ---- 夜晚:冥想中 HUD(深色場景下需提高對比) ---- */
-body.night #prompt-text{
+/* ---- 夜晚:冥想中 HUD(深色場景下需提高對比) ----
+   注意:HUD 深色只跟「課程當下選的光境」(body.scene-night)走,與首頁主題(body.night)脫鉤,
+   這樣課程前選白天/夜晚不會、也不該影響首頁。 */
+body.scene-night #prompt-text{
   color:#f2f5ff;
   text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 16px rgba(40,52,96,.9),0 0 34px rgba(22,30,64,.7);
 }
-body.night #hud .unit-tag{background:rgba(255,255,255,.12);color:#e9ebf8;border-color:rgba(255,255,255,.18);
+body.scene-night #hud .unit-tag{background:rgba(255,255,255,.12);color:#e9ebf8;border-color:rgba(255,255,255,.18);
   box-shadow:0 8px 28px rgba(0,0,0,.4)}
-body.night .hud-btn{background:rgba(255,255,255,.12);color:#eef0fb;border-color:rgba(255,255,255,.18);
+body.scene-night .hud-btn{background:rgba(255,255,255,.12);color:#eef0fb;border-color:rgba(255,255,255,.18);
   box-shadow:0 10px 36px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.12)}
-body.night .hud-btn:hover,body.night .hud-btn:active{background:rgba(255,255,255,.2)}
-body.night #progress{background:rgba(255,255,255,.14)}
+body.scene-night .hud-btn:hover,body.scene-night .hud-btn:active{background:rgba(255,255,255,.2)}
+body.scene-night #progress{background:rgba(255,255,255,.14)}
 
 /* ---- 夜晚:Apple Intelligence 漸層字(略調亮,夜底更清楚) ---- */
 body.night .hero-h1,body.night #wheel-center h2,body.night .panel h2,body.night nav .brand .b-name{
@@ -732,6 +744,10 @@ body.night .theme-toggle .tg-thumb{
 .mode-opt:hover,.mode-opt:active{transform:translateY(-4px) scale(1.03);
   border-color:rgba(170,190,255,.5);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 10px 30px rgba(0,0,0,.4),0 0 18px rgba(110,160,255,.4),0 0 36px rgba(110,160,255,.18)}
+/* 選取後:藍色光暈持續呼吸發光(沿用 selPulse),卡片底色提亮、邊框轉藍 */
+.mode-opt.sel{transform:translateY(-4px) scale(1.03);
+  border-color:rgba(150,195,255,.95);background:rgba(70,98,158,.5);
+  animation:selPulse 1.5s ease-in-out infinite;}
 /* 卡片內的兩顆球 */
 .mode-orb{width:92px;height:92px;border-radius:50%;position:relative}
 .mode-orb-day{ /* 白天:柔彩液態玻璃球 */
@@ -749,6 +765,13 @@ body.night .theme-toggle .tg-thumb{
 .mode-opt .mode-name{font-size:18px;font-weight:700;color:#f1f3ff;letter-spacing:.01em}
 .mode-opt .mode-desc{font-size:13px;color:#a6abcc;letter-spacing:.06em}
 #mode-sheet .actions{margin-top:18px}
+/* 進入冥想:主要 CTA(深底上的藍紫漸層膠囊) */
+#mode-sheet .actions .btn-dark{
+  background:linear-gradient(95deg,rgba(90,150,255,.32),rgba(150,120,255,.28));
+  color:#fff;border-color:rgba(160,185,255,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 30px rgba(0,0,0,.4)}
+#mode-sheet .actions .btn-dark:hover,#mode-sheet .actions .btn-dark:active{
+  background:linear-gradient(95deg,rgba(110,170,255,.46),rgba(170,140,255,.4))}
 #mode-sheet .actions .btn-light{ /* 關閉:深色玻璃膠囊 + 白字 */
   background:rgba(255,255,255,.08);color:#eef0fb;border-color:rgba(255,255,255,.16);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 24px rgba(0,0,0,.3);
@@ -796,7 +819,7 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
       <button class="btn-light" id="hero-history">我的冥想紀錄</button>
       <span class="pill">20 個頻率宇宙</span>
       <span class="pill">Quest 3 VR</span>
-      <span class="pill">174 — 963 Hz</span>
+      <span class="pill">285 — 963 Hz</span>
     </div>
     <div class="info-card"><div class="ic-label">METHODOLOGY · 方法論</div><div class="ic-text">SATS 活在結局 · 現在式 Scripting · 感恩灌注 · 肯定語 · 感官具身化 · 釋放臣服</div></div>
     <div class="info-card"><div class="ic-label">BEST FOR · 適合時刻</div><div class="ic-text">睡前、開工前、能量低落時、重要時刻之前的頻率校準</div></div>
@@ -841,7 +864,7 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
   <div class="panel" style="text-align:center">
     <h2>選擇光之氛圍</h2>
     <p class="panel-sub">你想在明亮的白晝,還是靜謐的夜晚裡冥想?</p>
-    <div class="mode-grid">
+    <div class="mode-grid" id="mode-grid">
       <button class="mode-opt" data-mode="day">
         <span class="mode-orb mode-orb-day"></span>
         <span class="mode-name">白天模式</span>
@@ -853,7 +876,10 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
         <span class="mode-desc">靜謐 · 深邃 · 星光</span>
       </button>
     </div>
-    <div class="actions"><button class="btn-light" id="mode-close" style="flex:1">關閉</button></div>
+    <div class="actions">
+      <button class="btn-dark" id="mode-go" style="flex:1;padding:15px">進入冥想 →</button>
+      <button class="btn-light" id="mode-close">關閉</button>
+    </div>
   </div>
 </div>
 
@@ -904,6 +930,23 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
     <div class="actions" style="margin-top:22px">
       <button class="btn-dark" id="breath-go" style="flex:1;padding:15px">開始呼吸 →</button>
       <button class="btn-light" id="breath-close">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- 深層睡眠:聲音頻率選擇 -->
+<div class="sheet" id="freq-sheet">
+  <div class="panel" style="text-align:center">
+    <h2>選擇聲音頻率</h2>
+    <p class="panel-sub">為這次深層睡眠選一個療癒頻率。<br>點選後,課程會以該頻率的聲音陪你入睡</p>
+    <div class="actions" id="freq-opts" style="flex-direction:column;gap:12px;margin-top:20px">
+      <button class="btn-dark freq-opt" data-freq="285"><span class="freq-hz">285 Hz</span><span class="freq-sub">細胞修復 · 深沉</span></button>
+      <button class="btn-dark freq-opt" data-freq="396"><span class="freq-hz">396 Hz</span><span class="freq-sub">釋放緊繃 · 放下</span></button>
+      <button class="btn-dark freq-opt" data-freq="432"><span class="freq-hz">432 Hz</span><span class="freq-sub">自然律 · 柔和</span></button>
+    </div>
+    <div class="actions" style="margin-top:22px">
+      <button class="btn-dark" id="freq-go" style="flex:1;padding:15px">開始冥想 →</button>
+      <button class="btn-light" id="freq-close">關閉</button>
     </div>
   </div>
 </div>
@@ -1020,8 +1063,8 @@ const UNITS = [
  "把這輪太陽留在身體裡,它不會熄滅。",
  "帶著光回來。今天,抬頭走路。"]},
 
-{id:7,name:"深層睡眠顯化",en:"SLEEP",color:"#7aa8ff",hue:0.6,freq:174,beat:2,chord:[1,1.5,2],env:"ocean",
- desc:"174Hz 是最低的舒緩頻率,配 2Hz Delta 波節拍。睡前是潛意識最開放的時刻,在入睡邊緣植入願望。",
+{id:7,name:"深層睡眠顯化",en:"SLEEP",color:"#7aa8ff",hue:0.6,freq:432,beat:2,chord:[1,1.5,2],env:"ocean",freqpick:true,
+ desc:"432Hz 自然律柔和調音,配 2Hz Delta 波節拍。睡前是潛意識最開放的時刻,在入睡邊緣植入願望。",
  tech:["4-7-8 呼吸法引導入眠","睡前顯化:在半夢狀態播放願望畫面","Delta 波音場陪你入睡"],
  prompts:[
  "歡迎來到深海之夜。這裡很安全,你可以完全放下了。",
@@ -1680,7 +1723,7 @@ async function runPrompt(){
   const firstShow=!$("prompt-bubble").classList.contains("show");
   if(!firstShow){ // 第一句不用等:泡泡還沒出現,沒有舊字需要淡出
     $("prompt-text").style.opacity="0";
-    drawPromptTo3D("");
+    if(xrSession)drawPromptTo3D(""); // 2D 模式 textPlane 不可見,880px canvas 重繪只會造成手機卡頓
     await wait(2100);
     if(!sessionActive)return;
   }else{ // 第一句:先讓人沉浸場景約 2 秒,泡泡與文字才開始 2 秒的淡入登場
@@ -1694,7 +1737,7 @@ async function runPrompt(){
   $("prompt-text").textContent=text;
   $("prompt-text").style.opacity="1";
   if(firstShow)$("prompt-bubble").classList.add("show");
-  drawPromptTo3D(text);
+  if(xrSession)drawPromptTo3D(text); // 只有 VR 需要 3D 字板;2D 重繪 880px canvas 會在泡泡出現瞬間卡頓
   $("progress-fill").style.width=((promptIndex+1)/currentUnit.prompts.length*100)+"%";
   const myIndex=promptIndex;
   promptTimer=setTimeout(()=>{
@@ -2027,7 +2070,7 @@ async function finishSession(){
   await wait(2100);
   $("prompt-text").textContent="冥想完成。慢慢回來,帶著你的新頻率 🙏";
   $("prompt-text").style.opacity="1";
-  drawPromptTo3D("冥想完成 · 帶著你的新頻率回來");
+  if(xrSession)drawPromptTo3D("冥想完成 · 帶著你的新頻率回來"); // 2D 不需重繪 3D 字板
   await wait(7000);
   endSession(true);
 }
@@ -2043,6 +2086,10 @@ function endSession(showRating){
   $("progress").classList.remove("seekable");
   document.body.classList.remove("in-session");   // 場景畫布淡出 2s
   $("hud").classList.remove("show");              // HUD + 大泡泡淡出 2s
+  /* 課程結束:瀏覽器列即刻回到「首頁主題」色,與淡入的評分表 / 大廳(皆用 body.night)一致 */
+  {const homeNight=document.body.classList.contains("night");
+   const m=document.querySelector('meta[name="theme-color"]');
+   if(m)m.setAttribute("content",homeNight?"#0a0b14":"#ffffff");}
   if(showRating)openRating();                     // 評分表淡入 2s
   else $("lobby").classList.remove("hidden");     // 或大廳淡入 2s
   setTimeout(()=>{                                 // 淡化結束後再做場景收尾(此時已看不到)
@@ -2052,6 +2099,11 @@ function endSession(showRating){
     breathResetWorld(); // 還原泡泡與塵埃的縮放
     removeBreathStreams();
     setOrbVisible(false);clearEnv();
+    /* 把冥想場景 + HUD 還原回「首頁主題」,清掉這次課程的 scene-night;
+       首頁(body.night)始終未被這次課程更動 → 首頁維持原本白天/夜晚。 */
+    const homeNight=document.body.classList.contains("night");
+    isNight=homeNight;applySceneTheme();
+    document.body.classList.toggle("scene-night",homeNight);
   },2050);
 }
 
@@ -2226,15 +2278,30 @@ function setActive(idx,silent){
 function beatLabel(b){return b<=4?`Delta ${b}Hz`:b<=8?`Theta ${b}Hz`:`Alpha ${b}Hz`;}
 
 /* ---------- 面板開關 ---------- */
-function openSheet(id){
+function openSheet(id){              // 一般快速開啟(約 .42s)
   const el=$(id);
-  el.classList.remove("closing");
+  el.classList.remove("closing","slowclose","slowopen");
   el.classList.add("show");
+}
+/* 光境選單專用:以 2 秒慢速淡入(背後大廳仍可見 → 影像重疊),對稱於進出課程的 2 秒轉場 */
+function slowOpenSheet(id){
+  const el=$(id);
+  el.classList.remove("closing","slowclose");
+  el.classList.add("slowopen","show");
 }
 function closeSheet(id,dur){
   const el=$(id);
+  el.classList.remove("slowopen");  // 關閉一律改回一般 .75s,不沿用慢開的 2 秒
   el.classList.add("closing");
-  setTimeout(()=>{ el.classList.remove("show","closing"); },dur||780);
+  setTimeout(()=>{ el.classList.remove("show","closing","slowclose","slowopen"); },dur||780);
+}
+/* 進入課程專用:選單背景以 2 秒慢速淡出,正好與場景畫布的 2 秒淡入互相重疊溶解。
+   (一般關閉用 closeSheet 的 0.75 秒;這裡刻意拉長成 2 秒做出「轉場重疊感」) */
+function slowCloseSheet(id){
+  const el=$(id);
+  el.classList.remove("slowopen");
+  el.classList.add("slowclose","closing");
+  setTimeout(()=>{ el.classList.remove("show","closing","slowclose","slowopen"); },2050);
 }
 
 /* ---------- 評分與紀錄 ---------- */
@@ -2360,14 +2427,46 @@ function requestStart(vr){
 /* 開始冥想 → 先選白天 / 夜晚光境(淡入)→ 選後套用主題,再進 requestStart
    (呼吸課程仍會再進秒數選單,一般課程直接進 session) */
 let pendingStartVR=false;
-function promptMode(vr){pendingStartVR=vr;openSheet("mode-sheet");}
+function promptMode(vr){
+  pendingStartVR=vr;
+  pickedMode=null;                                                            // 每次重新選
+  document.querySelectorAll("#mode-sheet .mode-opt").forEach(x=>x.classList.remove("sel")); // 清掉上次光暈
+  slowOpenSheet("mode-sheet");                                                // #2:2 秒慢速淡入(影像重疊)
+}
+let pickedMode=null;
 document.querySelectorAll("#mode-sheet .mode-opt").forEach(b=>{
-  b.onclick=()=>{
-    applyTheme(b.dataset.mode==="night",true); // 套用所選光境(同步大廳與冥想場景)
-    closeSheet("mode-sheet");
-    requestStart(pendingStartVR);
+  b.onclick=()=>{ // #3:只選取,亮起藍色光暈,不進場
+    pickedMode=b.dataset.mode;
+    document.querySelectorAll("#mode-sheet .mode-opt").forEach(x=>x.classList.toggle("sel",x===b));
   };
 });
+$("mode-go").onclick=()=>{ // 按下「進入冥想」才往下走
+  if(pickedMode==null){ // 還沒選光境:晃動兩張卡片提示
+    const tgt=$("mode-grid");
+    tgt.classList.remove("need-pick");void tgt.offsetWidth;tgt.classList.add("need-pick");
+    return;
+  }
+  /* 課程前選的光境只套用到「冥想場景 + HUD」,完全不碰首頁(body.night)與 localStorage,
+     所以課程結束後首頁維持原本(由右上角開關決定)的白天/夜晚,與這次選擇無關。 */
+  applySceneOnlyTheme(pickedMode==="night");
+  if(currentUnit.breath){
+    /* 呼吸課程:還要再選秒數/分鐘,選單正常關閉、改開呼吸面板(crossfade 留到「開始呼吸」那一步) */
+    pendingVR=pendingStartVR;
+    closeSheet("mode-sheet");
+    openSheet("breath-sheet");
+  }else if(currentUnit.freqpick){
+    /* 深層睡眠:還要再選聲音頻率(兩段式),選單正常關閉、改開頻率面板;
+       crossfade 留到頻率面板裡按「開始冥想」那一步 */
+    pickedFreq=null;
+    document.querySelectorAll(".freq-opt").forEach(x=>x.classList.remove("sel")); // 清掉上次選取的光暈
+    closeSheet("mode-sheet");
+    openSheet("freq-sheet");
+  }else{
+    /* 一般課程直接進場 → 選單背景 2 秒慢速淡出,與場景畫布 2 秒淡入交叉重疊 */
+    slowCloseSheet("mode-sheet");
+    startSession(currentUnit,pendingStartVR);
+  }
+};
 $("mode-close").onclick=()=>closeSheet("mode-sheet");
 $("c-intro").onclick=openIntro;
 $("intro-close").onclick=()=>closeSheet("intro-sheet");
@@ -2395,9 +2494,30 @@ $("breath-go").onclick=()=>{ // 按下「開始呼吸」才進入課程
     return;
   }
   setBreathSeconds(breathSec);
-  closeSheet("breath-sheet");
+  slowCloseSheet("breath-sheet"); // 與場景畫布 2 秒淡入交叉重疊(對稱於結束轉場)
   startSession(currentUnit,pendingVR,breathMin);
 };
+/* ---------- 深層睡眠:聲音頻率選擇(285 / 396 / 432 Hz) ----------
+   兩段式(同呼吸課程):先點頻率,只是「選取」並亮起藍色光暈(selPulse);
+   要再按「開始冥想」才進場,並走 2 秒淡出淡入交叉重疊的轉場。 */
+let pickedFreq=null; // 預設未選,需自行點選
+document.querySelectorAll(".freq-opt").forEach(b=>{
+  b.onclick=()=>{ // 只選取,不進場
+    pickedFreq=parseInt(b.dataset.freq,10);
+    document.querySelectorAll(".freq-opt").forEach(x=>x.classList.toggle("sel",x===b)); // 藍色光暈發光
+  };
+});
+$("freq-go").onclick=()=>{ // 按下「開始冥想」才進入課程
+  if(pickedFreq==null){ // 還沒選頻率:晃動提示
+    const tgt=$("freq-opts");
+    tgt.classList.remove("need-pick");void tgt.offsetWidth;tgt.classList.add("need-pick");
+    return;
+  }
+  currentUnit.freq=pickedFreq;     // 套用所選頻率(HUD 標籤 + startSoundscape 聲音都讀這個)
+  slowCloseSheet("freq-sheet");    // 與場景畫布 2 秒淡入交叉重疊(對稱於結束轉場)
+  startSession(currentUnit,pendingStartVR);
+};
+$("freq-close").onclick=()=>closeSheet("freq-sheet");
 $("btn-prev").onclick=()=>jumpPrompt(-1);
 $("btn-next").onclick=()=>jumpPrompt(1);
 $("btn-pause").onclick=togglePause;
@@ -2410,24 +2530,37 @@ $("hero-start").onclick=()=>$("wheel-wrap").scrollIntoView({behavior:"smooth",bl
 $("history-close").onclick=()=>closeSheet("history-sheet");
 addEventListener("resize",layoutWheel);
 
-/* ---------- 白天 / 夜晚主題切換 ---------- */
-function applyTheme(night,animate){
+/* ---------- 白天 / 夜晚:首頁主題 vs 冥想場景光境(兩者刻意脫鉤) ----------
+   applyHomeTheme:右上角開關專用。切換首頁(body.night)、寫入 localStorage、更新瀏覽器列。
+                  閒置(非課程中)時順便讓冥想場景跟著首頁,避免下次預覽閃色。
+   applySceneOnlyTheme:課程前「選擇光之氛圍」選單專用。只改冥想場景(Three.js)+ HUD(body.scene-night),
+                  完全不碰 body.night、不寫 localStorage → 課程結束後首頁維持原樣,與這次選擇無關。 */
+function applyHomeTheme(night,animate){
   if(animate){ // 切換瞬間開啟全頁 .7s 平滑變色,結束即移除(不污染 hover 手感)
     document.body.classList.add("theming");
-    clearTimeout(applyTheme._t);
-    applyTheme._t=setTimeout(()=>document.body.classList.remove("theming"),780);
+    clearTimeout(applyHomeTheme._t);
+    applyHomeTheme._t=setTimeout(()=>document.body.classList.remove("theming"),780);
   }
   document.body.classList.toggle("night",night);
-  isNight=night;                 // 同步冥想場景狀態
-  applySceneTheme();             // 立即套用背景/霧/燈光/地板(場景未建立時內部會跳過)
   const m=document.querySelector('meta[name="theme-color"]');
   if(m)m.setAttribute("content",night?"#0a0b14":"#ffffff");
   try{localStorage.setItem("mani_theme",night?"night":"day");}catch(e){}
+  if(!sessionActive){            // 不在課程中才同步冥想場景,避免動到正在進行的課程光境
+    isNight=night;applySceneTheme();
+    document.body.classList.toggle("scene-night",night);
+  }
+}
+function applySceneOnlyTheme(night){
+  isNight=night;                 // Three.js 場景(buildEnv 之後會讀 isNight 決定粒子配色)
+  applySceneTheme();             // 背景/霧/燈光/地板(場景未建立時內部會跳過)
+  document.body.classList.toggle("scene-night",night); // HUD 深/淺色,與 body.night 脫鉤
+  const m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute("content",night?"#0a0b14":"#ffffff"); // 課程當下的瀏覽器列顏色
 }
 document.querySelectorAll("#theme-toggle .tg-opt").forEach(b=>{
-  b.onclick=()=>applyTheme(b.dataset.theme==="night",true);
+  b.onclick=()=>applyHomeTheme(b.dataset.theme==="night",true);
 });
-applyTheme(document.body.classList.contains("night"),false); // 對齊已套用主題的 meta theme-color
+applyHomeTheme(document.body.classList.contains("night"),false); // 對齊已套用主題的 meta + 場景
 
 /* ---------- #6 呼吸模式:課程進行中的時間滑桿可拖曳跳轉 ---------- */
 function setupBreathSeek(){
