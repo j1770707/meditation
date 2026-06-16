@@ -159,16 +159,6 @@ nav .nav-btn:hover,nav .nav-btn:active{background:rgba(255,255,255,.58);box-shad
   box-shadow:0 10px 30px rgba(100,110,170,.18),0 0 0 3px rgba(255,255,255,.9),0 0 0 5px var(--u-color,#bcd);
 }
 .w-node .nd{position:absolute;inset:4px;border-radius:50%;opacity:.16;background:var(--u-color,#dde)}
-/* === #1 轉盤旋轉/拖曳期間的效能急救 ===
-   21 個 .w-node 各帶 backdrop-filter:blur(10px),旋轉時每幀移動且疊在「會動的極光」上
-   → 每幀強制重算 21 次毛玻璃,正是 compositor 卡頓主因。
-   旋轉/拖曳時暫時關掉節點毛玻璃(改純半透明,移動中肉眼不易察覺)並凍結極光動畫,
-   讓旋轉變成便宜的合成;放手吸附完成後再恢復玻璃質感。 */
-body.wheel-busy .w-node{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  background:rgba(255,255,255,.72)}
-body.wheel-busy.night .w-node{background:rgba(255,255,255,.16)}
-body.wheel-busy #aurora .ab,
-body.wheel-busy #aurora-night .ab{animation-play-state:paused!important}
 #wheel-center{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:41%;text-align:center;pointer-events:none;
@@ -258,17 +248,11 @@ body.wheel-busy #aurora-night .ab{animation-play-state:paused!important}
   }
   #prompt-text{font-size:clamp(20px,1.9vw,28px);width:64%}
 }
-#prompt-bubble.show{visibility:visible;opacity:1}
-/* #2 進場改「純 opacity 淡入」:不在出現瞬間位移/縮放帶 backdrop-filter 的 .bub,
-   避免進場那幾幀每幀重算毛玻璃造成卡頓。靜止位置(原 bubIn 終點 -26px)改放到 .bub base。 */
+#prompt-bubble.show{visibility:visible}
 #prompt-bubble.show .bub{animation:bubIn 2s cubic-bezier(.22,1,.36,1) both,bubWobble 9s cubic-bezier(.42,0,.58,1) 2s infinite}
-@keyframes bubIn{from{opacity:0}to{opacity:1}}
-/* #2 預熱:提前把毛玻璃合成層建立起來(整體隱形 opacity:0),
-   等真正淡入時就不必在出現瞬間才現場建層 → 消除「泡泡出現前卡一下」 */
-#prompt-bubble.prewarm{visibility:visible;opacity:0;pointer-events:none}
+@keyframes bubIn{from{opacity:0;transform:translateY(0) scale(.92)}to{opacity:1;transform:translateY(-26px) scale(1)}}
 #prompt-bubble .bub{
   position:absolute;inset:0;border-radius:50%;
-  transform:translateY(-26px);
   display:flex;align-items:center;justify-content:center;
   background:
     radial-gradient(ellipse 18% 10% at 33% 15%,rgba(255,255,255,.6) 0%,rgba(255,255,255,.22) 55%,rgba(255,255,255,0) 100%),
@@ -717,10 +701,16 @@ body.night .hero-h1,body.night #wheel-center h2,body.night .panel h2,body.night 
   position:relative;display:inline-flex;align-items:center;padding:4px;
   border:1px solid var(--glass-border);border-radius:999px;
   background:rgba(255,255,255,.26);
-  touch-action:manipulation;-webkit-user-select:none;user-select:none;
   backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);
   box-shadow:var(--glass-shadow),var(--glass-glow);
+  /* 整顆膠囊 = 單一可滑動觸控面板:touch-action:none 讓左右滑動交給我們(不被當捲動) */
+  cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
 }
+/* 隱形擴大命中區(視覺大小不變):上下各 +9px;左右不外擴以免吃到旁邊「冥想紀錄」鍵 */
+.theme-toggle::before{content:"";position:absolute;inset:-9px 0;border-radius:inherit}
+/* 拖曳中關掉滑塊過渡 → 滑塊 1:1 即時跟著手指 */
+.theme-toggle.dragging .tg-thumb{transition:none}
 .theme-toggle .tg-thumb{
   position:absolute;top:4px;left:4px;z-index:0;
   width:calc(50% - 4px);height:calc(100% - 8px);border-radius:999px;
@@ -729,11 +719,11 @@ body.night .hero-h1,body.night #wheel-center h2,body.night .panel h2,body.night 
   transition:transform .5s cubic-bezier(.34,1.3,.5,1),background .6s var(--ease),box-shadow .6s var(--ease);
 }
 .theme-toggle .tg-opt{
-  position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;
   border:0;background:transparent;cursor:pointer;font-family:inherit;white-space:nowrap;
   padding:7px 15px;border-radius:999px;font-size:13.5px;font-weight:600;
-  touch-action:manipulation;
   color:var(--ink-2);transition:color .4s var(--ease);
+  pointer-events:none; /* 觸控交給外層膠囊統一處理(避免兩顆小按鈕各自吃事件造成點不到) */
 }
 .theme-toggle .tg-ico{font-size:14px;line-height:1}
 /* 啟用態文字:由 body.night 決定哪一側亮起,純 CSS,不需 JS 加 class */
@@ -747,12 +737,12 @@ body.night .theme-toggle .tg-thumb{
   box-shadow:0 4px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22);
 }
 .theme-toggle:hover{box-shadow:var(--glass-shadow),var(--glass-glow),0 0 16px rgba(100,180,255,.35)}
-/* 手機:收成圖示滑動開關。命中區放大(左右拉寬 + 加高)讓觸控更靈敏 */
+/* 手機:收成圖示滑動開關 */
 @media (max-width:560px){
   .nav-right{gap:8px}
   .theme-toggle .tg-txt{display:none}
-  .theme-toggle .tg-opt{padding:11px 22px;min-height:24px}
-  .theme-toggle .tg-ico{font-size:17px}
+  .theme-toggle .tg-opt{padding:8px 13px}
+  .theme-toggle .tg-ico{font-size:16px}
 }
 
 /* ===== 冥想光境選單(跟著首頁主題:白天=亮玻璃 / 夜晚=深色氛圍) ===== */
@@ -849,10 +839,10 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
   <nav class="noselect">
     <div class="brand"><span class="mini-orb"></span><span class="b-name">顯化殿堂</span></div>
     <div class="nav-right">
-      <div class="theme-toggle" id="theme-toggle" role="group" aria-label="白天 / 夜晚模式切換">
+      <div class="theme-toggle" id="theme-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="白天 / 夜晚模式切換(左右滑動或點擊任一側)">
         <span class="tg-thumb"></span>
-        <button class="tg-opt" data-theme="day" aria-label="白天模式"><span class="tg-ico">☀️</span><span class="tg-txt">白天模式</span></button>
-        <button class="tg-opt" data-theme="night" aria-label="夜晚模式"><span class="tg-ico">🌙</span><span class="tg-txt">夜晚模式</span></button>
+        <button class="tg-opt" data-theme="day" aria-hidden="true" tabindex="-1"><span class="tg-ico">☀️</span><span class="tg-txt">白天模式</span></button>
+        <button class="tg-opt" data-theme="night" aria-hidden="true" tabindex="-1"><span class="tg-ico">🌙</span><span class="tg-txt">夜晚模式</span></button>
       </div>
       <button class="nav-btn" id="open-history">冥想紀錄</button>
     </div>
@@ -1142,21 +1132,10 @@ const UNITS = [
  "把手放在心口,把這份暖記下來。",
  "帶著滿谷的光回來。今天,多說幾次謝謝。"]},
 
-{id:9,name:"豐盛意識冥想",en:"ABUNDANCE",color:"#ffd87a",hue:0.1,freq:564,beat:6.5,chord:[1,1.5,2,2.667],env:"river",
- desc:"以豐盛能量的頻率共振。重點不是「得到更多」,而是切換到「本來就很多」的豐盛意識,讓匱乏感斷電。",
- tech:["匱乏感斷電:辨識並放下「不夠」的念頭","豐盛之河視覺化:資源不斷流動","我是管道不是水庫:流動心法"],
- prompts:[
- "歡迎來到豐盛之河。它從來沒有停止流動,一秒都沒有。",
- "深呼吸。吐氣時,放掉那句熟悉的「不夠」。",
- "再吐一次,放掉「要省著用」的緊縮感。讓胸口鬆開。",
- "看著眼前這條金色的河:機會、金錢、愛、靈感,全在裡面流。",
- "宇宙不是小氣的。匱乏只是一個視角,而你現在換了位置。",
- "在心中默念:我活在一個豐盛的宇宙,資源永遠在流動。",
- "我是管道,不是水庫。流進來,也流出去,越流越多。",
- "想像自己慷慨的樣子:給予時的你,是豐盛的證明。",
- "我擁有的已經很多,而更多的正在路上。",
- "對這條河說謝謝,然後跳進去,跟它一起流。",
- "帶著流動感回來。今天,大方一點。"]},
+{id:9,name:"生理學嘆息法",en:"PHYSIO SIGH",color:"#a8e4ff",hue:0.55,freq:432,beat:3,chord:[1,1.5,2],env:"lake",breath:true,sigh:true,
+ desc:"史丹佛研究中最快讓神經系統平靜下來的呼吸法:用鼻子吸氣 8 秒、停一下,再補吸一口把肺填滿,然後緩緩吐氣 12 秒。雙重吸氣會重新撐開肺泡,長吐氣則啟動副交感神經,幾個循環就能明顯降下焦慮與心率。整套共做 12 次,畫面會幫你數秒數,跟著數字呼吸即可。",
+ tech:["雙重吸氣:吸滿後再補吸一口,重新撐開肺泡","延長吐氣 12 秒:啟動副交感神經、降低心率","畫面數秒引導,共 12 次循環,不用自己計時"],
+ prompts:["跟著畫面的數字:吸氣 8 秒 → 停住 → 再補吸一口 → 吐氣 12 秒,共 12 次。"]},
 
 {id:10,name:"人際關係冥想",en:"RELATION",color:"#ff9d8a",hue:0.04,freq:480,beat:12,chord:[1,1.2,1.6,2],env:"coral",
  desc:"連結頻率,搭配低語法(Whisper Method)概念:先在內在改寫你與他人的關係劇本。",
@@ -1343,9 +1322,6 @@ const UNITS = [
 const EMOTIONS=["平靜","感動","放鬆","充滿能量","幸福","想睡","思緒變清晰","起雞皮疙瘩","鼻酸想哭","充滿希望","身體變輕","還在路上"];
 /* ================= 核心引擎 v2(明亮世界 · 無語音 · 轉盤選單) ================= */
 const $=id=>document.getElementById(id);
-/* #2 ?perf=1 時把進場各步驟耗時印到 console,方便實機確認哪一步還在掉幀 */
-window.__perf=/[?&]perf=1\b/.test(location.search);
-function perfTime(label,fn){if(!window.__perf)return fn();const t=performance.now();const r=fn();console.log("[perf] "+label+": "+(performance.now()-t).toFixed(1)+"ms");return r;}
 let scene,camera,renderer,clock,orb,textPlane,textTex,textCanvas,particles=[],dust,floor,hemiLight,dirLight;
 let isNight=document.body.classList.contains("night"); // 冥想場景目前是否為夜間光境
 let currentUnit=UNITS[0],promptIndex=0,sessionActive=false,paused=false;
@@ -1393,6 +1369,7 @@ function initScene(){
     if(dust&&dust.material.uniforms)dust.material.uniforms.uScale.value=sc;
     for(const p of particles)if(p.material.uniforms)p.material.uniforms.uScale.value=sc;
     for(const p of breathStreams)if(p.material.uniforms)p.material.uniforms.uScale.value=sc;
+    if(forestActive)applyForestBg(); // 螢幕尺寸/方向改變 → 依新比例重繪森林(避免變形)
   });
   renderer.setAnimationLoop(tick);
 }
@@ -1411,22 +1388,27 @@ function applySceneTheme(){
     if(dirLight){dirLight.color.set(0xfff4e0);dirLight.intensity=0.7;}
   }
   if(floor)paintFloor(currentUnit?currentUnit.color:"#cfd8ff"); // 用目前單元色重繪,核心色依 isNight
+  if(forestActive)applyForestBg(); // 森林課程中切換白天/夜晚 → 以新主題重繪森林(覆蓋上面剛設的純色背景)
+  updateDustColor();               // 勇氣課程白天:地面塵點改火紅(其餘課程/夜晚維持淡藍)
 }
-const floorTexCache=new Map(); // #2 地板材質快取(512²,上限8筆LRU):重進同色課程免重畫、免重新上傳GPU
+/* 常駐塵點(dust)換色:只在「勇氣(餘燼)課程 + 白天」時改成火紅,其餘一律維持原本淡藍。
+   夜晚模式刻意不動;其他課程也不受影響。 */
+const DUST_DEFAULT=0xe3e9f6,DUST_EMBER_DAY=0xff2310;
+function updateDustColor(){
+  if(!dust)return;
+  const ember=sessionActive&&currentUnit&&currentUnit.env==="ember"&&!isNight;
+  dust.material.uniforms.uColor.value.set(ember?DUST_EMBER_DAY:DUST_DEFAULT);
+  dust.material.uniforms.uOpacity.value=ember?0.55:0.28; // 火紅與暖地面同色系,略提亮度才看得清(其餘維持原值)
+}
 function paintFloor(hex){
-  const key=(isNight?"n:":"d:")+hex;
-  const cached=floorTexCache.get(key);
-  if(cached){floorTexCache.delete(key);floorTexCache.set(key,cached);floor.material.map=cached;floor.material.needsUpdate=true;return;}
-  const S=512,k=S/1024; // 由 1024 降到 512:畫布填色與 GPU 上傳成本各降到 1/4(柔光模糊地板肉眼無差)
   const c=new THREE.Color(hex);
   const c2=c.clone().offsetHSL(0.10,0,0.06),c3=c.clone().offsetHSL(-0.10,0,0.04);
   const css=(col,a)=>"rgba("+Math.round(col.r*255)+","+Math.round(col.g*255)+","+Math.round(col.b*255)+","+a+")";
-  const fc=document.createElement("canvas");fc.width=fc.height=S;
+  const fc=document.createElement("canvas");fc.width=fc.height=1024;
   const fx=fc.getContext("2d");
-  fx.clearRect(0,0,S,S);
+  fx.clearRect(0,0,1024,1024);
   /* 三個交疊的極光大圈,像探照燈打在地上 */
   const blob=(x,y,r,col,a)=>{
-    x*=k;y*=k;r*=k;
     const g=fx.createRadialGradient(x,y,r*0.05,x,y,r);
     g.addColorStop(0,css(col,a));g.addColorStop(.55,css(col,a*0.45));g.addColorStop(1,css(col,0));
     fx.fillStyle=g;fx.beginPath();fx.arc(x,y,r,0,6.283);fx.fill();
@@ -1435,18 +1417,110 @@ function paintFloor(hex){
   blob(330,600,360,c2,isNight?0.34:0.40);
   blob(700,400,380,c3,isNight?0.32:0.38);
   /* 中央探照燈核心:白天用亮白,夜間改用柔和藍白微光(避免暗底上一團刺眼白) */
-  const wg=fx.createRadialGradient(512*k,512*k,20*k,512*k,512*k,300*k);
+  const wg=fx.createRadialGradient(512,512,20,512,512,300);
   if(isNight){
     wg.addColorStop(0,"rgba(150,170,230,.34)");wg.addColorStop(.5,"rgba(120,140,210,.16)");wg.addColorStop(1,"rgba(120,140,210,0)");
   }else{
     wg.addColorStop(0,"rgba(255,255,255,.95)");wg.addColorStop(.5,"rgba(255,255,255,.45)");wg.addColorStop(1,"rgba(255,255,255,0)");
   }
-  fx.fillStyle=wg;fx.beginPath();fx.arc(512*k,512*k,300*k,0,6.283);fx.fill();
+  fx.fillStyle=wg;fx.beginPath();fx.arc(512,512,300,0,6.283);fx.fill();
+  /* iOS 根治:把「完全透明(alpha=0)」像素的隱藏 RGB 也塗成暖色。
+     iOS 斜視角雙線性取樣會把透明像素的(黑色)RGB 滲進邊界,與暖色相減產生補色(青色)雜點。
+     讓透明像素本身帶暖色,滲進來也仍是暖色 → 永遠生不出青點。
+     這些像素完全透明、看不見,故設計外觀完全不變(日/夜、所有課程皆然)。 */
+  const fid=fx.getImageData(0,0,1024,1024),fd=fid.data;
+  const wr=Math.round(c.r*255),wg2=Math.round(c.g*255),wb=Math.round(c.b*255);
+  for(let i=0;i<fd.length;i+=4){ if(fd[i+3]===0){ fd[i]=wr; fd[i+1]=wg2; fd[i+2]=wb; } }
+  fx.putImageData(fid,0,0);
   const tex=new THREE.CanvasTexture(fc);
-  floorTexCache.set(key,tex);
-  if(floorTexCache.size>8){const ok=floorTexCache.keys().next().value,old=floorTexCache.get(ok);floorTexCache.delete(ok);if(old&&old!==floor.material.map)old.dispose();}
+  /* 修正:半透明暖色貼圖鋪地面斜看時,mipmap 對「暖色↔透明」邊界平均會跑出補色(青色)雜點。
+     關掉 mipmap、改線性取樣即可消除假影;不改任何顏色,夜晚與其他課程一律不受影響。 */
+  tex.generateMipmaps=false;
+  tex.minFilter=THREE.LinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+  if(floor.material.map)floor.material.map.dispose();
   floor.material.map=tex;floor.material.needsUpdate=true;
 }
+
+/* =====================================================================
+   翡翠療癒森林:健康課程(env:"forest")專用的「扁平插畫」森林背景
+   原創構圖(非任何素材的重製):漸層天光 + 頂部光柱 + 遠景霧樹線 +
+   三層遞退樹叢 + 兩側框景大樹。畫在 canvas → 當成 scene.background。
+   依目前螢幕比例與白天/夜晚重繪(手機/桌機都不變形)。只在森林課程啟用,
+   其餘課程維持原本純色背景。 ===================================================================== */
+let forestCanvas=null,forestTex=null,forestActive=false;
+function _srand(seed){let a=seed>>>0;return function(){a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function _rgb(c){return"rgb("+c[0]+","+c[1]+","+c[2]+")";}
+function _rgba(c,a){return"rgba("+c[0]+","+c[1]+","+c[2]+","+a+")";}
+function _mix(a,b,t){return[Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)];}
+const FOREST_PAL={
+  day:{sky_top:[214,242,228],sky_mid:[150,210,182],sky_bot:[96,166,132],glow:[255,253,228],shaft:[255,251,226],
+    far:[190,226,206],layers:[[132,192,162],[86,150,118],[54,114,88]],fg2:[26,66,50],
+    ground:[150,206,150],ground2:[198,230,180],trunk:[74,54,40],trunkhi:[102,78,58],leaf:[40,94,70],vig:[16,42,32]},
+  night:{sky_top:[20,48,60],sky_mid:[12,34,46],sky_bot:[7,22,30],glow:[126,188,206],shaft:[156,206,224],
+    far:[24,58,60],layers:[[22,56,56],[15,42,44],[10,30,32]],fg2:[6,18,20],
+    ground:[14,46,38],ground2:[24,62,50],trunk:[15,23,25],trunkhi:[28,40,42],leaf:[11,32,32],vig:[2,9,11]}
+};
+function _blurLayer(ctx,w,h,px,fn){const c=document.createElement("canvas");c.width=w;c.height=h;fn(c.getContext("2d"));ctx.save();ctx.filter="blur("+px+"px)";ctx.drawImage(c,0,0);ctx.restore();}
+function _blob(x,base,s,col){const a=[[-0.52,0.1,0.6],[0.52,0.07,0.58],[0,-0.36,0.72],[-0.27,-0.13,0.66],[0.29,-0.1,0.64],[0,0.16,0.66]];const cy=base-s*0.55,cr=s*0.6;return g=>{g.fillStyle=col;for(const[dx,dy,rs]of a){g.beginPath();g.arc(x+dx*cr,cy+dy*cr,cr*rs,0,6.2832);g.fill();}};}
+function _pine(x,base,s,col){const th=s*1.35;return g=>{g.fillStyle=col;for(let i=0;i<4;i++){const f=i/3,wy=s*(0.6-0.4*f),ty=base-th*(0.16+0.84*f),by=ty+s*0.5;g.beginPath();g.moveTo(x,ty);g.lineTo(x-wy,by);g.lineTo(x+wy,by);g.closePath();g.fill();}};}
+function _treeRow(g,w,h,baseY,scale,col,n,seed,pineRatio){const r=_srand(seed);g.fillStyle=_rgb(col);g.fillRect(0,baseY*h,w,h-baseY*h);for(let i=0;i<n;i++){const xf=-0.06+(1.12)*(i/(n-1));const x=xf*w+(r()-0.5)*(w/n)*0.7;const s=scale*h*(0.8+r()*0.4);const by=baseY*h+(-0.006+r()*0.024)*h;(r()<pineRatio?_pine(x,by,s,_rgb(col)):_blob(x,by,s,_rgb(col)))(g);}}
+function drawForest(cv,w,h,night){
+  cv.width=w;cv.height=h;const ctx=cv.getContext("2d");const p=night?FOREST_PAL.night:FOREST_PAL.day;
+  // 天光漸層
+  const sky=ctx.createLinearGradient(0,0,0,h);
+  sky.addColorStop(0,_rgb(p.sky_top));sky.addColorStop(0.6,_rgb(p.sky_mid));sky.addColorStop(1,_rgb(p.sky_bot));
+  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
+  // 頂部光暈(光源)
+  const gx=w*0.52,gy=h*0.08,glow=ctx.createRadialGradient(gx,gy,0,gx,gy,h*1.0);
+  glow.addColorStop(0,_rgba(p.glow,night?0.34:0.6));glow.addColorStop(0.5,_rgba(p.glow,night?0.1:0.18));glow.addColorStop(1,_rgba(p.glow,0));
+  ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+  // 光柱(從光源散下的三角光束,模糊柔化)
+  _blurLayer(ctx,w,h,w*0.016,g=>{const r=_srand(5);for(let k=0;k<5;k++){const ang=(64+r()*20)*Math.PI/180,spread=w*(0.05+r()*0.05),len=h*1.25;const dx=Math.cos(ang)*len,dy=Math.sin(ang)*len,px=-Math.sin(ang),py=Math.cos(ang);g.fillStyle=_rgba(p.shaft,(night?0.045:0.09)+r()*0.04);g.beginPath();g.moveTo(gx,gy);g.lineTo(gx+dx+px*spread,gy+dy+py*spread);g.lineTo(gx+dx-px*spread,gy+dy-py*spread);g.closePath();g.fill();}});
+  // 遠景霧樹線
+  _blurLayer(ctx,w,h,w*0.003,g=>{const r=_srand(1),baseY=0.62,n=11;g.fillStyle=_rgb(p.far);g.fillRect(0,baseY*h,w,h-baseY*h);for(let i=0;i<=n;i++){const x=(i/n)*w+(r()-0.5)*0.6*(w/n);const rr=w*(0.08+r()*0.05),cy=baseY*h+(-0.012+r()*0.024)*h;g.beginPath();g.ellipse(x,cy+rr*0.5,rr,rr*1.07,0,0,6.2832);g.fill();}});
+  // 三層遞退樹叢(由遠到近、由淺到深)
+  _blurLayer(ctx,w,h,w*0.0015,g=>_treeRow(g,w,h,0.72,0.15,p.layers[0],11,2,0.5));
+  _treeRow(ctx,w,h,0.83,0.22,p.layers[1],9,3,0.45);
+  _treeRow(ctx,w,h,0.94,0.30,p.layers[2],7,4,0.4);
+  // 林間空地柔光(畫在近景樹之上,作為光球下方的明亮空地)
+  const cg=ctx.createRadialGradient(w*0.5,h*0.96,0,w*0.5,h*0.96,w*0.4);
+  cg.addColorStop(0,_rgba(p.ground2,night?0.14:0.3));cg.addColorStop(1,_rgba(p.ground2,0));
+  ctx.fillStyle=cg;ctx.fillRect(0,h*0.7,w,h*0.3);
+  // 兩側框景大樹(樹幹 + 樹冠)
+  const trunk=(x,flip)=>{const tw=w*0.08,sway=w*0.018*(flip?-1:1),top=-h*0.05;ctx.fillStyle=_rgb(p.trunk);ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x+tw,top);ctx.lineTo(x+tw+sway*0.5,h*0.5);ctx.lineTo(x+tw*0.92,h);ctx.lineTo(x-tw*0.08,h);ctx.lineTo(x+sway,h*0.5);ctx.closePath();ctx.fill();ctx.strokeStyle=_rgb(p.trunkhi);ctx.lineWidth=tw*0.15;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(x+tw*0.2,top);ctx.lineTo(x+tw*0.2+sway,h*0.5);ctx.lineTo(x+tw*0.06,h);ctx.stroke();};
+  const canopy=(x,y,seed,scale)=>{const r=_srand(seed);scale=scale||1;
+    // 密實核心:大 blob 緊密重疊,形成不透光的葉團(填掉縫隙)
+    for(let i=0;i<14;i++){const cx=x+(r()-0.5)*0.24*w*scale,cy=y+(r()-0.5)*0.22*h*scale,rr=(0.06+r()*0.05)*w*scale;ctx.fillStyle=_rgb(_mix(p.leaf,p.fg2,r()*0.65));ctx.beginPath();ctx.arc(cx,cy,rr,0,6.2832);ctx.fill();}
+    // 外緣碎葉:小 blob 散出有機的葉緣輪廓
+    for(let i=0;i<46;i++){const cx=x+(r()-0.5)*0.44*w*scale,cy=y+(r()-0.5)*0.42*h*scale,rr=(0.022+r()*0.05)*w*scale;ctx.fillStyle=_rgb(_mix(p.leaf,p.fg2,r()));ctx.beginPath();ctx.arc(cx,cy,rr,0,6.2832);ctx.fill();}};
+  trunk(w*0.03,false);trunk(w*0.94,true);
+  // 左側框景樹:主葉團 + 往內/下延伸補滿(補掉原本稀疏的左上區塊)
+  canopy(w*0.06,h*0.08,11);canopy(w*0.20,h*0.17,21,0.82);canopy(w*0.05,h*0.31,31,0.66);
+  // 右側框景樹:對稱加密
+  canopy(w*0.96,h*0.16,12);canopy(w*0.83,h*0.10,22,0.8);canopy(w*0.97,h*0.35,32,0.66);
+  // 邊角暗角加深景深
+  const vg=ctx.createRadialGradient(w*0.5,h*0.5,Math.min(w,h)*0.3,w*0.5,h*0.5,Math.max(w,h)*0.75);
+  vg.addColorStop(0,_rgba(p.vig,0));vg.addColorStop(1,_rgba(p.vig,0.5));ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+}
+/* 依目前螢幕比例 + 白天/夜晚,(重)繪森林貼圖 */
+function ensureForestTex(){
+  if(!forestCanvas)forestCanvas=document.createElement("canvas");
+  const dpr=Math.min(devicePixelRatio||1,1.5);
+  const w=Math.min(2048,Math.max(640,Math.round(innerWidth*dpr)));
+  const h=Math.min(2048,Math.max(640,Math.round(innerHeight*dpr)));
+  drawForest(forestCanvas,w,h,isNight);
+  if(!forestTex){forestTex=new THREE.CanvasTexture(forestCanvas);}else{forestTex.needsUpdate=true;}
+  return forestTex;
+}
+/* 套用森林背景 + 柔化霧氣(讓綠色療癒光點仍清楚浮在森林前) */
+function applyForestBg(){
+  if(!scene)return;
+  scene.background=ensureForestTex();
+  scene.fog=isNight?new THREE.FogExp2(0x10241f,0.016):new THREE.FogExp2(0xe2f2e8,0.018);
+}
+function setForestBg(on){forestActive=on;if(on)applyForestBg();} // 關閉由 applySceneTheme() 還原純色背景
+
 /* 圓點粒子:柔邊圓形貼圖(共用一張) */
 let dotTexture=null;
 function getDotTexture(){
@@ -1687,6 +1761,20 @@ function buildEnv(unit){
     mk(1700,()=>{const a=Math.random()*6.28;return[Math.cos(a)*(1.2+Math.random()*0.5),1.5+(Math.random()-.5)*2.6,-3-Math.random()*0.4]},col,0.055,.85,{rot:.3});
   }
   mk(unit.breath?1700:800,()=>[(Math.random()-.5)*30,Math.random()*12-2,(Math.random()-.5)*30],col2,0.035,.45,E==="plasma"?{y:0.4,swirl:0.04}:{swirl:.06}); // 背景圓點:身體能量課程同樣由下往上飄,其餘維持原樣
+  /* 勇氣(餘燼)課程 · 白天:在地面鋪一層「密集紅橙火星地毯」。
+     用真正的紅色粒子鋪滿地面(不靠貼圖,所以不會再有 iOS 青色補色假影)。
+     紅→橙三層由深到亮做出層次;全部貼地、集中在鏡頭前方地面,密度比照先前那層補色點點。
+     夜晚與其他 19 個課程一律不加(維持原樣);clearEnv 會在換課/結束時自動清掉。 */
+  if(E==="ember"&&!isNight){
+    /* x:左右 ±15 鋪滿;z:鏡頭前方 0~-24(全部在視野內,密度才看得到);y:極貼地 */
+    const lay=(n,c,s,o,yMax,vel)=>{
+      const p=makePoints(n,()=>[(Math.random()-.5)*30,0.01+Math.random()*yMax,-Math.random()*24],c,s,o);
+      p.userData.vel=vel;particles.push(p);scene.add(p);
+    };
+    lay(2000,0xff2410,0.036,0.80,0.45,{wander:.30,swirl:.05}); // 深火紅:鋪底最密、最貼地
+    lay(1300,0xff5a26,0.038,0.72,0.75,{wander:.42,swirl:.04}); // 中段紅橙
+    lay(650 ,0xff9038,0.042,0.66,1.40,{wander:.55,swirl:.03}); // 亮橙火花:較高較疏,點綴層次
+  }
 }
 
 /* ---------- 動畫迴圈 ---------- */
@@ -1800,27 +1888,25 @@ async function startSession(unit,vr,minutes){
   currentUnit=unit;promptIndex=0;sessionActive=true;paused=false;
   ensureAudio();
   orb.material.uniforms.uHue.value=unit.hue;
-  setOrbVisible(true);
-  $("hud-unit").textContent=unit.breath
+  buildEnv(unit);paintFloor(unit.color);setOrbVisible(true);   // 先把場景備好(畫布仍透明)
+  setForestBg(unit.env==="forest");   // 健康課程:套用「翡翠療癒森林」插畫背景(其餘課程維持純色背景)
+  updateDustColor();                  // 勇氣課程白天:地面塵點即刻變火紅(進場就生效)
+  $("hud-unit").textContent=unit.sigh
+    ?`單元 ${unit.id} · ${unit.name} · 12 次循環`
+    :unit.breath
     ?`單元 ${unit.id} · ${unit.name} · 吸吐 ${BREATH_IN} 秒 · ${minutes} 分鐘`
     :`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
-  /* #2 進場這一幀只做「輕量 class 切換」→ 大廳淡出/HUD 淡入保持流暢;
-     重活(建粒子 buildEnv、地板材質 paintFloor、音場 startSoundscape)分散到接下來幾個影格,
-     不再擠在進場同一幀造成 long frame。泡泡約 2 秒後才出現,這段沉浸留白足夠把重活鋪開且看不見。 */
+  /* #3 同一時間:大廳淡出、場景畫布與 HUD 淡入 → 2 秒影像重疊 */
   document.body.classList.add("in-session");
   $("lobby").classList.add("hidden");
   $("hud").classList.add("show");
+  startSoundscape(unit);
+  /* 呼吸模式不需要上一句/下一句 */
   $("btn-prev").style.display=unit.breath?"none":"";
   $("btn-next").style.display=unit.breath?"none":"";
-  $("progress").classList.toggle("seekable",!!unit.breath); // #6 呼吸模式才可拖曳時間滑桿
+  $("progress").classList.toggle("seekable",!!unit.breath&&!unit.sigh); // #6 呼吸模式才可拖曳時間滑桿(嘆息法為固定 12 次,不開放拖曳)
   if(vr)await enterVR();
-  await nextFrame();if(!sessionActive)return; // 先讓大廳→場景的轉場跑一幀
-  perfTime("buildEnv",()=>buildEnv(unit));     // 建粒子(中等成本)
-  await nextFrame();if(!sessionActive)return;
-  perfTime("paintFloor",()=>paintFloor(unit.color)); // 地板材質(已降 512²+快取;首次該色才有成本)
-  await nextFrame();if(!sessionActive)return;
-  perfTime("startSoundscape",()=>startSoundscape(unit)); // 音場
-  if(unit.breath){$("prompt-bubble").classList.add("breath");buildBreathStreams();runBreath(minutes||3);}
+  if(unit.breath){$("prompt-bubble").classList.add("breath");buildBreathStreams();if(unit.sigh)runSigh();else runBreath(minutes||3);}
   else runPrompt();
 }
 async function runPrompt(){
@@ -1837,10 +1923,8 @@ async function runPrompt(){
     if(!sessionActive)return;
   }else{ // 第一句:先讓人沉浸場景約 2 秒,泡泡與文字才開始 2 秒的淡入登場
     $("prompt-text").style.opacity="0";
-    $("prompt-bubble").classList.add("prewarm"); // #2 先(隱形)建立毛玻璃合成層,避免出現瞬間才建層卡頓
     await wait(2000);
     if(!sessionActive)return;
-    $("prompt-bubble").classList.remove("prewarm");
     $("prompt-bubble").classList.add("show");
     await wait(60); // 隔一個影格,確保文字 transition 從 0 開始播放
     if(!sessionActive)return;
@@ -1856,7 +1940,6 @@ async function runPrompt(){
   },readTime(text));
 }
 function wait(ms){return new Promise(r=>setTimeout(r,ms))}
-function nextFrame(){return new Promise(r=>requestAnimationFrame(()=>r()));} // #2 等下一個繪製幀,用來把重活鋪開到不同影格
 
 /* ---------- 呼吸放鬆練習引擎 ----------
    吸氣 8 秒:大泡泡漸漸漲大,所有光點碎片向螢幕(使用者)飛來;
@@ -1877,13 +1960,11 @@ async function runBreath(min){
   for(const p of particles){p.userData.vel={wander:1};}
   $("prompt-text").style.opacity="0";
   $("prompt-text").textContent="";
-  $("prompt-bubble").classList.add("prewarm"); // #2 先(隱形)建立毛玻璃合成層,避免出現瞬間才建層卡頓
   await wait(1800);
   if(!sessionActive)return;
   /* 修正卡頓:先把容器縮放寫成 0.58 再顯示。
      原本 .show 先出現(CSS 預設 scale 1),延遲一幀才寫入縮放 → 肉眼可見的瞬間跳縮 */
   setBreathBubbleScale(0.72); // 開場引導用較大的 0.72,字不會太小(縮放套在 .bub 自身)
-  $("prompt-bubble").classList.remove("prewarm");
   $("prompt-bubble").classList.add("show");
   await wait(60);
   if(!sessionActive)return;
@@ -2102,6 +2183,117 @@ function fadeOutBreathStreams(){ // 結束時:兩道光束都以 1.2 秒淡出
   };
   requestAnimationFrame(step);
 }
+/* ================= 生理學嘆息法(Physiological Sigh)=================
+   流程:吸氣 6 秒 → 停住 1 秒 → 再用力補吸一口 → 吐氣 10 秒,共 12 次。
+   背景動畫 / 光束 / 泡泡 / 世界靠近遠離,全部沿用「呼吸放鬆練習」那一套
+   (env:lake + breath:true + buildBreathStreams + breathSetWorld + breath 光束)。
+   差別只在「相位時序」與「畫面數秒」:沿用同一個 breath 計時物件,
+   updateBreath 偵測到 currentUnit.sigh 時改呼叫 updateSighPhase。 */
+const SIGH_IN=8, SIGH_HOLD=1, SIGH_TOPUP=1.5, SIGH_OUT=12, SIGH_READY=1; // 吐氣後加 1 秒「準備吸氣」銜接下一次
+const SIGH_CYCLE=SIGH_IN+SIGH_HOLD+SIGH_TOPUP+SIGH_OUT+SIGH_READY; // 23.5 秒 / 次
+const SIGH_REPS=12;
+const SIGH_TOTAL=SIGH_CYCLE*SIGH_REPS; // 282 秒 ≈ 4.7 分鐘
+const SIGH_INTRO=[ // 開場引導(每句含 2 秒淡入與 2 秒淡出)
+  {dur:8,txt:"歡迎來到生理學嘆息法，最快讓身體平靜下來的呼吸。"},
+  {dur:10,txt:"我們會做 12 次：吸氣 8 秒，停一下，再補吸一口，然後慢慢吐氣 12 秒。"},
+  {dur:11,txt:"調整到最舒服的姿勢，肩膀放鬆，跟著畫面的數字一起呼吸。"}
+];
+const SIGH_LEAD=SIGH_INTRO.reduce((a,b)=>a+b.dur,0); // 26 秒開場
+async function runSigh(){
+  breath={active:false,elapsed:0,total:SIGH_TOTAL,key:null,finishing:false,lastT:null};
+  for(const p of particles){p.userData.vel={wander:1};} // 同呼吸課:圓點隨意慢飄,不偏左
+  $("prompt-text").style.opacity="0";
+  $("prompt-text").textContent="";
+  await wait(1800);
+  if(!sessionActive)return;
+  setBreathBubbleScale(0.72);
+  $("prompt-bubble").classList.add("show");
+  await wait(60);
+  if(!sessionActive)return;
+  breath.active=true;
+}
+/* 泡泡內三層字:相位標籤 + 大數字 + 第幾次。
+   只改 innerHTML、不動 opacity → 數字每秒瞬間跳換,不被 2 秒淡入拖慢。 */
+function sighFace(label,num,sub){
+  let s='<div style="font-size:.58em;opacity:.85;letter-spacing:.1em">'+label+'</div>';
+  s+= num!=null
+    ? '<div style="font-size:1.7em;font-weight:600;line-height:1.05;margin:.04em 0">'+num+'</div>'
+    : '<div style="height:.62em"></div>';
+  s+='<div style="font-size:.4em;opacity:.62;letter-spacing:.12em;margin-top:.18em">'+sub+'</div>';
+  return s;
+}
+function updateSighPhase(dt){
+  const e=breath.elapsed;
+  let scale=0.72,key,html="",fadeOut=false;
+  if(e<SIGH_LEAD){ // 開場引導
+    let acc=0,i=0,tIn=e;
+    for(;i<SIGH_INTRO.length;i++){
+      if(e<acc+SIGH_INTRO[i].dur){tIn=e-acc;break}
+      acc+=SIGH_INTRO[i].dur;
+    }
+    if(i>=SIGH_INTRO.length){i=SIGH_INTRO.length-1;tIn=SIGH_INTRO[i].dur;}
+    key="intro"+i; html='<div style="font-size:.85em;line-height:1.85">'+SIGH_INTRO[i].txt+'</div>'; // 開場引導詞:比數秒字小一號(約 -4px)
+    fadeOut=tIn>SIGH_INTRO[i].dur-2.2; // 每句最後 2 秒淡出
+    const remain=SIGH_LEAD-e; if(remain<2)scale=0.58+0.14*(remain/2); // 開場尾段平滑縮到呼吸起點
+    breathSetWorld(0);
+    updateBreathStreams(paused?0:dt,false,true,0); // 開場:光束停用
+  }else if(e>=SIGH_LEAD+SIGH_TOTAL){ // 12 次完成
+    finishSigh();return;
+  }else{
+    const tc=(e-SIGH_LEAD)%SIGH_CYCLE;
+    const cyc=Math.floor((e-SIGH_LEAD)/SIGH_CYCLE); // 0..11
+    const n=cyc+1, sub="第 "+n+" / 12 次";
+    let v,inhale=true,streamOn=true,flow=0;
+    if(tc<SIGH_IN){ // ① 吸氣 8 秒(數 1→8)
+      const pt=tc/SIGH_IN; v=0.86*breathEase(pt); flow=Math.sin(Math.PI*pt);
+      const cnt=Math.min(SIGH_IN,Math.floor(tc)+1);
+      key="in"+cyc+"_"+cnt; html=sighFace("吸氣",cnt,sub);
+    }else if(tc<SIGH_IN+SIGH_HOLD){ // ② 停住 1 秒
+      v=0.86; streamOn=false; flow=0;
+      key="hold"+cyc; html=sighFace("停住",null,sub);
+    }else if(tc<SIGH_IN+SIGH_HOLD+SIGH_TOPUP){ // ③ 再用力補吸一口
+      const pt=(tc-SIGH_IN-SIGH_HOLD)/SIGH_TOPUP; v=0.86+0.14*breathEase(pt); flow=Math.sin(Math.PI*pt);
+      key="top"+cyc; html=sighFace("再用力吸一口 ↑",null,sub);
+    }else if(tc<SIGH_IN+SIGH_HOLD+SIGH_TOPUP+SIGH_OUT){ // ④ 吐氣 12 秒(數 1→12)
+      const te=tc-SIGH_IN-SIGH_HOLD-SIGH_TOPUP, pt=te/SIGH_OUT;
+      v=1-breathEase(pt); inhale=false; flow=Math.sin(Math.PI*pt);
+      const cnt=Math.min(SIGH_OUT,Math.floor(te)+1);
+      key="out"+cyc+"_"+cnt; html=sighFace("吐氣",cnt,sub);
+    }else{ // ⑤ 準備吸氣(約 1 秒,吐到底後銜接下一次吸氣;最後一次留白,直接進結束引導)
+      v=0; streamOn=false; flow=0;
+      if(cyc>=SIGH_REPS-1){ key="ready_last"; html=sighFace("",null,sub); }
+      else { key="ready"+cyc; html=sighFace("準備吸氣",null,sub); }
+    }
+    scale=0.58+0.70*v; // 泡泡跟著呼吸漲縮,與呼吸課一致
+    breathSetWorld(v);
+    updateBreathStreams(paused?0:dt,streamOn,inhale,flow);
+    const ppct=Math.min((e-SIGH_LEAD)/SIGH_TOTAL*100,100);
+    $("progress-fill").style.width=ppct+"%";
+    $("progress-thumb").style.left=ppct+"%";
+  }
+  setBreathBubbleScale(scale);
+  if(key!==breath.key){ // 換句 / 換數字:opacity 維持 1 → 數字瞬間跳換不淡入
+    breath.key=key;
+    $("prompt-text").innerHTML=html;
+    if(xrSession)drawPromptTo3D($("prompt-text").textContent||"");
+  }
+  $("prompt-text").style.opacity=fadeOut?"0":"1";
+}
+async function finishSigh(){
+  if(breath.finishing)return;
+  breath.finishing=true;breath.active=false;
+  fadeOutBreathStreams(); // 光束 1.2 秒淡出收場
+  $("progress-fill").style.width="100%";
+  $("prompt-text").style.opacity="0";
+  await wait(2100);
+  if(!sessionActive)return;
+  $("prompt-text").innerHTML='<div style="font-size:.85em;line-height:1.7">12 次完成了。<br>回到自然、不費力的呼吸，<br>帶著這份平靜回來 🙏🏻</div>'; // 結束引導詞:同開場小一號
+  $("prompt-text").style.opacity="1";
+  if(xrSession)drawPromptTo3D("12 次完成 · 帶著平靜回來");
+  setBreathBubbleScale(1);
+  await wait(9500); // 結束引導詞多停留 3 秒(6500 → 9500)
+  if(sessionActive)endSession(true);
+}
 function updateBreath(){
   if(!breath.active||!sessionActive)return;
   const now=performance.now();
@@ -2109,6 +2301,7 @@ function updateBreath(){
   const dt=Math.min((now-breath.lastT)/1000,0.1); // 真實時間,不受螢幕更新率影響
   breath.lastT=now;
   if(!paused&&!breath.seeking)breath.elapsed+=dt;
+  if(currentUnit.sigh){updateSighPhase(dt);return;} // 生理學嘆息法:走自己的相位邏輯,沿用 breath 計時與所有背景動畫
   const e=breath.elapsed;
   let scale=0.72,key,txt,fadeOut=false;
   if(e<BREATH_LEAD){ // 開場兩句引導
@@ -2160,7 +2353,7 @@ async function finishBreath(){
   $("prompt-text").style.opacity="0";
   await wait(2100);
   if(!sessionActive)return;
-  $("prompt-text").textContent="做得很好。回到自然的呼吸，帶著放鬆回來 🙏";
+  $("prompt-text").textContent="做得很好。回到自然的呼吸，帶著放鬆回來 🙏🏻";
   $("prompt-text").style.opacity="1";
   if(xrSession)drawPromptTo3D("做得很好 · 帶著放鬆回來");
   setBreathBubbleScale(1);
@@ -2185,7 +2378,7 @@ function togglePause(){
 async function finishSession(){
   $("prompt-text").style.opacity="0";
   await wait(2100);
-  $("prompt-text").textContent="冥想完成。慢慢回來,帶著你的新頻率 🙏";
+  $("prompt-text").textContent="冥想完成。慢慢回來,帶著你的新頻率 🙏🏻";
   $("prompt-text").style.opacity="1";
   if(xrSession)drawPromptTo3D("冥想完成 · 帶著你的新頻率回來"); // 2D 不需重繪 3D 字板
   await wait(7000);
@@ -2210,12 +2403,13 @@ function endSession(showRating){
   if(showRating)openRating();                     // 評分表淡入 2s
   else $("lobby").classList.remove("hidden");     // 或大廳淡入 2s
   setTimeout(()=>{                                 // 淡化結束後再做場景收尾(此時已看不到)
-    $("prompt-bubble").classList.remove("show","breath","prewarm");
+    $("prompt-bubble").classList.remove("show","breath");
     $("progress-fill").style.width="0%";
     $("btn-prev").style.display="";$("btn-next").style.display="";
     breathResetWorld(); // 還原泡泡與塵埃的縮放
     removeBreathStreams();
     setOrbVisible(false);clearEnv();
+    forestActive=false;            // 結束課程:關閉森林背景,下面 applySceneTheme() 還原純色背景
     /* 把冥想場景 + HUD 還原回「首頁主題」,清掉這次課程的 scene-night;
        首頁(body.night)始終未被這次課程更動 → 首頁維持原本白天/夜晚。 */
     const homeNight=document.body.classList.contains("night");
@@ -2276,7 +2470,6 @@ function buildWheel(){
   };
   const down=e=>{
     cancelAnimationFrame(snapAnim); // 按住即攔下任何進行中的旋轉
-    setSpin(true);                  // #1 進入旋轉態 → 關節點毛玻璃 + 凍極光
     dragging=true;lastPointerAngle=getPolar(e).a;
     lastMoveT=performance.now();velSamples=[];dragMoved=0;
   };
@@ -2339,15 +2532,12 @@ function layoutWheel(){
   });
 }
 let snapAnim=null;
-/* #1 旋轉態總開關:body.wheel-busy 控制節點毛玻璃關閉與極光凍結 */
-function setSpin(on){document.body.classList.toggle("wheel-busy",on);}
 /* ---------- 拉霸機慣性旋轉 ----------
    用力一甩 → 轉盤順著放手前的轉動方向高速旋轉(看到往哪轉就往哪飛),
    摩擦力指數衰減,大力甩約轉 5 秒多,越轉越慢,最後吸附到落點單元。
    轉動途中中央資訊會跟著「跳格」,製造未知的期待感。 */
 function startFling(v0){
   cancelAnimationFrame(snapAnim);
-  setSpin(true);
   const dir=v0<0?-1:1;
   // 力道映射放慢:初速 2.8 ~ 6.5 rad/s(原 5 ~ 19),映射係數降到 0.85 → 不會一甩就飛太快
   let v=dir*Math.min(Math.max(Math.abs(v0)*0.85,2.8),6.5);
@@ -2371,7 +2561,6 @@ function startFling(v0){
 }
 function rotateTo(idx){
   cancelAnimationFrame(snapAnim);
-  setSpin(true);
   const target=-idx*STEP;
   // 取最短路徑
   let from=wheelAngle;
@@ -2383,7 +2572,7 @@ function rotateTo(idx){
     wheelAngle=from+diff*ease(k);
     layoutWheel();
     if(k<1)snapAnim=requestAnimationFrame(step);
-    else{wheelAngle=target;layoutWheel();setSpin(false);} // 吸附完成 → 恢復節點毛玻璃與極光
+    else{wheelAngle=target;layoutWheel();}
   };
   snapAnim=requestAnimationFrame(step);
   setActive(idx);
@@ -2393,7 +2582,9 @@ function setActive(idx,silent){
   nodeEls.forEach((n,i)=>n.classList.toggle("active",i===idx));
   $("c-num").textContent=`UNIT ${String(currentUnit.id).padStart(2,"0")} · ${currentUnit.en}`;
   $("c-name").textContent=currentUnit.name;
-  $("c-meta").innerHTML=currentUnit.breath
+  $("c-meta").innerHTML=currentUnit.sigh
+    ?`<span class="chip">吸氣8秒，停住，補吸一口氣，吐氣12秒</span><span class="chip">共 12 次循環</span><span class="chip">🎧 建議戴耳機</span>`
+    :currentUnit.breath
     ?`<span class="chip">吸吐 6 / 8 / 10 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>`
     :`<span class="chip">${currentUnit.freq} Hz</span><span class="chip">${beatLabel(currentUnit.beat)}</span><span class="chip">約 ${Math.round(currentUnit.prompts.length*0.8)} 分鐘</span><span class="chip">🎧 建議戴耳機</span>`;
 }
@@ -2534,7 +2725,9 @@ function openIntro(){
   const u=currentUnit;
   $("intro-num").textContent="UNIT "+String(u.id).padStart(2,"0")+" · "+u.en;
   $("intro-title").textContent=u.name;
-  $("intro-chips").innerHTML=u.breath
+  $("intro-chips").innerHTML=u.sigh
+    ?'<span class="chip">吸 8 秒 · 補吸一口 · 吐 12 秒</span><span class="chip">共 12 次循環</span><span class="chip">畫面數秒引導</span><span class="chip">🎧 建議戴耳機</span>'
+    :u.breath
     ?'<span class="chip">吸吐 6 / 8 / 10 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>'
     :'<span class="chip">'+u.freq+' Hz</span><span class="chip">'+beatLabel(u.beat)+'</span><span class="chip">約 '+Math.round(u.prompts.length*0.8)+' 分鐘</span><span class="chip">🎧 建議戴耳機</span>';
   $("intro-desc").textContent=u.desc;
@@ -2543,7 +2736,8 @@ function openIntro(){
 }
 let pendingVR=false;
 function requestStart(vr){
-  if(currentUnit.breath){pendingVR=vr;openSheet("breath-sheet");}
+  if(currentUnit.sigh){startSession(currentUnit,vr);}
+  else if(currentUnit.breath){pendingVR=vr;openSheet("breath-sheet");}
   else startSession(currentUnit,vr);
 }
 /* 開始冥想 → 先選白天 / 夜晚光境(淡入)→ 選後套用主題,再進 requestStart
@@ -2571,7 +2765,11 @@ $("mode-go").onclick=()=>{ // 按下「進入冥想」才往下走
   /* 課程前選的光境只套用到「冥想場景 + HUD」,完全不碰首頁(body.night)與 localStorage,
      所以課程結束後首頁維持原本(由右上角開關決定)的白天/夜晚,與這次選擇無關。 */
   applySceneOnlyTheme(pickedMode==="night");
-  if(currentUnit.breath){
+  if(currentUnit.sigh){
+    /* 生理學嘆息法:固定 12 次,不需選秒數/分鐘,直接進場(2 秒淡出淡入交叉重疊) */
+    slowCloseSheet("mode-sheet");
+    startSession(currentUnit,pendingStartVR);
+  }else if(currentUnit.breath){
     /* 呼吸課程:還要再選秒數/分鐘,選單正常關閉、改開呼吸面板(crossfade 留到「開始呼吸」那一步) */
     pendingVR=pendingStartVR;
     closeSheet("mode-sheet");
@@ -2679,41 +2877,50 @@ function applySceneOnlyTheme(night){
   const m=document.querySelector('meta[name="theme-color"]');
   if(m)m.setAttribute("content",night?"#0a0b14":"#ffffff"); // 課程當下的瀏覽器列顏色
 }
-/* #3 主題切換改「整顆膠囊」事件委派,大幅提升手機觸控可靠度:
-   - 點到按鈕之間縫隙/邊緣也算數(用觸點左右半判斷)
-   - 用 pointerup + 14px 移動容忍 + 指標捕捉:手指微滑或滑出小按鈕也照樣觸發,
-     不再像原本依賴 click(輕微移動就被瀏覽器取消 → 按了沒反應) */
-(function(){
-  const tg=$("theme-toggle");
-  if(!tg)return;
-  const decide=clientX=>{const r=tg.getBoundingClientRect();return (clientX==null?r.right:clientX)>r.left+r.width/2;}; // 右半=夜晚
-  const fire=(target,clientX)=>{
-    const opt=target&&target.closest?target.closest(".tg-opt"):null;
-    applyHomeTheme(opt?opt.dataset.theme==="night":decide(clientX),true);
+/* ---------- 白天 / 夜晚:右上角切換改為「可滑動」開關(拖曳手勢 + 點任一側 + 鍵盤) ----------
+   觸控失效主因:原本兩顆只剩 emoji 的小按鈕(行動版約 32px),命中區太小又各自綁 onclick。
+   改法:整顆膠囊 = 單一觸控面板(內部按鈕已設 pointer-events:none),用 Pointer Events 統一
+        滑鼠+觸控;CSS 的 touch-action:none 讓左右滑動交給我們;拖到哪放開就吸附到最近側。 */
+(function setupThemeSwipe(){
+  const tg=$("theme-toggle"); if(!tg)return;
+  const thumb=tg.querySelector(".tg-thumb");
+  let dragging=false,moved=false,startX=0,frac=0;
+  const syncAria=()=>tg.setAttribute("aria-checked",document.body.classList.contains("night")?"true":"false");
+  // 指標 X 在膠囊內的位置 → 0(白天)~1(夜晚)
+  const fracFromX=cx=>{const r=tg.getBoundingClientRect();return Math.max(0,Math.min(1,(cx-r.left)/r.width));};
+  // 拖曳中:滑塊即時跟手(translateX 以滑塊自身寬度為行程,100%=移到夜晚側)
+  const moveThumb=f=>{thumb.style.transform="translateX("+(f*thumb.offsetWidth)+"px)";};
+  const onDown=e=>{
+    dragging=true;moved=false;startX=e.clientX;frac=fracFromX(e.clientX);
+    tg.classList.add("dragging");moveThumb(frac);
+    try{tg.setPointerCapture(e.pointerId);}catch(_){}
+    e.preventDefault();
   };
-  if(window.PointerEvent){
-    let sx=0,sy=0,sid=null,moved=false;
-    tg.addEventListener("pointerdown",e=>{
-      sid=e.pointerId;sx=e.clientX;sy=e.clientY;moved=false;
-      try{tg.setPointerCapture(e.pointerId);}catch(_){}
-    });
-    tg.addEventListener("pointermove",e=>{
-      if(e.pointerId!==sid)return;
-      if(Math.abs(e.clientX-sx)>14||Math.abs(e.clientY-sy)>14)moved=true;
-    });
-    tg.addEventListener("pointerup",e=>{
-      if(e.pointerId!==sid)return;sid=null;
-      try{tg.releasePointerCapture(e.pointerId);}catch(_){}
-      if(moved)return;                 // 視為滑動,不切換
-      fire(e.target,e.clientX);
-    });
-    tg.addEventListener("pointercancel",()=>{sid=null;});
-  }else{
-    tg.addEventListener("click",e=>fire(e.target,e.clientX));
-  }
-  tg.querySelectorAll(".tg-opt").forEach(b=>{ // 鍵盤無障礙
-    b.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();applyHomeTheme(b.dataset.theme==="night",true);}});
+  const onMove=e=>{
+    if(!dragging)return;
+    if(Math.abs(e.clientX-startX)>4)moved=true;
+    frac=fracFromX(e.clientX);moveThumb(frac);e.preventDefault();
+  };
+  const onUp=e=>{
+    if(!dragging)return;dragging=false;
+    const night=moved?(frac>=.5):(fracFromX(e.clientX)>=.5); // 有滑動→吸附最近側;純點擊→點哪側選哪側
+    tg.classList.remove("dragging");   // 開回過渡 → 吸附有彈簧動畫
+    applyHomeTheme(night,true);         // 先定 body.night → CSS 目標位置確定
+    thumb.style.transform="";           // 移除 inline → 從目前位置平滑過渡到目標側
+    syncAria();
+    try{tg.releasePointerCapture(e.pointerId);}catch(_){}
+  };
+  tg.addEventListener("pointerdown",onDown);
+  tg.addEventListener("pointermove",onMove);
+  tg.addEventListener("pointerup",onUp);
+  tg.addEventListener("pointercancel",onUp);
+  // 鍵盤無障礙:← 白天 / → 夜晚 / Enter|Space 切換
+  tg.addEventListener("keydown",e=>{
+    if(e.key==="ArrowLeft"){applyHomeTheme(false,true);syncAria();e.preventDefault();}
+    else if(e.key==="ArrowRight"){applyHomeTheme(true,true);syncAria();e.preventDefault();}
+    else if(e.key==="Enter"||e.key===" "){applyHomeTheme(!document.body.classList.contains("night"),true);syncAria();e.preventDefault();}
   });
+  syncAria();
 })();
 applyHomeTheme(document.body.classList.contains("night"),false); // 對齊已套用主題的 meta + 場景
 
@@ -2723,7 +2930,7 @@ function setupBreathSeek(){
   let seeking=false;
   const getX=e=>(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;
   const apply=cx=>{
-    if(!currentUnit||!currentUnit.breath||!breath||breath.total<=0)return;
+    if(!currentUnit||!currentUnit.breath||currentUnit.sigh||!breath||breath.total<=0)return;
     const r=bar.getBoundingClientRect();
     let frac=(cx-r.left)/r.width;
     frac=Math.max(0,Math.min(0.999,frac));        // 留一點點不到底,避免拖到底就立刻結束
@@ -2750,46 +2957,9 @@ function setupBreathSeek(){
 }
 
 /* ---------- 啟動 ---------- */
+
 initScene();buildWheel();buildRating();detectVR();setupBreathSeek();
 
-/* ===== ?perf=1 效能量測小工具 =====
-   在網址後加 ?perf=1 開啟。即時顯示:
-     FPS         · 過去 ~0.5s 平均幀率
-     last        · 上一幀耗時 (ms)
-     worst(1s)   · 過去 1 秒內最差的一幀 (ms,數字越大越卡)
-     long>50ms   · 開站至今超過 50ms 的卡頓幀總數
-     state       · 目前狀態(spin=轉盤旋轉中 / bubble=泡泡已顯示),方便對照哪個動作在掉幀
-   實機上做動作(點數字旋轉、進課程)時盯著 worst 與 long 計數即可定位殘留卡頓。 */
-(function(){
-  if(!/[?&]perf=1\b/.test(location.search))return;
-  const box=document.createElement("div");
-  box.style.cssText="position:fixed;top:8px;left:8px;z-index:99999;pointer-events:none;"+
-    "font:600 11px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;"+
-    "color:#0a0a0a;background:rgba(255,255,255,.82);border:1px solid rgba(0,0,0,.18);"+
-    "border-radius:10px;padding:7px 10px;white-space:pre;backdrop-filter:blur(6px);"+
-    "-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,.18)";
-  document.body.appendChild(box);
-  let last=performance.now(),acc=0,frames=0,worst=0,worstWin=performance.now(),
-      worstShown=0,longCount=0,fps=0;
-  function loop(now){
-    const dt=now-last;last=now;
-    if(dt>0){acc+=dt;frames++;}
-    if(dt>worst)worst=dt;
-    if(dt>50)longCount++;
-    if(acc>=480){fps=Math.round(1000/(acc/frames));acc=0;frames=0;}
-    if(now-worstWin>=1000){worstShown=worst;worst=0;worstWin=now;} // 每秒結算一次「過去 1 秒最差幀」
-    const spin=document.body.classList.contains("wheel-busy");
-    const bub=$("prompt-bubble").classList.contains("show");
-    box.textContent=
-      "FPS        "+fps+"\n"+
-      "last       "+dt.toFixed(1)+" ms\n"+
-      "worst(1s)  "+worstShown.toFixed(1)+" ms\n"+
-      "long>50ms  "+longCount+"\n"+
-      "state      "+(spin?"spin ":"")+(bub?"bubble":(spin?"":"idle"));
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-})();
 </script>
 </body>
 </html>
