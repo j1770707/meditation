@@ -1805,7 +1805,7 @@ function tick(){
       for(let i=0;i<a.length;i+=3){
         if(v.x){a[i]+=v.x*dt;if(a[i]>12)a[i]=-12;}
         if(v.y){a[i+1]+=v.y*dt;if(v.y>0&&a[i+1]>12)a[i+1]=1.0;if(v.y<0&&a[i+1]<1.0)a[i+1]=12;}
-        if(v.wander){a[i]+=Math.sin(t+i)*0.0015;a[i+1]+=Math.cos(t*0.8+i)*0.0012;}
+        if(v.wander){const wd=1-breathPull;a[i]+=Math.sin(t+i)*0.0015*wd;a[i+1]+=Math.cos(t*0.8+i)*0.0012*wd;} // 吸氣靠近時凍結橫飄 → 直直迎面而來
         if(v.wave){a[i+1]+=Math.sin(t*0.7+a[i]*0.5)*0.003;}
       }
       pos.needsUpdate=true;
@@ -1952,6 +1952,7 @@ const BREATH_INTRO=[ // 開場引導(每句各 9 秒,含 2 秒淡入與 2 秒淡
 ];
 const BREATH_LEAD=BREATH_INTRO.reduce((a,b)=>a+b.dur,0);
 let breath={active:false,elapsed:0,total:0,key:null,finishing:false,lastT:null};
+let breathPull=0; // 嘆息法吸氣靠近程度(0~1);用來凍結橫向 wander 讓圓點直直迎面而來
 const BREATH_CAM=new THREE.Vector3(0,1.5,0); // 鏡頭位置:光點朝這裡聚攏
 async function runBreath(min){
   breath={active:false,elapsed:0,total:min*60,key:null,finishing:false,lastT:null};
@@ -1984,7 +1985,8 @@ function setBreathBubbleScale(s){
   const t=(breath&&breath.elapsed)||0;
   const ph=Math.sin(t*2*Math.PI/9);                     // 位置:-1 在最高、+1 在最低
   const vel=Math.cos(t*2*Math.PI/9);                    // 速度:中段最快(±1)、上下兩端為 0
-  const fy=(-13+13*ph).toFixed(2);                      // 上 -26 / 下 0,明顯偏上、幾乎不再往下沉
+  const amp=(currentUnit&&currentUnit.breath&&!currentUnit.sigh)?8:13; // 呼吸練習課:上下飄動幅度更小(嘆息法維持 13;想更小改 6、想大一點改 10)
+  const fy=(-13+amp*ph).toFixed(2);                     // 呼吸課:上 -21 / 下 -5;嘆息法:上 -26 / 下 0
   const e=0.04*(Math.abs(vel)-0.5);                     // 中段 +0.02(拉長) / 兩端 -0.02(擠扁),比先前柔和一半
   const sx=(s*(1-e)).toFixed(4);                        // 通過中段變窄、上下兩端轉向時變寬
   const sy=(s*(1+e)).toFixed(4);                        // 通過中段變高、上下兩端轉向時變矮 → 自然大泡泡的拉伸擠壓
@@ -2000,6 +2002,7 @@ function breathSetWorld(v){ // v:0=完全吐氣,1=完全吸滿
      嘆息法:收縮與推進都加大 → 同樣吸/吐秒數內走更遠,靠近/遠離速度更快
      (備援:想更快改 0.70 / 4.0,想慢一點改 0.60 / 3.0;呼吸課維持 0.55 / 2.6) */
   const sigh=currentUnit&&currentUnit.sigh;
+  breathPull=sigh?v:0; // 吸氣 v↑ → 凍結橫向 wander,圓點不轉彎、直直穿過螢幕
   const ps=1-(sigh?0.65:0.55)*v;
   const zPull=(sigh?3.5:2.6)*v;
   const all=dust?[...particles,dust]:[...particles];
@@ -2009,6 +2012,7 @@ function breathSetWorld(v){ // v:0=完全吐氣,1=完全吸滿
   }
 }
 function breathResetWorld(){
+  breathPull=0;
   const all=dust?[...particles,dust]:[...particles];
   for(const p of all){p.scale.setScalar(1);p.position.set(0,0,0);}
   $("prompt-bubble").style.transform="";
@@ -2199,7 +2203,8 @@ const SIGH_TOTAL=SIGH_CYCLE*SIGH_REPS; // 288 秒 ≈ 4.8 分鐘
 const SIGH_INTRO=[ // 開場引導(每句含 2 秒淡入與 2 秒淡出)
   {dur:12,txt:"歡迎來到生理學嘆息法，最快讓身體平靜下來的呼吸。"},
   {dur:14,txt:"我們會做 12 次：吸氣 8 秒，停一下，再補吸一口，然後慢慢吐氣 12 秒。"},
-  {dur:15,txt:"調整到最舒服的姿勢，肩膀放鬆，跟著畫面的數字一起呼吸。"}
+  {dur:15,txt:"調整到最舒服的姿勢，肩膀放鬆，跟著畫面的數字一起呼吸。"},
+  {dur:4,txt:"準備開始"} // 開頭 3 句後、開始吸氣前的最後提示
 ];
 const SIGH_LEAD=SIGH_INTRO.reduce((a,b)=>a+b.dur,0); // 26 秒開場
 async function runSigh(){
@@ -2306,7 +2311,7 @@ function updateBreath(){
   if(!paused&&!breath.seeking)breath.elapsed+=dt;
   if(currentUnit.sigh){updateSighPhase(dt);return;} // 生理學嘆息法:走自己的相位邏輯,沿用 breath 計時與所有背景動畫
   const e=breath.elapsed;
-  let scale=0.72,key,txt,fadeOut=false;
+  let scale=0.72,key,txt,html=null,fadeOut=false;
   if(e<BREATH_LEAD){ // 開場兩句引導
     let acc=0,i=0,tIn=e;
     for(;i<BREATH_INTRO.length;i++){
@@ -2331,20 +2336,22 @@ function updateBreath(){
     const flow=Math.sin(Math.PI*pt); // 光束流速:相位中段最快
     updateBreathStreams(paused?0:dt,true,inhale,flow); // 吸/吐各自的光束 2 秒交叉淡入淡出
     const cyc=Math.floor((e-BREATH_LEAD)/BREATH_CYCLE);
-    key=(inhale?"in":"out")+cyc;
-    txt=inhale?"深呼吸⋯⋯":"慢慢吐氣⋯⋯";
-    const tIn=inhale?tc:tc-BREATH_IN;
-    fadeOut=tIn>(inhale?BREATH_IN:BREATH_OUT)-2.2; // 每句最後 2 秒淡出
+    const tIn=inhale?tc:tc-BREATH_IN, dur=inhale?BREATH_IN:BREATH_OUT;
+    const cnt=Math.min(dur,Math.floor(tIn)+1); // 數秒數(跟嘆息法一樣):吸氣 1→BREATH_IN、吐氣 1→BREATH_OUT
+    key=(inhale?"in":"out")+cyc+"_"+cnt;        // 每秒換 key → 大數字瞬間跳換
+    html=sighFace(inhale?"吸氣":"吐氣",cnt,"第 "+(cyc+1)+" 次");
+    fadeOut=false; // 數秒:維持 opacity 1,數字即時更新不淡出
     breathSetWorld(v);
     const ppct=Math.min((e-BREATH_LEAD)/breath.total*100,100);
     $("progress-fill").style.width=ppct+"%";
     $("progress-thumb").style.left=ppct+"%";
   }
   setBreathBubbleScale(scale); // 引導詞與泡泡一起漲縮(縮放套在 .bub 自身,保住霧面)
-  if(key!==breath.key){ // 換句:新字以 2 秒淡入(#prompt-text 自帶 2s opacity 過渡)
+  if(key!==breath.key){ // 開場句用 textContent+淡入;呼吸數秒用 innerHTML+即時跳換
     breath.key=key;
-    $("prompt-text").textContent=txt;
-    if(xrSession)drawPromptTo3D(txt); // 2D 模式 textPlane 不可見(setOrbVisible: v&&!!xrSession),880px canvas 重繪純粹是手機卡頓來源
+    if(html!=null)$("prompt-text").innerHTML=html;
+    else $("prompt-text").textContent=txt;
+    if(xrSession)drawPromptTo3D(html!=null?($("prompt-text").textContent||""):txt); // 2D 模式 textPlane 不可見,僅 XR 重繪
   }
   $("prompt-text").style.opacity=fadeOut?"0":"1";
 }
