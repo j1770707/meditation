@@ -955,9 +955,10 @@ try{if(localStorage.getItem("mani_theme")==="night")document.body.classList.add(
     <h2>呼吸放鬆練習</h2>
     <p class="panel-sub">泡泡漲大時吸氣,縮小時吐氣。<br>先選擇吸／吐的秒數,再選擇練習時間開始</p>
     <div class="emo-grid" id="breath-secs" style="margin-top:18px">
-      <span class="emo b-sec" data-sec="6">6 秒</span>
       <span class="emo b-sec" data-sec="8">8 秒</span>
       <span class="emo b-sec" data-sec="10">10 秒</span>
+      <span class="emo b-sec" data-sec="12">12 秒</span>
+      <span class="emo b-sec" data-sec="15">15 秒</span>
     </div>
     <div class="actions" id="breath-mins" style="flex-direction:column;gap:12px;margin-top:18px">
       <button class="btn-dark breath-min" data-min="3">3 分鐘</button>
@@ -1132,21 +1133,10 @@ const UNITS = [
  "把手放在心口,把這份暖記下來。",
  "帶著滿谷的光回來。今天,多說幾次謝謝。"]},
 
-{id:9,name:"豐盛意識冥想",en:"ABUNDANCE",color:"#ffd87a",hue:0.1,freq:564,beat:6.5,chord:[1,1.5,2,2.667],env:"river",
- desc:"以豐盛能量的頻率共振。重點不是「得到更多」,而是切換到「本來就很多」的豐盛意識,讓匱乏感斷電。",
- tech:["匱乏感斷電:辨識並放下「不夠」的念頭","豐盛之河視覺化:資源不斷流動","我是管道不是水庫:流動心法"],
- prompts:[
- "歡迎來到豐盛之河。它從來沒有停止流動,一秒都沒有。",
- "深呼吸。吐氣時,放掉那句熟悉的「不夠」。",
- "再吐一次,放掉「要省著用」的緊縮感。讓胸口鬆開。",
- "看著眼前這條金色的河:機會、金錢、愛、靈感,全在裡面流。",
- "宇宙不是小氣的。匱乏只是一個視角,而你現在換了位置。",
- "在心中默念:我活在一個豐盛的宇宙,資源永遠在流動。",
- "我是管道,不是水庫。流進來,也流出去,越流越多。",
- "想像自己慷慨的樣子:給予時的你,是豐盛的證明。",
- "我擁有的已經很多,而更多的正在路上。",
- "對這條河說謝謝,然後跳進去,跟它一起流。",
- "帶著流動感回來。今天,大方一點。"]},
+{id:9,name:"生理學嘆息法",en:"PHYSIO SIGH",color:"#a8e4ff",hue:0.55,freq:432,beat:3,chord:[1,1.5,2],env:"lake",breath:true,sigh:true,
+ desc:"史丹佛研究中最快讓神經系統平靜下來的呼吸法:用鼻子吸氣 8 秒、停一下,再補吸一口把肺填滿,然後緩緩吐氣 12 秒。雙重吸氣會重新撐開肺泡,長吐氣則啟動副交感神經,幾個循環就能明顯降下焦慮與心率。整套共做 12 次,畫面會幫你數秒數,跟著數字呼吸即可。",
+ tech:["雙重吸氣:吸滿後再補吸一口,重新撐開肺泡","延長吐氣 12 秒:啟動副交感神經、降低心率","畫面數秒引導,共 12 次循環,不用自己計時"],
+ prompts:["跟著畫面的數字:吸氣 8 秒 → 停住 → 再補吸一口 → 吐氣 12 秒,共 12 次。"]},
 
 {id:10,name:"人際關係冥想",en:"RELATION",color:"#ff9d8a",hue:0.04,freq:480,beat:12,chord:[1,1.2,1.6,2],env:"coral",
  desc:"連結頻率,搭配低語法(Whisper Method)概念:先在內在改寫你與他人的關係劇本。",
@@ -1325,8 +1315,8 @@ const UNITS = [
  "帶著未來的頻率回來。從今天起,你們是同一個人。"]},
 
 {id:21,name:"呼吸放鬆練習",en:"BREATH",color:"#a8e4ff",hue:0.55,freq:432,beat:3,chord:[1,1.5,2],env:"lake",breath:true,
- desc:"最單純、也最有效的放鬆法:跟著大泡泡呼吸。吸氣時泡泡慢慢漲大,整個光點宇宙向你靠近;吐氣時泡泡縮小,世界跟著退回去。吸吐秒數可選 6 / 8 / 10 秒。只要跟上節奏,身體會自己放鬆下來。",
- tech:["等長吸吐節奏,可選 6 / 8 / 10 秒","視覺同步引導:看著泡泡漲縮,不用數秒","可選 3 / 5 / 8 分鐘練習長度"],
+ desc:"最單純、也最有效的放鬆法:跟著大泡泡呼吸。吸氣時泡泡慢慢漲大,整個光點宇宙向你靠近;吐氣時泡泡縮小,世界跟著退回去。吸吐秒數可選 8 / 10 / 12 / 15 秒。只要跟上節奏,身體會自己放鬆下來。",
+ tech:["等長吸吐節奏,可選 8 / 10 / 12 / 15 秒","視覺同步引導:看著泡泡漲縮,不用數秒","可選 3 / 5 / 8 分鐘練習長度"],
  prompts:["找個舒服的姿勢,跟著泡泡:漲大時吸氣,縮小時吐氣。"]}
 ];
 
@@ -1398,10 +1388,9 @@ function applySceneTheme(){
     if(hemiLight){hemiLight.color.set(0xffffff);hemiLight.groundColor.set(0xdfe3ee);hemiLight.intensity=1.05;}
     if(dirLight){dirLight.color.set(0xfff4e0);dirLight.intensity=0.7;}
   }
-  if(floor)paintFloor(floorHex()); // 用目前單元色重繪(感恩白天 → 淡草綠),核心色依 isNight
+  if(floor)paintFloor(currentUnit?currentUnit.color:"#cfd8ff"); // 用目前單元色重繪,核心色依 isNight
   if(forestActive)applyForestBg(); // 森林課程中切換白天/夜晚 → 以新主題重繪森林(覆蓋上面剛設的純色背景)
   updateDustColor();               // 勇氣課程白天:地面塵點改火紅(其餘課程/夜晚維持淡藍)
-  applyGratitudeScene();           // 感恩課程白天:天空換淡藍(覆蓋上面的純色背景)
 }
 /* 常駐塵點(dust)換色:只在「勇氣(餘燼)課程 + 白天」時改成火紅,其餘一律維持原本淡藍。
    夜晚模式刻意不動;其他課程也不受影響。 */
@@ -1411,17 +1400,6 @@ function updateDustColor(){
   const ember=sessionActive&&currentUnit&&currentUnit.env==="ember"&&!isNight;
   dust.material.uniforms.uColor.value.set(ember?DUST_EMBER_DAY:DUST_DEFAULT);
   dust.material.uniforms.uOpacity.value=ember?0.55:0.28; // 火紅與暖地面同色系,略提亮度才看得清(其餘維持原值)
-}
-/* 感恩課程(螢火之谷)· 白天:天空換很淺的天藍、地板換很淺的草綠(草原天空感)。
-   夜晚刻意維持原本暗底輝光——淡藍背景會讓相加輝光消失,且淡色本就是白天氛圍。 */
-const GRAT_SKY=0x9ec7ee, GRAT_GRASS="#a4d678";
-function gratDay(){return sessionActive&&currentUnit&&currentUnit.env==="firefly"&&!isNight;}
-function floorHex(){return gratDay()?GRAT_GRASS:(currentUnit?currentUnit.color:"#cfd8ff");}
-function applyGratitudeScene(){
-  if(gratDay()&&!forestActive){
-    scene.background=new THREE.Color(GRAT_SKY);   // 很淺的天藍
-    scene.fog=new THREE.FogExp2(GRAT_SKY,0.020);
-  }
 }
 function paintFloor(hex){
   const c=new THREE.Color(hex);
@@ -1441,9 +1419,7 @@ function paintFloor(hex){
   blob(700,400,380,c3,isNight?0.32:0.38);
   /* 中央探照燈核心:白天用亮白,夜間改用柔和藍白微光(避免暗底上一團刺眼白) */
   const wg=fx.createRadialGradient(512,512,20,512,512,300);
-  if(gratDay()){ // 感恩草地:核心改淡綠白柔光,不要大白核蓋掉草綠
-    wg.addColorStop(0,"rgba(198,228,158,.42)");wg.addColorStop(.5,"rgba(198,228,158,.16)");wg.addColorStop(1,"rgba(198,228,158,0)");
-  }else if(isNight){
+  if(isNight){
     wg.addColorStop(0,"rgba(150,170,230,.34)");wg.addColorStop(.5,"rgba(120,140,210,.16)");wg.addColorStop(1,"rgba(120,140,210,0)");
   }else{
     wg.addColorStop(0,"rgba(255,255,255,.95)");wg.addColorStop(.5,"rgba(255,255,255,.45)");wg.addColorStop(1,"rgba(255,255,255,0)");
@@ -1561,24 +1537,6 @@ function getDotTexture(){
   dotTexture=new THREE.CanvasTexture(c);
   return dotTexture;
 }
-/* 發光散景貼圖:小亮核 + 大片柔暈,像截圖那種輝光光球(配 Additive 在暗底上互疊更亮) */
-let glowTexture=null;
-function getGlowTexture(){
-  if(glowTexture)return glowTexture;
-  const c=document.createElement("canvas");c.width=c.height=160;
-  const x=c.getContext("2d");
-  const g=x.createRadialGradient(80,80,0,80,80,80);
-  g.addColorStop(0,"rgba(255,255,255,1)");      // 白熱亮核
-  g.addColorStop(.08,"rgba(255,255,255,.92)");
-  g.addColorStop(.20,"rgba(255,255,255,.55)");  // 更大更亮的核心暈
-  g.addColorStop(.42,"rgba(255,255,255,.26)");  // 中段柔暈拉大
-  g.addColorStop(.68,"rgba(255,255,255,.10)");
-  g.addColorStop(.86,"rgba(255,255,255,.03)");  // 長尾光暈
-  g.addColorStop(1,"rgba(255,255,255,0)");
-  x.fillStyle=g;x.fillRect(0,0,160,160);
-  glowTexture=new THREE.CanvasTexture(c);
-  return glowTexture;
-}
 /* 玫瑰花瓣貼圖:圓潤外緣 + 尖端基部的單片花瓣(白色,顏色由著色器的 uColor 上色) */
 let petalTexture=null;
 function getPetalTexture(){
@@ -1606,20 +1564,18 @@ function getPetalTexture(){
   petalTexture=new THREE.CanvasTexture(c);
   return petalTexture;
 }
-function makePoints(n,posFn,color,size,opacity,blend,tex,petal,twinkle){
-  const g=new THREE.BufferGeometry(),arr=new Float32Array(n*3),sizes=new Float32Array(n),rots=new Float32Array(n),shades=new Float32Array(n),tws=new Float32Array(n);
+function makePoints(n,posFn,color,size,opacity,blend,tex,petal){
+  const g=new THREE.BufferGeometry(),arr=new Float32Array(n*3),sizes=new Float32Array(n),rots=new Float32Array(n),shades=new Float32Array(n);
   for(let i=0;i<n;i++){
     const p=posFn(i);arr[i*3]=p[0];arr[i*3+1]=p[1];arr[i*3+2]=p[2];
     sizes[i]=size*(0.45+Math.random()*1.6); // 每顆圓點/花瓣大小不一
     rots[i]=Math.random()*6.283; // 每顆隨機旋轉(圓點看不出差別;花瓣會各自轉向不同角度)
     shades[i]=Math.random(); // 花瓣:每片深淺不一的粉紅(圓點模式不使用)
-    tws[i]=Math.random(); // 閃爍相位:每顆獨立,才不會整片同步閃
   }
   g.setAttribute("position",new THREE.BufferAttribute(arr,3));
   g.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
   g.setAttribute("aRot",new THREE.BufferAttribute(rots,1));
   g.setAttribute("aShade",new THREE.BufferAttribute(shades,1));
-  g.setAttribute("aTw",new THREE.BufferAttribute(tws,1));
   const m=new THREE.ShaderMaterial({
     transparent:true,depthWrite:false,blending:blend||THREE.NormalBlending,
     uniforms:{
@@ -1628,34 +1584,22 @@ function makePoints(n,posFn,color,size,opacity,blend,tex,petal,twinkle){
       uMap:{value:tex||getDotTexture()},
       uScale:{value:(renderer?renderer.domElement.height:800)*0.5},
       uPetal:{value:petal?1:0},
-      uTime:{value:0},
-      uTwinkle:{value:twinkle?1:0},
       uPink1:{value:new THREE.Color("#ffc2d8")}, // 淺粉
       uPink2:{value:new THREE.Color("#ec5a82")}  // 深玫瑰粉
     },
     vertexShader:`
-      attribute float aSize;attribute float aRot;attribute float aShade;attribute float aTw;
-      uniform float uScale;uniform float uTime;uniform float uTwinkle;
-      varying float vRot;varying float vShade;varying float vTw;
+      attribute float aSize;attribute float aRot;attribute float aShade;uniform float uScale;
+      varying float vRot;varying float vShade;
       void main(){
         vRot=aRot;vShade=aShade;
         vec4 mv=modelViewMatrix*vec4(position,1.0);
         gl_PointSize=aSize*(uScale/-mv.z);
-        float tw=1.0;
-        if(uTwinkle>0.5){                       // 每顆獨立閃爍:慢脈動疊細顫動
-          float ph=aTw*6.2831;
-          float slow=0.5+0.5*sin(uTime*1.8+ph);
-          float fast=0.5+0.5*sin(uTime*5.5+ph*2.3);
-          tw=0.32+0.68*slow*mix(0.7,1.0,fast);  // 亮度範圍 ~0.32..1.0
-          gl_PointSize*=0.72+0.6*tw;            // 亮時略放大 → 光暈呼吸感
-        }
-        vTw=tw;
         gl_Position=projectionMatrix*mv;
       }`,
     fragmentShader:`
       uniform vec3 uColor;uniform float uOpacity;uniform sampler2D uMap;
       uniform float uPetal;uniform vec3 uPink1;uniform vec3 uPink2;
-      varying float vRot;varying float vShade;varying float vTw;
+      varying float vRot;varying float vShade;
       void main(){
         vec2 uv=gl_PointCoord-0.5;            // 以中心為原點旋轉貼圖
         float c=cos(vRot),s=sin(vRot);
@@ -1663,7 +1607,7 @@ function makePoints(n,posFn,color,size,opacity,blend,tex,petal,twinkle){
         vec4 t=texture2D(uMap,uv);
         if(t.a<0.02)discard;
         vec3 col=(uPetal>0.5)?mix(uPink1,uPink2,vShade):uColor; // 花瓣:深淺不一的粉紅;圓點:原色
-        gl_FragColor=vec4(col,uOpacity*t.a*vTw);
+        gl_FragColor=vec4(col,uOpacity*t.a);
       }`
   });
   return new THREE.Points(g,m);
@@ -1779,26 +1723,20 @@ function clearEnv(){particles.forEach(p=>{scene.remove(p);p.geometry.dispose();p
 function buildEnv(unit){
   clearEnv();
   /* 白天:微降亮度,白底才看得見;夜間:提高亮度與飽和,深底上更亮更清楚 */
-  let col=isNight
+  const col=isNight
     ? new THREE.Color(unit.color).offsetHSL(0,0.10,0.12)
     : new THREE.Color(unit.color).offsetHSL(0,0.05,-0.08);
-  let col2=isNight
+  const col2=isNight
     ? new THREE.Color(unit.color).offsetHSL(0.07,0.02,0.06)
     : new THREE.Color(unit.color).offsetHSL(0.07,-0.05,-0.02);
   const oMul=isNight?1.35:1; // 夜間不透明度上調(上限 1)
   const E=unit.env;
-  if(E==="firefly"){ // 感恩:光點改成偏白的暖白,更像白色螢火/星光(地板綠色另由 paintFloor 處理,不受影響)
-    col=new THREE.Color("#fff4e3");
-    col2=new THREE.Color("#fffaf2");
-  }
   /* 粒子一律離地:y < 1 的抬到 1.0~2.5,避免透視壓縮鋪成滿地彩點 */
   const lift=fn=>i=>{const pt=fn(i);if(pt[1]<1.0)pt[1]=1.0+Math.random()*1.5;return pt;};
   const dotMul=unit.breath?1:1.5; // 非呼吸課程:背景圓形圓點數量 ×1.5(呼吸練習維持原樣)
   const isRose=(E==="rose"); // 愛情顯化:圓點改成深淺不一的粉紅玫瑰花瓣
-  const TWK=(E==="firefly"); // 感恩課程(螢火之谷):所有飄動圓點加上閃爍光暈
-  const partTex=isRose?getPetalTexture():(TWK?getGlowTexture():getDotTexture()); // 感恩:改用柔和發光散景貼圖
-  const blend=(TWK&&isNight)?THREE.AdditiveBlending:null; // 感恩+夜晚:相加混色,暗底上光球互疊發亮(像截圖輝光);白天維持一般混色
-  const mk=(n,fn,c,s,o,vel)=>{const p=makePoints(Math.round(n*dotMul),lift(fn),c,s,Math.min(o*oMul,1),blend,partTex,isRose,TWK);p.userData.vel=vel;particles.push(p);scene.add(p);};
+  const partTex=isRose?getPetalTexture():getDotTexture();
+  const mk=(n,fn,c,s,o,vel)=>{const p=makePoints(Math.round(n*dotMul),lift(fn),c,s,Math.min(o*oMul,1),null,partTex,isRose);p.userData.vel=vel;particles.push(p);scene.add(p);};
   if(E==="goldrain")      {mk(1500,()=>[(Math.random()-.5)*22,Math.random()*14-2,(Math.random()-.5)*22],col,0.05,.85,{y:-0.4,swirl:.05});}
   else if(E==="forest")   {mk(1100,()=>[(Math.random()-.5)*18,Math.random()*9-1,(Math.random()-.5)*18],col,0.055,.75,{y:0.12,swirl:.18});}
   else if(E==="galaxy")   {mk(2200,i=>{const a=i*0.07,r=0.8+i*0.004;return[Math.cos(a)*r,(Math.random()-.5)*3+1.4,Math.sin(a)*r-2]},col,0.045,.85,{rot:.05});}
@@ -1806,11 +1744,11 @@ function buildEnv(unit){
   else if(E==="dawn")     {mk(1300,()=>[(Math.random()-.5)*26,Math.random()*5,(Math.random()-.5)*26-6],col,0.065,.8,{y:0.18,swirl:.04});}
   else if(E==="sun")      {mk(1200,()=>{const a=Math.random()*6.28,r=2+Math.random()*8;return[Math.cos(a)*r,Math.random()*7,Math.sin(a)*r-3]},col,0.06,.8,{rot:.1});}
   else if(E==="ocean")    {mk(1600,()=>[(Math.random()-.5)*24,Math.random()*6-1.5,(Math.random()-.5)*24],col,0.055,.65,{y:-0.05,swirl:.1});}
-  else if(E==="firefly")  {mk(1000,()=>[(Math.random()-.5)*15,Math.random()*7,(Math.random()-.5)*15],col,0.15,.95,{y:0.22,wander:.32});} // 感恩:散景光球(數量收斂、略放大維持密度感)+ 緩緩上升
+  else if(E==="firefly")  {mk(850,()=>[(Math.random()-.5)*14,Math.random()*5,(Math.random()-.5)*14],col,0.075,.9,{wander:.4});}
   else if(E==="river")    {mk(1700,()=>[(Math.random()-.5)*20,Math.random()*4,(Math.random()-.5)*20],col,0.055,.8,{x:0.4,swirl:.08});}
   else if(E==="coral")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*7,(Math.random()-.5)*16],col,0.06,.7,{y:0.08,swirl:.22});}
   else if(E==="aurora")   {mk(1900,i=>[(i%200)*0.12-12,3+Math.sin(i*0.05)*1.6+Math.random(),-5-Math.random()*8],col,0.075,.6,{wave:1});}
-  else if(E==="lake")     {mk(unit.breath?2200:1000,()=>[(Math.random()-.5)*22,Math.random()*0.4,(Math.random()-.5)*22],col,0.05,.55,{swirl:.05});}
+  else if(E==="lake")     {mk(unit.breath?1800:1000,()=>[(Math.random()-.5)*22,Math.random()*0.4,(Math.random()-.5)*22],col,0.05,.55,{swirl:.05});}
   else if(E==="plasma")   {mk(1400,()=>{const a=Math.random()*6.28,r=1.5+Math.random()*7;return[Math.cos(a)*r,Math.random()*11+1,Math.sin(a)*r-2]},col,0.065,.85,{y:0.5,swirl:0.05});} // 身體能量:圓點由下往上飄動(原本為旋轉)
   else if(E==="ember")    {mk(1200,()=>[(Math.random()-.5)*16,Math.random()*9-1,(Math.random()-.5)*16],col,0.055,.85,{y:0.35,swirl:.12});}
   else if(E==="crystal")  {mk(950,()=>[(Math.random()-.5)*18,Math.random()*8,(Math.random()-.5)*18],col,0.065,.8,{y:0.03,swirl:.03});}
@@ -1827,8 +1765,8 @@ function buildEnv(unit){
   /* 勇氣(餘燼)課程 · 白天:在地面鋪一層「密集紅橙火星地毯」。
      用真正的紅色粒子鋪滿地面(不靠貼圖,所以不會再有 iOS 青色補色假影)。
      紅→橙三層由深到亮做出層次;全部貼地、集中在鏡頭前方地面,密度比照先前那層補色點點。
-     白天、夜晚都鋪(本次新增夜晚);其他 19 個課程一律不加;clearEnv 會在換課/結束時自動清掉。 */
-  if(E==="ember"){
+     夜晚與其他 19 個課程一律不加(維持原樣);clearEnv 會在換課/結束時自動清掉。 */
+  if(E==="ember"&&!isNight){
     /* x:左右 ±15 鋪滿;z:鏡頭前方 0~-24(全部在視野內,密度才看得到);y:極貼地 */
     const lay=(n,c,s,o,yMax,vel)=>{
       const p=makePoints(n,()=>[(Math.random()-.5)*30,0.01+Math.random()*yMax,-Math.random()*24],c,s,o);
@@ -1838,19 +1776,10 @@ function buildEnv(unit){
     lay(1300,0xff5a26,0.038,0.72,0.75,{wander:.42,swirl:.04}); // 中段紅橙
     lay(650 ,0xff9038,0.042,0.66,1.40,{wander:.55,swirl:.03}); // 亮橙火花:較高較疏,點綴層次
   }
-  /* 感恩課程(螢火之谷):地板也鋪一層「發光、飄動、會閃爍」的暖金光點。
-     用發光散景貼圖 + (夜晚)相加混色,與空中的螢火同一個發光語言;貼地、緩緩飄移。 */
-  if(E==="firefly"){
-    const glowLay=(n,s,o,yMax,vel)=>{
-      const p=makePoints(n,()=>[(Math.random()-.5)*30,0.02+Math.random()*yMax,-Math.random()*24],col,s,o,blend,getGlowTexture(),false,true);
-      p.userData.vel=vel;particles.push(p);scene.add(p);
-    };
-    glowLay(520,0.090,0.88,0.7,{wander:.40,swirl:.04}); // 主層:貼地發光光點,輕輕飄移(數量收斂)
-    glowLay(300,0.060,0.72,1.5,{wander:.55,swirl:.03}); // 較高較疏,銜接到空中的螢火
-  }
 }
 
 /* ---------- 動畫迴圈 ---------- */
+let _tickN=0;
 function tick(){
   const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta()+0.016,0.05);
   if(orb&&orb.visible){
@@ -1870,16 +1799,20 @@ function tick(){
     textPlane.scale.set(1+0.014*Math.sin(t*1.1),1-0.014*Math.sin(t*1.1),1);
   }
   updateBreath();
+  _tickN++;
+  // 效能:呼吸/嘆息法把 1800 顆圓點設成純微飄 wander,每幀 1800 次 sin/cos + 整批 GPU 上傳是手機卡頓主因。
+  // wander 是極細微的慢飄,每隔一幀更新(30fps)肉眼無感;真正的靠近/遠離由 breathSetWorld 每幀(60fps)處理,不受影響。
+  const wanderSkip=(currentUnit&&currentUnit.breath)&&(_tickN&1);
   for(const p of particles){
     const v=p.userData.vel||{},pos=p.geometry.attributes.position;
-    if(p.material.uniforms&&p.material.uniforms.uTwinkle&&p.material.uniforms.uTwinkle.value)p.material.uniforms.uTime.value=t; // 閃爍層才更新時間
     if(v.rot)p.rotation.y+=v.rot*dt;
-    if(v.y||v.x||v.wander||v.wave){
+    const doWander=v.wander&&!wanderSkip;
+    if(v.y||v.x||doWander||v.wave){
       const a=pos.array;
       for(let i=0;i<a.length;i+=3){
         if(v.x){a[i]+=v.x*dt;if(a[i]>12)a[i]=-12;}
         if(v.y){a[i+1]+=v.y*dt;if(v.y>0&&a[i+1]>12)a[i+1]=1.0;if(v.y<0&&a[i+1]<1.0)a[i+1]=12;}
-        if(v.wander){a[i]+=Math.sin(t+i)*0.0015;a[i+1]+=Math.cos(t*0.8+i)*0.0012;}
+        if(doWander){const wd=1-breathPull;a[i]+=Math.sin(t+i)*0.0015*wd;a[i+1]+=Math.cos(t*0.8+i)*0.0012*wd;} // 吸氣靠近時凍結橫飄 → 直直迎面而來
         if(v.wave){a[i+1]+=Math.sin(t*0.7+a[i]*0.5)*0.003;}
       }
       pos.needsUpdate=true;
@@ -1954,7 +1887,7 @@ function stopSoundscape(fade=2.5){
 }
 
 /* ---------- 冥想流程(無語音 · 閱讀節奏自動推進) ---------- */
-function readTime(text){return 10000;} // 每句引導詞固定停留 10 秒(換句時才淡出),原本依字數計算
+function readTime(text){return Math.max(6500,text.length*430)+3500+10000;} // 閱讀時間 + 留白 + 額外10秒
 /* ---------- 進入課程 / 結束 / 回首頁:交叉淡化(crossfade)轉場 ----------
    不使用任何遮罩。讓「舊畫面淡出」與「新畫面淡入」同時進行、互相重疊溶解(約 2 秒)。
    各圖層(#lobby / #hud / #bg-canvas / #rate-sheet)的 opacity 過渡已設為 2 秒。 */
@@ -1962,11 +1895,12 @@ async function startSession(unit,vr,minutes){
   currentUnit=unit;promptIndex=0;sessionActive=true;paused=false;
   ensureAudio();
   orb.material.uniforms.uHue.value=unit.hue;
-  buildEnv(unit);paintFloor(floorHex());setOrbVisible(true);   // 先把場景備好(畫布仍透明);感恩白天地板=淡草綠
+  buildEnv(unit);paintFloor(unit.color);setOrbVisible(true);   // 先把場景備好(畫布仍透明)
   setForestBg(unit.env==="forest");   // 健康課程:套用「翡翠療癒森林」插畫背景(其餘課程維持純色背景)
   updateDustColor();                  // 勇氣課程白天:地面塵點即刻變火紅(進場就生效)
-  applyGratitudeScene();              // 感恩課程白天:天空換淡藍(進場就生效)
-  $("hud-unit").textContent=unit.breath
+  $("hud-unit").textContent=unit.sigh
+    ?`單元 ${unit.id} · ${unit.name} · 12 次循環`
+    :unit.breath
     ?`單元 ${unit.id} · ${unit.name} · 吸吐 ${BREATH_IN} 秒 · ${minutes} 分鐘`
     :`單元 ${unit.id} · ${unit.name} · ${unit.freq}Hz`;
   /* #3 同一時間:大廳淡出、場景畫布與 HUD 淡入 → 2 秒影像重疊 */
@@ -1977,9 +1911,9 @@ async function startSession(unit,vr,minutes){
   /* 呼吸模式不需要上一句/下一句 */
   $("btn-prev").style.display=unit.breath?"none":"";
   $("btn-next").style.display=unit.breath?"none":"";
-  $("progress").classList.toggle("seekable",!!unit.breath); // #6 呼吸模式才可拖曳時間滑桿
+  $("progress").classList.toggle("seekable",!!unit.breath&&!unit.sigh); // #6 呼吸模式才可拖曳時間滑桿(嘆息法為固定 12 次,不開放拖曳)
   if(vr)await enterVR();
-  if(unit.breath){$("prompt-bubble").classList.add("breath");buildBreathStreams();runBreath(minutes||3);}
+  if(unit.breath){$("prompt-bubble").classList.add("breath");buildBreathStreams();if(unit.sigh)runSigh();else runBreath(minutes||3);}
   else runPrompt();
 }
 async function runPrompt(){
@@ -2010,21 +1944,23 @@ async function runPrompt(){
   const myIndex=promptIndex;
   promptTimer=setTimeout(()=>{
     if(sessionActive&&!paused&&myIndex===promptIndex){promptIndex++;runPrompt();}
-  },readTime(text));
+  },readTime(text)+(promptIndex===0?4000:0)); // 開頭引導詞:第一句多停留 4 秒
 }
 function wait(ms){return new Promise(r=>setTimeout(r,ms))}
 
 /* ---------- 呼吸放鬆練習引擎 ----------
    吸氣 8 秒:大泡泡漸漸漲大,所有光點碎片向螢幕(使用者)飛來;
    吐氣 8 秒:泡泡縮回,光點跟著退遠。世界與呼吸完全同步。 */
-let BREATH_IN=8,BREATH_OUT=8,BREATH_CYCLE=BREATH_IN+BREATH_OUT; // 可由面板選擇 6 / 8 / 10 秒
+let BREATH_IN=8,BREATH_OUT=8,BREATH_CYCLE=BREATH_IN+BREATH_OUT; // 可由面板選擇 8 / 10 / 12 / 15 秒
 function setBreathSeconds(s){BREATH_IN=s;BREATH_OUT=s;BREATH_CYCLE=BREATH_IN+BREATH_OUT;}
-const BREATH_INTRO=[ // 開場引導(每句各 9 秒,含 2 秒淡入與 2 秒淡出)
+const BREATH_INTRO=[ // 開場引導(9 / 13 秒兩句 + 4 秒「準備開始」,每句含 2 秒淡入與 2 秒淡出)
   {dur:9,txt:"調整到最舒服的姿勢，保持不動，準備好就開始囉"},
-  {dur:9,txt:"跟著泡泡一起深呼吸，泡泡變大時深呼吸，泡泡縮小時吐氣"}
+  {dur:13,txt:"跟著泡泡一起深呼吸，泡泡變大時深呼吸，泡泡縮小時吐氣"},
+  {dur:4,txt:"準備開始"} // 開場 2 句後、開始數秒前的最後提示
 ];
 const BREATH_LEAD=BREATH_INTRO.reduce((a,b)=>a+b.dur,0);
 let breath={active:false,elapsed:0,total:0,key:null,finishing:false,lastT:null};
+let breathPull=0; // 嘆息法吸氣靠近程度(0~1);用來凍結橫向 wander 讓圓點直直迎面而來
 const BREATH_CAM=new THREE.Vector3(0,1.5,0); // 鏡頭位置:光點朝這裡聚攏
 async function runBreath(min){
   breath={active:false,elapsed:0,total:min*60,key:null,finishing:false,lastT:null};
@@ -2057,7 +1993,8 @@ function setBreathBubbleScale(s){
   const t=(breath&&breath.elapsed)||0;
   const ph=Math.sin(t*2*Math.PI/9);                     // 位置:-1 在最高、+1 在最低
   const vel=Math.cos(t*2*Math.PI/9);                    // 速度:中段最快(±1)、上下兩端為 0
-  const fy=(-13+13*ph).toFixed(2);                      // 上 -26 / 下 0,明顯偏上、幾乎不再往下沉
+  const amp=(currentUnit&&currentUnit.breath&&!currentUnit.sigh)?8:13; // 呼吸練習課:上下飄動幅度更小(嘆息法維持 13;想更小改 6、想大一點改 10)
+  const fy=(-13+amp*ph).toFixed(2);                     // 呼吸課:上 -21 / 下 -5;嘆息法:上 -26 / 下 0
   const e=0.04*(Math.abs(vel)-0.5);                     // 中段 +0.02(拉長) / 兩端 -0.02(擠扁),比先前柔和一半
   const sx=(s*(1-e)).toFixed(4);                        // 通過中段變窄、上下兩端轉向時變寬
   const sy=(s*(1+e)).toFixed(4);                        // 通過中段變高、上下兩端轉向時變矮 → 自然大泡泡的拉伸擠壓
@@ -2067,11 +2004,15 @@ function setBreathBubbleScale(s){
 }
 function breathSetWorld(v){ // v:0=完全吐氣,1=完全吸滿
   /* 雙重位移讓「往螢幕飛來」清楚可見:
-     1) 以鏡頭為中心收縮 55% → 每顆光點都靠近你、變大
-     2) 整片光點再沿視線往螢幕方向推 2.6 公尺 → 明確的迎面而來
-     吐氣時 v 回到 0,所有光點原路退遠 */
-  const ps=1-0.55*v;
-  const zPull=2.6*v;
+     1) 以鏡頭為中心收縮 → 每顆光點都靠近你、變大
+     2) 整片光點再沿視線往螢幕方向推 → 明確的迎面而來
+     吐氣時 v 回到 0,所有光點原路退遠。
+     兩個課程都加大收縮與推進 → 同樣吸/吐秒數內走更遠,靠近/遠離速度更快
+     (目前 嘆息法 0.70 / 3.9、呼吸課 0.60 / 3.0;想再快可加大,想慢回到 0.65/3.5、0.55/2.6) */
+  const sigh=currentUnit&&currentUnit.sigh;
+  breathPull=sigh?v:0; // 吸氣 v↑ → 凍結橫向 wander,圓點不轉彎、直直穿過螢幕
+  const ps=1-(sigh?0.70:0.60)*v;
+  const zPull=(sigh?3.9:3.0)*v;
   const all=dust?[...particles,dust]:[...particles];
   for(const p of all){
     p.scale.setScalar(ps);
@@ -2079,6 +2020,7 @@ function breathSetWorld(v){ // v:0=完全吐氣,1=完全吸滿
   }
 }
 function breathResetWorld(){
+  breathPull=0;
   const all=dust?[...particles,dust]:[...particles];
   for(const p of all){p.scale.setScalar(1);p.position.set(0,0,0);}
   $("prompt-bubble").style.transform="";
@@ -2238,7 +2180,7 @@ function updateBreathStreams(dt,enabled,inhale,flow){
     const step=dt/STREAM_FADE;
     u.env=target>u.env?Math.min(u.env+step,1):Math.max(u.env-step,0);
     st.material.uniforms.uOpacity.value=u.env*(0.20+0.24*flow); // 整體再調淡
-    layoutBreathStream(st,dt,flow);
+    if(u.env>0.001||target>0)layoutBreathStream(st,dt,flow); // 效能:完全隱形且不需淡入的那一道光束跳過 648 顆逐點更新 → 省一半光束成本
   }
 }
 function fadeOutBreathStreams(){ // 結束時:兩道光束都以 1.2 秒淡出
@@ -2256,6 +2198,118 @@ function fadeOutBreathStreams(){ // 結束時:兩道光束都以 1.2 秒淡出
   };
   requestAnimationFrame(step);
 }
+/* ================= 生理學嘆息法(Physiological Sigh)=================
+   流程:吸氣 6 秒 → 停住 1 秒 → 再用力補吸一口 → 吐氣 10 秒,共 12 次。
+   背景動畫 / 光束 / 泡泡 / 世界靠近遠離,全部沿用「呼吸放鬆練習」那一套
+   (env:lake + breath:true + buildBreathStreams + breathSetWorld + breath 光束)。
+   差別只在「相位時序」與「畫面數秒」:沿用同一個 breath 計時物件,
+   updateBreath 偵測到 currentUnit.sigh 時改呼叫 updateSighPhase。 */
+const SIGH_IN=8, SIGH_HOLD=1, SIGH_TOPUP=2, SIGH_OUT=12, SIGH_READY=1; // 停住 1 秒、補吸一口 2 秒;吐氣後加 1 秒「準備吸氣」銜接下一次
+const SIGH_CYCLE=SIGH_IN+SIGH_HOLD+SIGH_TOPUP+SIGH_OUT+SIGH_READY; // 24 秒 / 次
+const SIGH_REPS=12;
+const SIGH_TOTAL=SIGH_CYCLE*SIGH_REPS; // 288 秒 ≈ 4.8 分鐘
+const SIGH_INTRO=[ // 開場引導(每句含 2 秒淡入與 2 秒淡出)
+  {dur:12,txt:"歡迎來到生理學嘆息法，最快讓身體平靜下來的呼吸。"},
+  {dur:14,txt:"我們會做 12 次：吸氣 8 秒，停一下，再補吸一口，然後慢慢吐氣 12 秒。"},
+  {dur:15,txt:"調整到最舒服的姿勢，肩膀放鬆，跟著畫面的數字一起呼吸。"},
+  {dur:4,txt:"準備開始"} // 開頭 3 句後、開始吸氣前的最後提示
+];
+const SIGH_LEAD=SIGH_INTRO.reduce((a,b)=>a+b.dur,0); // 26 秒開場
+async function runSigh(){
+  breath={active:false,elapsed:0,total:SIGH_TOTAL,key:null,finishing:false,lastT:null};
+  for(const p of particles){p.userData.vel={wander:1};} // 同呼吸課:圓點隨意慢飄,不偏左
+  $("prompt-text").style.opacity="0";
+  $("prompt-text").textContent="";
+  await wait(1800);
+  if(!sessionActive)return;
+  setBreathBubbleScale(0.72);
+  $("prompt-bubble").classList.add("show");
+  await wait(60);
+  if(!sessionActive)return;
+  breath.active=true;
+}
+/* 泡泡內三層字:相位標籤 + 大數字 + 第幾次。
+   只改 innerHTML、不動 opacity → 數字每秒瞬間跳換,不被 2 秒淡入拖慢。 */
+function sighFace(label,num,sub){
+  let s='<div style="font-size:.58em;opacity:.85;letter-spacing:.1em">'+label+'</div>';
+  s+= num!=null
+    ? '<div style="font-size:1.7em;font-weight:600;line-height:1.05;margin:.04em 0">'+num+'</div>'
+    : '<div style="height:.62em"></div>';
+  s+='<div style="font-size:.4em;opacity:.62;letter-spacing:.12em;margin-top:.18em">'+sub+'</div>';
+  return s;
+}
+function updateSighPhase(dt){
+  const e=breath.elapsed;
+  let scale=0.72,key,html="",fadeOut=false;
+  if(e<SIGH_LEAD){ // 開場引導
+    let acc=0,i=0,tIn=e;
+    for(;i<SIGH_INTRO.length;i++){
+      if(e<acc+SIGH_INTRO[i].dur){tIn=e-acc;break}
+      acc+=SIGH_INTRO[i].dur;
+    }
+    if(i>=SIGH_INTRO.length){i=SIGH_INTRO.length-1;tIn=SIGH_INTRO[i].dur;}
+    key="intro"+i; html='<div style="font-size:.85em;line-height:1.85">'+SIGH_INTRO[i].txt+'</div>'; // 開場引導詞:比數秒字小一號(約 -4px)
+    fadeOut=tIn>SIGH_INTRO[i].dur-2.2; // 每句最後 2 秒淡出
+    const remain=SIGH_LEAD-e; if(remain<2)scale=0.58+0.14*(remain/2); // 開場尾段平滑縮到呼吸起點
+    breathSetWorld(0);
+    updateBreathStreams(paused?0:dt,false,true,0); // 開場:光束停用
+  }else if(e>=SIGH_LEAD+SIGH_TOTAL){ // 12 次完成
+    finishSigh();return;
+  }else{
+    const tc=(e-SIGH_LEAD)%SIGH_CYCLE;
+    const cyc=Math.floor((e-SIGH_LEAD)/SIGH_CYCLE); // 0..11
+    const n=cyc+1, sub="第 "+n+" / 12 次";
+    let v,inhale=true,streamOn=true,flow=0;
+    if(tc<SIGH_IN){ // ① 吸氣 8 秒(數 1→8)
+      const pt=tc/SIGH_IN; v=0.86*breathEase(pt); flow=Math.sin(Math.PI*pt);
+      const cnt=Math.min(SIGH_IN,Math.floor(tc)+1);
+      key="in"+cyc+"_"+cnt; html=sighFace("吸氣",cnt,sub);
+    }else if(tc<SIGH_IN+SIGH_HOLD){ // ② 停住 1 秒
+      v=0.86; streamOn=false; flow=0;
+      key="hold"+cyc; html=sighFace("停住",null,sub);
+    }else if(tc<SIGH_IN+SIGH_HOLD+SIGH_TOPUP){ // ③ 再用力補吸一口
+      const pt=(tc-SIGH_IN-SIGH_HOLD)/SIGH_TOPUP; v=0.86+0.14*breathEase(pt); flow=Math.sin(Math.PI*pt);
+      key="top"+cyc; html=sighFace("再用力吸一口 ↑",null,sub);
+    }else if(tc<SIGH_IN+SIGH_HOLD+SIGH_TOPUP+SIGH_OUT){ // ④ 吐氣 12 秒(數 1→12)
+      const te=tc-SIGH_IN-SIGH_HOLD-SIGH_TOPUP, pt=te/SIGH_OUT;
+      v=1-breathEase(pt); inhale=false; flow=Math.sin(Math.PI*pt);
+      const cnt=Math.min(SIGH_OUT,Math.floor(te)+1);
+      key="out"+cyc+"_"+cnt; html=sighFace("吐氣",cnt,sub);
+    }else{ // ⑤ 準備吸氣(約 1 秒,吐到底後銜接下一次吸氣;最後一次留白,直接進結束引導)
+      v=0; streamOn=false; flow=0;
+      if(cyc>=SIGH_REPS-1){ key="ready_last"; html=sighFace("",null,sub); }
+      else { key="ready"+cyc; html=sighFace("準備吸氣",null,sub); }
+    }
+    scale=0.58+0.70*v; // 泡泡跟著呼吸漲縮,與呼吸課一致
+    breathSetWorld(v);
+    updateBreathStreams(paused?0:dt,streamOn,inhale,flow);
+    const ppct=Math.min((e-SIGH_LEAD)/SIGH_TOTAL*100,100);
+    $("progress-fill").style.width=ppct+"%";
+    $("progress-thumb").style.left=ppct+"%";
+  }
+  setBreathBubbleScale(scale);
+  if(key!==breath.key){ // 換句 / 換數字:opacity 維持 1 → 數字瞬間跳換不淡入
+    breath.key=key;
+    $("prompt-text").innerHTML=html;
+    if(xrSession)drawPromptTo3D($("prompt-text").textContent||"");
+  }
+  $("prompt-text").style.opacity=fadeOut?"0":"1";
+}
+async function finishSigh(){
+  if(breath.finishing)return;
+  breath.finishing=true;breath.active=false;
+  fadeOutBreathStreams(); // 光束 1.2 秒淡出收場
+  $("progress-fill").style.width="100%";
+  $("prompt-text").style.opacity="0";
+  await wait(2100);
+  if(!sessionActive)return;
+  $("prompt-text").innerHTML='<div style="font-size:.85em;line-height:1.7">12 次完成了。<br>回到自然、不費力的呼吸，<br>帶著這份平靜回來 🙏🏻</div>'; // 結束引導詞:同開場小一號
+  $("prompt-text").style.opacity="1";
+  if(xrSession)drawPromptTo3D("12 次完成 · 帶著平靜回來");
+  setBreathBubbleScale(1);
+  await wait(12500); // 結束引導詞多停留 3 秒(9500 → 12500)
+  if(sessionActive)endSession(true);
+}
 function updateBreath(){
   if(!breath.active||!sessionActive)return;
   const now=performance.now();
@@ -2263,8 +2317,9 @@ function updateBreath(){
   const dt=Math.min((now-breath.lastT)/1000,0.1); // 真實時間,不受螢幕更新率影響
   breath.lastT=now;
   if(!paused&&!breath.seeking)breath.elapsed+=dt;
+  if(currentUnit.sigh){updateSighPhase(dt);return;} // 生理學嘆息法:走自己的相位邏輯,沿用 breath 計時與所有背景動畫
   const e=breath.elapsed;
-  let scale=0.72,key,txt,fadeOut=false;
+  let scale=0.72,key,txt,html=null,fadeOut=false;
   if(e<BREATH_LEAD){ // 開場兩句引導
     let acc=0,i=0,tIn=e;
     for(;i<BREATH_INTRO.length;i++){
@@ -2289,20 +2344,22 @@ function updateBreath(){
     const flow=Math.sin(Math.PI*pt); // 光束流速:相位中段最快
     updateBreathStreams(paused?0:dt,true,inhale,flow); // 吸/吐各自的光束 2 秒交叉淡入淡出
     const cyc=Math.floor((e-BREATH_LEAD)/BREATH_CYCLE);
-    key=(inhale?"in":"out")+cyc;
-    txt=inhale?"深呼吸⋯⋯":"慢慢吐氣⋯⋯";
-    const tIn=inhale?tc:tc-BREATH_IN;
-    fadeOut=tIn>(inhale?BREATH_IN:BREATH_OUT)-2.2; // 每句最後 2 秒淡出
+    const tIn=inhale?tc:tc-BREATH_IN, dur=inhale?BREATH_IN:BREATH_OUT;
+    const cnt=Math.min(dur,Math.floor(tIn)+1); // 數秒數(跟嘆息法一樣):吸氣 1→BREATH_IN、吐氣 1→BREATH_OUT
+    key=(inhale?"in":"out")+cyc+"_"+cnt;        // 每秒換 key → 大數字瞬間跳換
+    html=sighFace(inhale?"吸氣":"吐氣",cnt,"第 "+(cyc+1)+" 次");
+    fadeOut=false; // 數秒:維持 opacity 1,數字即時更新不淡出
     breathSetWorld(v);
     const ppct=Math.min((e-BREATH_LEAD)/breath.total*100,100);
     $("progress-fill").style.width=ppct+"%";
     $("progress-thumb").style.left=ppct+"%";
   }
   setBreathBubbleScale(scale); // 引導詞與泡泡一起漲縮(縮放套在 .bub 自身,保住霧面)
-  if(key!==breath.key){ // 換句:新字以 2 秒淡入(#prompt-text 自帶 2s opacity 過渡)
+  if(key!==breath.key){ // 開場句用 textContent+淡入;呼吸數秒用 innerHTML+即時跳換
     breath.key=key;
-    $("prompt-text").textContent=txt;
-    if(xrSession)drawPromptTo3D(txt); // 2D 模式 textPlane 不可見(setOrbVisible: v&&!!xrSession),880px canvas 重繪純粹是手機卡頓來源
+    if(html!=null)$("prompt-text").innerHTML=html;
+    else $("prompt-text").textContent=txt;
+    if(xrSession)drawPromptTo3D(html!=null?($("prompt-text").textContent||""):txt); // 2D 模式 textPlane 不可見,僅 XR 重繪
   }
   $("prompt-text").style.opacity=fadeOut?"0":"1";
 }
@@ -2318,7 +2375,7 @@ async function finishBreath(){
   $("prompt-text").style.opacity="1";
   if(xrSession)drawPromptTo3D("做得很好 · 帶著放鬆回來");
   setBreathBubbleScale(1);
-  await wait(6500);
+  await wait(9500); // 結束引導詞多停留 3 秒(6500 → 9500)
   if(sessionActive)endSession(true);
 }
 function jumpPrompt(d){
@@ -2342,7 +2399,7 @@ async function finishSession(){
   $("prompt-text").textContent="冥想完成。慢慢回來,帶著你的新頻率 🙏🏻";
   $("prompt-text").style.opacity="1";
   if(xrSession)drawPromptTo3D("冥想完成 · 帶著你的新頻率回來"); // 2D 不需重繪 3D 字板
-  await wait(7000);
+  await wait(10000); // 結束引導詞多停留 3 秒(7000 → 10000)
   endSession(true);
 }
 function endSession(showRating){
@@ -2543,8 +2600,10 @@ function setActive(idx,silent){
   nodeEls.forEach((n,i)=>n.classList.toggle("active",i===idx));
   $("c-num").textContent=`UNIT ${String(currentUnit.id).padStart(2,"0")} · ${currentUnit.en}`;
   $("c-name").textContent=currentUnit.name;
-  $("c-meta").innerHTML=currentUnit.breath
-    ?`<span class="chip">吸吐 6 / 8 / 10 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>`
+  $("c-meta").innerHTML=currentUnit.sigh
+    ?`<span class="chip">吸氣8秒，停住，補吸一口氣，吐氣12秒</span><span class="chip">共 12 次循環</span><span class="chip">🎧 建議戴耳機</span>`
+    :currentUnit.breath
+    ?`<span class="chip">吸吐 8 / 10 / 12 / 15 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>`
     :`<span class="chip">${currentUnit.freq} Hz</span><span class="chip">${beatLabel(currentUnit.beat)}</span><span class="chip">約 ${Math.round(currentUnit.prompts.length*0.8)} 分鐘</span><span class="chip">🎧 建議戴耳機</span>`;
 }
 function beatLabel(b){return b<=4?`Delta ${b}Hz`:b<=8?`Theta ${b}Hz`:`Alpha ${b}Hz`;}
@@ -2684,8 +2743,10 @@ function openIntro(){
   const u=currentUnit;
   $("intro-num").textContent="UNIT "+String(u.id).padStart(2,"0")+" · "+u.en;
   $("intro-title").textContent=u.name;
-  $("intro-chips").innerHTML=u.breath
-    ?'<span class="chip">吸吐 6 / 8 / 10 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>'
+  $("intro-chips").innerHTML=u.sigh
+    ?'<span class="chip">吸氣8秒，停住，補吸一口氣，吐氣12秒</span><span class="chip">共 12 次循環</span><span class="chip">畫面數秒引導</span><span class="chip">🎧 建議戴耳機</span>'
+    :u.breath
+    ?'<span class="chip">吸吐 8 / 10 / 12 / 15 秒</span><span class="chip">3 / 5 / 8 分鐘</span><span class="chip">🎧 建議戴耳機</span>'
     :'<span class="chip">'+u.freq+' Hz</span><span class="chip">'+beatLabel(u.beat)+'</span><span class="chip">約 '+Math.round(u.prompts.length*0.8)+' 分鐘</span><span class="chip">🎧 建議戴耳機</span>';
   $("intro-desc").textContent=u.desc;
   $("intro-tech").innerHTML=u.tech.map(t=>'<div class="t">'+t+'</div>').join("");
@@ -2693,7 +2754,8 @@ function openIntro(){
 }
 let pendingVR=false;
 function requestStart(vr){
-  if(currentUnit.breath){pendingVR=vr;openSheet("breath-sheet");}
+  if(currentUnit.sigh){startSession(currentUnit,vr);}
+  else if(currentUnit.breath){pendingVR=vr;openSheet("breath-sheet");}
   else startSession(currentUnit,vr);
 }
 /* 開始冥想 → 先選白天 / 夜晚光境(淡入)→ 選後套用主題,再進 requestStart
@@ -2721,7 +2783,11 @@ $("mode-go").onclick=()=>{ // 按下「進入冥想」才往下走
   /* 課程前選的光境只套用到「冥想場景 + HUD」,完全不碰首頁(body.night)與 localStorage,
      所以課程結束後首頁維持原本(由右上角開關決定)的白天/夜晚,與這次選擇無關。 */
   applySceneOnlyTheme(pickedMode==="night");
-  if(currentUnit.breath){
+  if(currentUnit.sigh){
+    /* 生理學嘆息法:固定 12 次,不需選秒數/分鐘,直接進場(2 秒淡出淡入交叉重疊) */
+    slowCloseSheet("mode-sheet");
+    startSession(currentUnit,pendingStartVR);
+  }else if(currentUnit.breath){
     /* 呼吸課程:還要再選秒數/分鐘,選單正常關閉、改開呼吸面板(crossfade 留到「開始呼吸」那一步) */
     pendingVR=pendingStartVR;
     closeSheet("mode-sheet");
@@ -2882,7 +2948,7 @@ function setupBreathSeek(){
   let seeking=false;
   const getX=e=>(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;
   const apply=cx=>{
-    if(!currentUnit||!currentUnit.breath||!breath||breath.total<=0)return;
+    if(!currentUnit||!currentUnit.breath||currentUnit.sigh||!breath||breath.total<=0)return;
     const r=bar.getBoundingClientRect();
     let frac=(cx-r.left)/r.width;
     frac=Math.max(0,Math.min(0.999,frac));        // 留一點點不到底,避免拖到底就立刻結束
